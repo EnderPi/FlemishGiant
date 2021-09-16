@@ -32,7 +32,7 @@ namespace EnderPi.Cryptography
         /// This is an arbitrary initial state.
         /// </summary>
         /// <remarks>
-        /// Derived from the SHA256 hashes of 0-63.  
+        /// Derived from the SHA256 hashes of 0-15.  
         /// </remarks>
         private static readonly ulong[] _initialState = { 15794028255413092319, 18442280127147387751, 12729309401716732454, 7115307147812511645, 5302139897775218427, 14101262115410449445, 12208502135646234746, 18372937549027959272, 4458685334906369756, 3585144267928700831, 493103506155265287, 689370800073552075, 2303624318106399810, 9496165304756913731, 12035424005045793793, 6685197515345832855 };
 
@@ -84,7 +84,7 @@ namespace EnderPi.Cryptography
             //The pool is only coarsely stirred during entropy addition.  The call below ensures that the hash is strong.
             StirPool(64);
             byte[] hash = GetEntropy(32);
-            //Clear the internal state before returning the hash for security purposes.  Recovering the state could lead to an attach.
+            //Clear the internal state before returning the hash for security purposes.  Recovering the state could lead to an attack.
             ClearState();
             return hash;
         }                
@@ -200,30 +200,29 @@ namespace EnderPi.Cryptography
                 _pointer = (_pointer + 1) & 63;
             }
         }
-                
+
         //The below constants were all derived from a genetic algorithm.  The round function, by itself, passes 
-        //randomness tests at 1 million deviates, and resists differential cryptanalysis at 20,000 deviates.        
-        private const ulong C2 = 9097310100528892977;
-        private const ulong C3 = 7524783039108490555;
-        private const int C4 = 21;
-        private const ulong C5 = 8191042777092524902;
-        private const ulong C6 = 1244552667508084349;
-        private const ulong C7 = 3634203288040017195;
+        //randomness tests at 10 million deviates, and resists differential and linear cryptanalysis at 10 M deviates.        
+        private const ulong C2 = 4710464313090095487;
+        private const ulong C4 = 5589712023184130407;
+        private const ulong C6 = 6066605419050921477;
+
 
         /// <summary>
         /// This particular round function was designed with genetic programming.  It has strong randomness as a 
         /// U64->U64 hash by itself, and is resistant to differential cryptanalysis.
         /// </summary>
         /// <remarks>
-        /// The round function from the genetic algorithm was modified by adding the key.  Addition is a simple
-        /// invertible operation which is easy to key off of an arbitrary constant.
+        /// The round function from the genetic algorithm was modified by pre-whitening the input by XOR 
+        /// with the key.  
         /// </remarks>
-        /// <param name="x"></param>
-        /// <param name="key"></param>
+        /// <param name="x">The number to hash</param>
+        /// <param name="key">The round key</param>
         /// <returns></returns>
         private ulong RoundFunction(ulong x, ulong key)
         {
-            return key + (C2 * BitOperations.RotateLeft(BitOperations.RotateLeft(x + (((x * C7 % C6) | x) * C5), C4) * C3, (int)(x & 63UL)));             
+            x ^= key;
+            return C2 * BitOperations.RotateRight((C4 - (x * x)) * BitOperations.RotateRight((C6 - x) * x, 32), 49);            
         }
     }
 }
