@@ -1,0 +1,19 @@
+- Create a skeleton windows form for genetic programming of RNG
+- Create GCD test
+- Create Gorilla Test
+- Allow user to browse seed effects
+- Split out clors of different bytes in randomness visual
+- configure said colors and such
+- configure tests
+- have hash mode
+- allow arbitrary output or state functions (expression)
+- allow arbitrary restrictions, like "must include XOR"
+- Add zero test
+- unit test for randomHash - trivial pass GCD and gorilla test
+- push the round function of the cryptographic has harder - see when, if at all, it fails as a 64-bit hash RNG
+- Tab to just do randomness tests, allow user to code a state transition and an output
+- Allow user to make custom tournament probabilities, even negative selection
+- species explorer
+- add nextlong to randomnumbergeenerator API (divide ulong by 2, reflect it?)
+- Add special functions?
+- remove prime testing?

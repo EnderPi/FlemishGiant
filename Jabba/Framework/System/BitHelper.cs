@@ -69,6 +69,25 @@ namespace EnderPi.System
             return bitsDifferent;
         }
 
+        /// <summary>
+        /// Converts the given byte array to an array of ulongs.
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static ulong[] BytesToUlong(byte[] b)
+        {
+            if ((b.Length & 7) != 0)
+            {
+                throw new ArgumentException($"Input byte array must have a length which is a multiple of 8!  Length - {b.Length}");
+            }
+            ulong[] result = new ulong[b.Length >> 3];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = BitConverter.ToUInt64(b, i * 8);
+            }
+            return result;
+        }
+
 
     }
 }

@@ -20,7 +20,7 @@ namespace UnitTest.Framework.Cryptography
         {
             var hasher = new CryptographicHash();
             var result = Convert.ToBase64String(hasher.ComputeHash(new byte[0]));            
-            Assert.IsTrue(string.Equals(result, "nLNPnnaYCApfpmVh6eGSYRDTqSrgL6aaaiStPJnA9Ms="));
+            Assert.IsTrue(string.Equals(result, "PEPG3K27CGMPScj5OSsDWxX06Pr6JpSi8jkAkcZc3Io="));
         }
 
 
