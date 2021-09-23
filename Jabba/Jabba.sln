@@ -9,8 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTest", "UnitTest\UnitTe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DAC9F79E-8A4D-4918-B5F7-6D869F84A624}"
 	ProjectSection(SolutionItems) = preProject
+		FinishedStories.txt = FinishedStories.txt
 		UserStories.txt = UserStories.txt
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RngGenetics", "RngGenetics\RngGenetics.csproj", "{405CD56F-573A-436F-A983-8EF5C26BDC7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +29,10 @@ Global
 		{452C337C-C195-4FFD-921F-C25A1E990A43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{452C337C-C195-4FFD-921F-C25A1E990A43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{452C337C-C195-4FFD-921F-C25A1E990A43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{405CD56F-573A-436F-A983-8EF5C26BDC7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{405CD56F-573A-436F-A983-8EF5C26BDC7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{405CD56F-573A-436F-A983-8EF5C26BDC7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{405CD56F-573A-436F-A983-8EF5C26BDC7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

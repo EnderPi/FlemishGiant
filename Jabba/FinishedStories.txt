@@ -1,0 +1,15 @@
+- Add zero test
+- Create GCD test
+- Create Gorilla Test
+- build pseudo random function - takes a u64, seeds randomhash, then uses that to generate 64 32-bit keys, and creates a new U64->U64 function
+- Create a skeleton windows form for genetic programming of RNG
+	-So what's MVP?
+	-Windows form
+	-Click start
+	-runs a simulation
+	-displays picture + functions
+	-all single state hard coded parameters
+	-just the gcd test, capped at 100
+	-single thread
+	-10k max deviates
+- remove prime testing?
