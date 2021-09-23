@@ -9,7 +9,7 @@ namespace EnderPi.System
     public static class BitHelper
     {
         /// <summary>
-        /// Determine wheether two arrays of bytes are equal byte-by-byte.  
+        /// Determine whether two arrays of bytes are equal byte-by-byte.  
         /// </summary>
         /// <param name="a1">The first array.</param>
         /// <param name="a2">The second array.</param>
@@ -35,6 +35,25 @@ namespace EnderPi.System
                     return false;
 
             return true;
+        }
+
+        /// <summary>
+        /// Turns an array of ulongs to an array of bytes.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        public static byte[] UlongToBytes(ulong[] state)
+        {
+            byte[] output = new byte[state.Length * 8];
+            for (int i=0; i < state.Length; i ++)
+            {
+                var bytes = BitConverter.GetBytes(state[i]);
+                for (int j=0; j <8; j++)
+                {
+                    output[8 * i + j] = bytes[j];
+                }
+            }
+            return output;
         }
 
         /// <summary>

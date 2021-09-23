@@ -78,16 +78,41 @@ namespace EnderPi.Cryptography
         /// <returns></returns>
         public byte[] ComputeHash(byte[] input)
         {
+            return ComputeHash(input, 32);
+        }
+
+        public byte[] ComputeHash(byte[] input, int requestedNumberOfOutputBytes)
+        {
             InitializeState();
             byte[] paddedInput = PadInput(input);
-            AddEntropy(paddedInput);       
+            AddEntropy(paddedInput);
             //The pool is only coarsely stirred during entropy addition.  The call below ensures that the hash is strong.
             StirPool(64);
-            byte[] hash = GetEntropy(32);
+            byte[] hash = GetEntropy(requestedNumberOfOutputBytes);
             //Clear the internal state before returning the hash for security purposes.  Recovering the state could lead to an attack.
             ClearState();
             return hash;
-        }                
+        }
+
+        /// <summary>
+        /// Request an output stream of ulongs from a given input stream of ulongs.  Useful for key schedules.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="output"></param>
+        public void RequestStream(byte[] input, ulong[] output)
+        {
+            InitializeState();
+            var padded = PadInput(input);
+            AddEntropy(padded);            
+            StirPool(64);
+            for (int i=0; i < output.Length; i++)
+            {
+                output[i] = _state[0];
+                StirPool(64);
+            }
+            ClearState();
+        }
+
 
         /// <summary>
         /// Clears the internal state for security purposes.

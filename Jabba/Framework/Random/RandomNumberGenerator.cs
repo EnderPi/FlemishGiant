@@ -40,14 +40,15 @@ namespace EnderPi.Random
         /// <param name="seed">A ulong</param>
         public void SeedRandom()
         {
+            var hasher = new Cryptography.CryptographicHash();
+            byte[] input = new byte[24];
             ulong seed = Convert.ToUInt64(Environment.TickCount64);
+            Buffer.BlockCopy(BitConverter.GetBytes(seed), 0, input, 0, 8);
             var guidBytes = Guid.NewGuid().ToByteArray();
-            var ulongs = BitHelper.BytesToUlong(guidBytes);
-            foreach (var number in ulongs)
-            {
-                seed ^= number;
-            }
-            _randomEngine.Seed(seed);
+            Buffer.BlockCopy(guidBytes, 0, input, 8, 16);
+            var output = new ulong[1];
+            hasher.RequestStream(input, output);
+            _randomEngine.Seed(output[0]);
         }
 
         /// <summary>
