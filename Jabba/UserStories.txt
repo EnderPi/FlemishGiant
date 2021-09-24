@@ -23,3 +23,6 @@
 - change up for 32-bit rngs?
 - feistel rngs
 - get constants, like birthdasy empirical, uniformity, etc
+- overall stats for tests passed, failed (shows which tests are useful)
+- overall stats on operations, node counts, etc.
+- Clear results on start.

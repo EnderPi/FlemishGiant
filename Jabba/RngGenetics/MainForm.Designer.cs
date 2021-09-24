@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,12 +80,34 @@
             this.textBoxOutput = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.label3 = new System.Windows.Forms.Label();
+            this.numericUpDownSpecimensPerGeneration = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownConvergenceAge = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
+            this.numericUpDownMutationRate = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
+            this.numericUpDownSpecimensPerTournament = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
+            this.buttonStop = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.textBoxGeneration = new System.Windows.Forms.TextBox();
+            this.dataGridViewAverageFitness = new System.Windows.Forms.DataGridView();
+            this.ColumnGeneration = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnAverageFitness = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.label8 = new System.Windows.Forms.Label();
+            this.numericUpDownThreads = new System.Windows.Forms.NumericUpDown();
+            this.label9 = new System.Windows.Forms.Label();
+            this.textBoxFitness = new System.Windows.Forms.TextBox();
             this.menuStripMain.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpecimensPerGeneration)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownConvergenceAge)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMutationRate)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpecimensPerTournament)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAverageFitness)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownThreads)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStripMain
@@ -96,7 +119,7 @@
             this.helpToolStripMenuItem});
             this.menuStripMain.Location = new System.Drawing.Point(0, 0);
             this.menuStripMain.Name = "menuStripMain";
-            this.menuStripMain.Size = new System.Drawing.Size(800, 24);
+            this.menuStripMain.Size = new System.Drawing.Size(1079, 24);
             this.menuStripMain.TabIndex = 0;
             this.menuStripMain.Text = "menuStrip1";
             // 
@@ -327,9 +350,9 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripProgressBarMain,
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 428);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 479);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(800, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1079, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -359,7 +382,7 @@
             this.helpToolStripButton});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(800, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1079, 25);
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -447,7 +470,7 @@
             // 
             // buttonRunSimulation
             // 
-            this.buttonRunSimulation.Location = new System.Drawing.Point(235, 296);
+            this.buttonRunSimulation.Location = new System.Drawing.Point(139, 389);
             this.buttonRunSimulation.Name = "buttonRunSimulation";
             this.buttonRunSimulation.Size = new System.Drawing.Size(75, 23);
             this.buttonRunSimulation.TabIndex = 3;
@@ -497,21 +520,263 @@
             this.label2.TabIndex = 8;
             this.label2.Text = "Output";
             // 
-            // trackBar1
+            // label3
             // 
-            this.trackBar1.Location = new System.Drawing.Point(32, 225);
-            this.trackBar1.Maximum = 10000;
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(365, 45);
-            this.trackBar1.TabIndex = 9;
-            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(32, 65);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(145, 15);
+            this.label3.TabIndex = 10;
+            this.label3.Text = "Specimens Per Generation";
+            // 
+            // numericUpDownSpecimensPerGeneration
+            // 
+            this.numericUpDownSpecimensPerGeneration.Location = new System.Drawing.Point(190, 63);
+            this.numericUpDownSpecimensPerGeneration.Maximum = new decimal(new int[] {
+            65536,
+            0,
+            0,
+            0});
+            this.numericUpDownSpecimensPerGeneration.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownSpecimensPerGeneration.Name = "numericUpDownSpecimensPerGeneration";
+            this.numericUpDownSpecimensPerGeneration.Size = new System.Drawing.Size(120, 23);
+            this.numericUpDownSpecimensPerGeneration.TabIndex = 11;
+            this.numericUpDownSpecimensPerGeneration.ThousandsSeparator = true;
+            this.numericUpDownSpecimensPerGeneration.Value = new decimal(new int[] {
+            64,
+            0,
+            0,
+            0});
+            // 
+            // numericUpDownConvergenceAge
+            // 
+            this.numericUpDownConvergenceAge.Location = new System.Drawing.Point(190, 97);
+            this.numericUpDownConvergenceAge.Maximum = new decimal(new int[] {
+            64,
+            0,
+            0,
+            0});
+            this.numericUpDownConvergenceAge.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownConvergenceAge.Name = "numericUpDownConvergenceAge";
+            this.numericUpDownConvergenceAge.Size = new System.Drawing.Size(120, 23);
+            this.numericUpDownConvergenceAge.TabIndex = 13;
+            this.numericUpDownConvergenceAge.ThousandsSeparator = true;
+            this.numericUpDownConvergenceAge.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(32, 99);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(101, 15);
+            this.label4.TabIndex = 12;
+            this.label4.Text = "Convergence Age";
+            // 
+            // numericUpDownMutationRate
+            // 
+            this.numericUpDownMutationRate.DecimalPlaces = 3;
+            this.numericUpDownMutationRate.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.numericUpDownMutationRate.Location = new System.Drawing.Point(190, 134);
+            this.numericUpDownMutationRate.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownMutationRate.Name = "numericUpDownMutationRate";
+            this.numericUpDownMutationRate.Size = new System.Drawing.Size(120, 23);
+            this.numericUpDownMutationRate.TabIndex = 15;
+            this.numericUpDownMutationRate.ThousandsSeparator = true;
+            this.numericUpDownMutationRate.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            131072});
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(32, 136);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(82, 15);
+            this.label5.TabIndex = 14;
+            this.label5.Text = "Mutation Rate";
+            // 
+            // numericUpDownSpecimensPerTournament
+            // 
+            this.numericUpDownSpecimensPerTournament.Location = new System.Drawing.Point(190, 168);
+            this.numericUpDownSpecimensPerTournament.Maximum = new decimal(new int[] {
+            65536,
+            0,
+            0,
+            0});
+            this.numericUpDownSpecimensPerTournament.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownSpecimensPerTournament.Name = "numericUpDownSpecimensPerTournament";
+            this.numericUpDownSpecimensPerTournament.Size = new System.Drawing.Size(120, 23);
+            this.numericUpDownSpecimensPerTournament.TabIndex = 17;
+            this.numericUpDownSpecimensPerTournament.ThousandsSeparator = true;
+            this.numericUpDownSpecimensPerTournament.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(32, 170);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(151, 15);
+            this.label6.TabIndex = 16;
+            this.label6.Text = "Specimens Per Tournament";
+            // 
+            // buttonStop
+            // 
+            this.buttonStop.Enabled = false;
+            this.buttonStop.Location = new System.Drawing.Point(251, 389);
+            this.buttonStop.Name = "buttonStop";
+            this.buttonStop.Size = new System.Drawing.Size(75, 23);
+            this.buttonStop.TabIndex = 18;
+            this.buttonStop.Text = "Stop!";
+            this.buttonStop.UseVisualStyleBackColor = true;
+            this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(388, 414);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(65, 15);
+            this.label7.TabIndex = 20;
+            this.label7.Text = "Generation";
+            // 
+            // textBoxGeneration
+            // 
+            this.textBoxGeneration.Location = new System.Drawing.Point(470, 411);
+            this.textBoxGeneration.Name = "textBoxGeneration";
+            this.textBoxGeneration.ReadOnly = true;
+            this.textBoxGeneration.Size = new System.Drawing.Size(110, 23);
+            this.textBoxGeneration.TabIndex = 19;
+            // 
+            // dataGridViewAverageFitness
+            // 
+            this.dataGridViewAverageFitness.AllowUserToAddRows = false;
+            this.dataGridViewAverageFitness.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewAverageFitness.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            this.dataGridViewAverageFitness.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewAverageFitness.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ColumnGeneration,
+            this.ColumnAverageFitness});
+            this.dataGridViewAverageFitness.Location = new System.Drawing.Point(783, 52);
+            this.dataGridViewAverageFitness.Name = "dataGridViewAverageFitness";
+            this.dataGridViewAverageFitness.ReadOnly = true;
+            this.dataGridViewAverageFitness.RowHeadersVisible = false;
+            this.dataGridViewAverageFitness.RowTemplate.Height = 25;
+            this.dataGridViewAverageFitness.Size = new System.Drawing.Size(240, 256);
+            this.dataGridViewAverageFitness.TabIndex = 21;
+            // 
+            // ColumnGeneration
+            // 
+            this.ColumnGeneration.HeaderText = "Generation";
+            this.ColumnGeneration.Name = "ColumnGeneration";
+            this.ColumnGeneration.ReadOnly = true;
+            // 
+            // ColumnAverageFitness
+            // 
+            this.ColumnAverageFitness.HeaderText = "Average Fitness";
+            this.ColumnAverageFitness.Name = "ColumnAverageFitness";
+            this.ColumnAverageFitness.ReadOnly = true;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(32, 212);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(64, 15);
+            this.label8.TabIndex = 22;
+            this.label8.Text = "Paralellism";
+            // 
+            // numericUpDownThreads
+            // 
+            this.numericUpDownThreads.Location = new System.Drawing.Point(190, 210);
+            this.numericUpDownThreads.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownThreads.Name = "numericUpDownThreads";
+            this.numericUpDownThreads.Size = new System.Drawing.Size(120, 23);
+            this.numericUpDownThreads.TabIndex = 23;
+            this.numericUpDownThreads.Value = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(408, 444);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(43, 15);
+            this.label9.TabIndex = 24;
+            this.label9.Text = "Fitness";
+            // 
+            // textBoxFitness
+            // 
+            this.textBoxFitness.Location = new System.Drawing.Point(470, 440);
+            this.textBoxFitness.Name = "textBoxFitness";
+            this.textBoxFitness.ReadOnly = true;
+            this.textBoxFitness.Size = new System.Drawing.Size(110, 23);
+            this.textBoxFitness.TabIndex = 25;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.trackBar1);
+            this.ClientSize = new System.Drawing.Size(1079, 501);
+            this.Controls.Add(this.textBoxFitness);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.numericUpDownThreads);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.dataGridViewAverageFitness);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.textBoxGeneration);
+            this.Controls.Add(this.buttonStop);
+            this.Controls.Add(this.numericUpDownSpecimensPerTournament);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.numericUpDownMutationRate);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.numericUpDownConvergenceAge);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.numericUpDownSpecimensPerGeneration);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBoxOutput);
@@ -532,7 +797,12 @@
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpecimensPerGeneration)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownConvergenceAge)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMutationRate)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpecimensPerTournament)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAverageFitness)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownThreads)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -590,7 +860,24 @@
         private System.Windows.Forms.TextBox textBoxOutput;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TrackBar trackBar1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.NumericUpDown numericUpDownSpecimensPerGeneration;
+        private System.Windows.Forms.NumericUpDown numericUpDownConvergenceAge;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.NumericUpDown numericUpDownMutationRate;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.NumericUpDown numericUpDownSpecimensPerTournament;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button buttonStop;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox textBoxGeneration;
+        private System.Windows.Forms.DataGridView dataGridViewAverageFitness;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnGeneration;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnAverageFitness;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.NumericUpDown numericUpDownThreads;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox textBoxFitness;
     }
 }
 
