@@ -6,6 +6,8 @@ using EnderPi.System;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RngGenetics
 {
@@ -19,12 +21,19 @@ namespace RngGenetics
     {   
         public RngSpecies Best { set; get; }
 
+        public int Threads { set; get; }
+
         private RandomNumberGenerator _rng;
+
+        public List<List<RngSpecies>> _allSpecimens;
 
         private int _generation;
 
-        internal void Run()
-        {            
+        private CancellationToken _token;
+        internal void Run(CancellationToken token)
+        {
+            _allSpecimens = new List<List<RngSpecies>>();
+            _token = token;
             bool converged = false;
             _generation = 0;
             _rng = new RandomNumberGenerator(new RandomHash());
@@ -32,11 +41,12 @@ namespace RngGenetics
             List<RngSpecies> _specimens = InitializeGeneration();
             List<RngSpecies> _specimensNextGeneration = new List<RngSpecies>();
             
-            while (!converged)
+            while (!converged && !_token.IsCancellationRequested)
             {   
                 _specimensNextGeneration = new List<RngSpecies>();
                 _specimensNextGeneration.Add(_specimens[0]);
                 _specimensNextGeneration.AddRange(SelectAndBreed(_specimens));
+                _allSpecimens.Add(_specimens);
                 _specimens = _specimensNextGeneration;  //replacing....
 
                 EvaluateFitnesses(_specimens);
@@ -44,24 +54,24 @@ namespace RngGenetics
                 _specimens = _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
                 Best = _specimens[0];
 
-                int convergedConstant = 2;
-                converged = (Best.Generation + convergedConstant) < _generation;
+                
+                converged = (Best.Generation + NumberOfGenerationsForConvergence) <= _generation;
                 _generation++;
             }
+            _allSpecimens.Add(_specimens);
         }
             
         public List<RngSpecies> InitializeGeneration()
-        {
-            int speciesPerGeneration = 64;
-            var _specimens = new List<RngSpecies>(speciesPerGeneration);
-            while (_specimens.Count < speciesPerGeneration)
+        {            
+            var _specimens = new List<RngSpecies>(SpecimensPerGeneration);
+            while (_specimens.Count < SpecimensPerGeneration)
             {
                 var species = new RngSpecies();
                 //damn dependency issue.  I need a node provider i pass down
                 AddInitialNodes(species);                
                 AddSpeciesToListIfValid(_specimens, species);
-            }            
-
+            }
+            _generation++;
             EvaluateFitnesses(_specimens);
             return _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();                        
         }
@@ -82,7 +92,7 @@ namespace RngGenetics
 
             if (randomLeaf is StateOneNode)
             {
-                secondNode = new ConstantNode(_rng.NextUlong(0, long.MaxValue));      //or a state node, right?
+                secondNode = new ConstantNode(_rng.NextUlong(0, long.MaxValue));     
             }
             else
             {
@@ -133,29 +143,39 @@ namespace RngGenetics
 
         private void EvaluateFitnesses(List<RngSpecies> specimens)
         {
-            foreach(var specimen in specimens)
+            ParallelOptions options = new ParallelOptions() { CancellationToken = _token, MaxDegreeOfParallelism = Threads };
+            try
             {
-                try
-                {
-                    var randomnessTest = new RandomnessTest(specimen.GetEngine(), 1);
-                    randomnessTest.Start();
-                    specimen.Fitness = randomnessTest.Iterations;
-                    specimen.TestsPassed = randomnessTest.TestsPassed;
-                }
-                catch (Exception )
-                {
-                    specimen.Fitness = -1;
-                    specimen.TestsPassed = 0;
-                }
-            }            
+                Parallel.ForEach(specimens, options, x => EvaluateFitness(x));
+            }
+            catch (OperationCanceledException )
+            { }
+
+                        
+        }
+
+        private void EvaluateFitness(RngSpecies specimen)
+        {
+            if (specimen.Fitness != 0) return;            
+            try
+            {
+                var randomnessTest = new RandomnessTest(specimen.GetEngine(), 1);
+                randomnessTest.Start();
+                specimen.Fitness = randomnessTest.Iterations;
+                specimen.TestsPassed = randomnessTest.TestsPassed;
+            }
+            catch (Exception)
+            {
+                specimen.Fitness = -1;
+                specimen.TestsPassed = 0;
+            }
         }
 
         private List<RngSpecies> SelectAndBreed(List<RngSpecies> specimensToBreed)
         {
-            int specimensPerGeneration = 64;
-            int maxTries = specimensPerGeneration * 10;
-            var nextGen = new List<RngSpecies>(specimensPerGeneration);
-            while ((nextGen.Count < specimensPerGeneration) && (maxTries-- > 0))
+            int maxTries = SpecimensPerGeneration * 10;
+            var nextGen = new List<RngSpecies>(SpecimensPerGeneration);
+            while ((nextGen.Count < SpecimensPerGeneration) && (maxTries-- > 0))
             {
                 try
                 {
@@ -174,7 +194,7 @@ namespace RngGenetics
                     
                 }
             }
-            if (nextGen.Count < specimensPerGeneration)
+            if (nextGen.Count < SpecimensPerGeneration)
             {
                 //logger.Log("Didn't fill generation!", LoggingLevel.Error);
                 //something 
@@ -230,12 +250,10 @@ namespace RngGenetics
         }
 
         private void MaybeMutate(List<RngSpecies> children)
-        {
-            double mutationProbability = (double)1.0 / 16;
-            
+        {   
             foreach (var child in children)
             {
-                while (_rng.NextDoubleInclusive() < mutationProbability)
+                while (_rng.NextDoubleInclusive() < MutationChance)
                 {
                     var treeToMutateRoot = _rng.GetRandomElement(child.GetRoots());
 
@@ -350,11 +368,17 @@ namespace RngGenetics
 
         private RngSpecies SelectRandomFitSpecimen(List<RngSpecies> specimensToBreed)
         {
-            var tourney = new List<RngSpecies>(2);
-            tourney.Add(_rng.GetRandomElement(specimensToBreed));
-            tourney.Add(_rng.GetRandomElement(specimensToBreed));
+            if (SpecimensPerTournament == 1)
+            {
+                return _rng.GetRandomElement(specimensToBreed);
+            }
+            var tourney = new List<RngSpecies>(SpecimensPerTournament);
+            for (int i=0; i < SpecimensPerTournament; i++)
+            {
+                tourney.Add(_rng.GetRandomElement(specimensToBreed));
+            }
             tourney = tourney.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
-            int index = (_rng.NextDouble() < 0.7) ? 0 : 1;
+            int index = (_rng.NextDouble() < 0.7) ? 0 : _rng.NextInt(1, SpecimensPerTournament-1);
             return tourney[index];            
         }
 
