@@ -5,9 +5,9 @@ namespace EnderPi.Genetics.Tree64Rng
     /// <summary>
     /// Basic comparer, for comparing fitness, then tests passed, then operations.
     /// </summary>
-    public class SpeciesComparer : IComparer<RngSpecies>
+    public class SpeciesComparer : IComparer<IGeneticSpecimen>
     {
-        public int Compare(RngSpecies x, RngSpecies y)
+        public int Compare(IGeneticSpecimen x, IGeneticSpecimen y)
         {
             if (x.Fitness != y.Fitness)
             {

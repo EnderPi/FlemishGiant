@@ -16,7 +16,6 @@
 - remove cost from the treenode class, needs to be abstracted as a visitor class.
 - Animator for seed changes in species explorer - set min, set max, roll.....
 - Increase unit test coverage
-- Allow user to view average fitness/generation
 - save/load
 - warn on close
 - disable form while running
@@ -26,3 +25,4 @@
 - overall stats for tests passed, failed (shows which tests are useful)
 - overall stats on operations, node counts, etc.
 - Clear results on start.
+- Make variable stopping criteria - elitism, total number of generation, etc

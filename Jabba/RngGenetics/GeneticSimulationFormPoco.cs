@@ -1,9 +1,11 @@
-﻿using EnderPi.Genetics.Tree64Rng;
+﻿using EnderPi.Genetics;
+using EnderPi.Genetics.Tree64Rng;
 using EnderPi.Genetics.Tree64Rng.Nodes;
 using EnderPi.Random;
 using EnderPi.Random.Test;
 using EnderPi.System;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -19,40 +21,77 @@ namespace RngGenetics
     /// </remarks>
     public class GeneticSimulationFormPoco
     {   
-        public RngSpecies Best { set; get; }
+        public IGeneticSpecimen Best { set; get; }
 
         public int Threads { set; get; }
 
+        public SpecimenType RngSpecimenType { set; get; }
+
         private RandomNumberGenerator _rng;
 
-        public List<List<RngSpecies>> _allSpecimens;
+        public List<List<IGeneticSpecimen>> _allSpecimens;
 
         private int _generation;
 
         private CancellationToken _token;
+
+        public delegate void SimulationEventHandler(object sender, SimulationEventArgs e);
+
+        private long _specimensEvaluated;
+
+        private ConcurrentQueue<IGeneticSpecimen> _processingQueueForBetterSpecimens;
+
+        public long MaxFitness { set; get; }
+
+        public long SpecimensEvaluated { get { return Interlocked.Read(ref _specimensEvaluated); } }
+
+        /// <summary>
+        /// Fires just after a specimen is evaluated 
+        /// </summary>
+        public event SimulationEventHandler SpecimenEvaluated;
+
+        /// <summary>
+        /// Fires just after a specimen is evaluated 
+        /// </summary>
+        public event SimulationEventHandler GenerationFinished;
+
+        public void OnSpecimenEValuated(long specimensEvaluated)
+        {
+            SpecimenEvaluated?.Invoke(this, new SimulationEventArgs() { SpecimensEvaluated = specimensEvaluated });
+        }
+
+        public void OnGenerationFinished(int generation)
+        {
+            GenerationFinished?.Invoke(this, new SimulationEventArgs() { Generation = generation });
+        }
+
+
         internal void Run(CancellationToken token)
         {
-            _allSpecimens = new List<List<RngSpecies>>();
+            _processingQueueForBetterSpecimens = new ConcurrentQueue<IGeneticSpecimen>();
+            _allSpecimens = new List<List<IGeneticSpecimen>>();
+            _specimensEvaluated = 0;
             _token = token;
             bool converged = false;
             _generation = 0;
             _rng = new RandomNumberGenerator(new RandomHash());
             _rng.SeedRandom();
-            List<RngSpecies> _specimens = InitializeGeneration();
-            List<RngSpecies> _specimensNextGeneration = new List<RngSpecies>();
+            List<IGeneticSpecimen> _specimens = InitializeGeneration();
+            OnGenerationFinished(_generation);
+            List<IGeneticSpecimen> _specimensNextGeneration = new List<IGeneticSpecimen>();
             
             while (!converged && !_token.IsCancellationRequested)
             {   
-                _specimensNextGeneration = new List<RngSpecies>();
+                _specimensNextGeneration = new List<IGeneticSpecimen>();
                 _specimensNextGeneration.Add(_specimens[0]);
                 _specimensNextGeneration.AddRange(SelectAndBreed(_specimens));
                 _allSpecimens.Add(_specimens);
                 _specimens = _specimensNextGeneration;  //replacing....
 
                 EvaluateFitnesses(_specimens);
-
                 _specimens = _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
                 Best = _specimens[0];
+                OnGenerationFinished(_generation);
 
                 
                 converged = (Best.Generation + NumberOfGenerationsForConvergence) <= _generation;
@@ -61,72 +100,59 @@ namespace RngGenetics
             _allSpecimens.Add(_specimens);
         }
             
-        public List<RngSpecies> InitializeGeneration()
+        public List<IGeneticSpecimen> InitializeGeneration()
         {            
-            var _specimens = new List<RngSpecies>(SpecimensPerGeneration);
+            var _specimens = new List<IGeneticSpecimen>(SpecimensPerGeneration);
+            IGeneticSpecimenFactory factory = GetFactory();
             while (_specimens.Count < SpecimensPerGeneration)
             {
-                var species = new RngSpecies();
+                var species = factory.CreateGeneticSpecimen(_rng);
                 //damn dependency issue.  I need a node provider i pass down
-                AddInitialNodes(species);                
+                species.AddInitialGenes(_rng);                
                 AddSpeciesToListIfValid(_specimens, species);
             }
             _generation++;
             EvaluateFitnesses(_specimens);
-            return _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();                        
+            var returnValue = _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
+            Best = returnValue[0];
+            _processingQueueForBetterSpecimens.Enqueue(Best);
+            return returnValue;
         }
 
-        private void AddInitialNodes(RngSpecies species)
+        private IGeneticSpecimenFactory GetFactory()
         {
-            foreach (var root in species.GetRoots())
+            switch  (RngSpecimenType)
             {
-                AddANode(root);
+                case SpecimenType.TreeUnconstrained64:
+                    return new UnconstrainedTree64Factory();                    
+                case SpecimenType.TreeStateConstrained64:
+                    return new ConstrainedTree64Factory(StateOneConstraint);
             }
-        }
+            throw new NotImplementedException();
+        }                
 
-        private void AddANode(TreeNode treeToMutateRoot)
+        public IGeneticSpecimen GetNextBetterRng(IGeneticSpecimen species)
         {
-            var leafNodes = treeToMutateRoot.GetDescendants().Where(x => x.IsLeafNode).ToList();
-            var randomLeaf = _rng.GetRandomElement(leafNodes);
-            TreeNode secondNode;
-
-            if (randomLeaf is StateOneNode)
+            IGeneticSpecimen returnValue;
+            if (species == null)
             {
-                secondNode = new ConstantNode(_rng.NextUlong(0, long.MaxValue));     
-            }
-            else
-            {
-                secondNode = new StateOneNode();
+                _processingQueueForBetterSpecimens.TryDequeue(out returnValue);
+                return returnValue;
             }
 
-            secondNode.GenerationOfOrigin = _generation;
-            TreeNode newNode = MakeNewNode(randomLeaf, secondNode);
-            treeToMutateRoot.ReplaceAllChildReferences(randomLeaf, newNode);
+            var compararer = GetSpeciesComparer();
+            
+            do
+            {
+                _processingQueueForBetterSpecimens.TryDequeue(out returnValue);
+            } while (returnValue != null && compararer.Compare(species, returnValue) >= 0);
+
+            return returnValue;
         }
 
-        private TreeNode MakeNewNode(TreeNode randomLeaf, TreeNode secondNode)
-        {
-            List<TreeNode> possibleNodes = new List<TreeNode>(16);
-            possibleNodes.Add(_rng.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new SubtractNode(randomLeaf, secondNode), new SubtractNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new MultiplicationNode(randomLeaf, secondNode), new MultiplicationNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new DivideNode(randomLeaf, secondNode), new DivideNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new OrNode(randomLeaf, secondNode), new OrNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new XorNode(randomLeaf, secondNode), new XorNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new AndNode(randomLeaf, secondNode), new AndNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new LeftShiftNode(randomLeaf, secondNode), new LeftShiftNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new RightShiftNode(randomLeaf, secondNode), new RightShiftNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new RotateLeftNode(randomLeaf, secondNode), new RotateLeftNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new RotateRightNode(randomLeaf, secondNode), new RotateRightNode(secondNode, randomLeaf)));
-            possibleNodes.Add(new NotNode(randomLeaf));
-            possibleNodes.Add(_rng.PickRandomElement(new RemainderNode(randomLeaf, secondNode), new RemainderNode(secondNode, randomLeaf)));
+        
 
-            TreeNode result = _rng.GetRandomElement(possibleNodes);
-            result.GenerationOfOrigin = _generation;
-            return result;
-        }
-
-        private void AddSpeciesToListIfValid(List<RngSpecies> specimens, RngSpecies rngSpecies)
+        private void AddSpeciesToListIfValid(List<IGeneticSpecimen> specimens, IGeneticSpecimen rngSpecies)
         {
             string errors = null;
             if (rngSpecies.IsValid(out errors))
@@ -136,12 +162,12 @@ namespace RngGenetics
             }
         }
 
-        private IComparer<RngSpecies> GetSpeciesComparer()
+        private IComparer<IGeneticSpecimen> GetSpeciesComparer()
         {
             return new SpeciesComparer();
         }
 
-        private void EvaluateFitnesses(List<RngSpecies> specimens)
+        private void EvaluateFitnesses(List<IGeneticSpecimen> specimens)
         {
             ParallelOptions options = new ParallelOptions() { CancellationToken = _token, MaxDegreeOfParallelism = Threads };
             try
@@ -154,34 +180,40 @@ namespace RngGenetics
                         
         }
 
-        private void EvaluateFitness(RngSpecies specimen)
+        private void EvaluateFitness(IGeneticSpecimen specimen)
         {
             if (specimen.Fitness != 0) return;            
             try
             {
-                var randomnessTest = new RandomnessTest(specimen.GetEngine(), 1);
+                var randomnessTest = new RandomnessTest(specimen.GetEngine(), 1, MaxFitness);
                 randomnessTest.Start();
                 specimen.Fitness = randomnessTest.Iterations;
                 specimen.TestsPassed = randomnessTest.TestsPassed;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 specimen.Fitness = -1;
                 specimen.TestsPassed = 0;
             }
+            finally
+            {
+                _processingQueueForBetterSpecimens.Enqueue(specimen);
+                OnSpecimenEValuated(Interlocked.Increment(ref _specimensEvaluated));                
+            }
+
         }
 
-        private List<RngSpecies> SelectAndBreed(List<RngSpecies> specimensToBreed)
+        private List<IGeneticSpecimen> SelectAndBreed(List<IGeneticSpecimen> specimensToBreed)
         {
             int maxTries = SpecimensPerGeneration * 10;
-            var nextGen = new List<RngSpecies>(SpecimensPerGeneration);
+            var nextGen = new List<IGeneticSpecimen>(SpecimensPerGeneration);
             while ((nextGen.Count < SpecimensPerGeneration) && (maxTries-- > 0))
             {
                 try
                 {
-                    RngSpecies dad = SelectRandomFitSpecimen(specimensToBreed);
-                    RngSpecies mom = SelectRandomFitSpecimen(specimensToBreed);
-                    List<RngSpecies> children = Crossover(dad, mom);
+                    IGeneticSpecimen dad = SelectRandomFitSpecimen(specimensToBreed);
+                    IGeneticSpecimen mom = SelectRandomFitSpecimen(specimensToBreed);
+                    List<IGeneticSpecimen> children = dad.Crossover(mom, _rng);                    
                     MaybeMutate(children);
                     FoldConstants(children);                    
                     foreach (var child in children)
@@ -189,7 +221,7 @@ namespace RngGenetics
                         AddSpeciesToListIfValid(nextGen, child);                        
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     
                 }
@@ -202,19 +234,15 @@ namespace RngGenetics
             return nextGen;
         }
 
-        private void FoldConstants(List<RngSpecies> children)
-        {
+        private void FoldConstants(List<IGeneticSpecimen> children)
+        {            
             for (int i = 0; i < children.Count; i++)
             {
                 var child = children[i];
-                RngSpecies backup = child.DeepCopy();
-                TreeNode node = null;
+                IGeneticSpecimen backup = child.DeepCopy();                
                 try
                 {
-                    while (HasAConstantFoldableNode(child, out var root, out node))
-                    {
-                        FoldAConstantNode(root, node);
-                    }
+                    child.Fold();
                 }
                 catch (Exception)
                 {
@@ -223,156 +251,30 @@ namespace RngGenetics
                 }
             }
         }
+                               
 
-        private bool HasAConstantFoldableNode(RngSpecies child, out TreeNode root, out TreeNode foldableNode)
-        {
-            root = null;
-            foldableNode = null;
-            foreach(var treeRoot in child.GetRoots())
-            {
-                root = treeRoot;
-                foreach (var childNode in root.GetDescendants())
-                {
-                    if (childNode.IsFoldable())
-                    {
-                        foldableNode = childNode;
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private void FoldAConstantNode(TreeNode root, TreeNode node)
-        {
-            ConstantNode constantNode = new ConstantNode(node.Fold());
-            root.ReplaceAllChildReferences(node, constantNode);
-        }
-
-        private void MaybeMutate(List<RngSpecies> children)
+        private void MaybeMutate(List<IGeneticSpecimen> children)
         {   
             foreach (var child in children)
             {
                 while (_rng.NextDoubleInclusive() < MutationChance)
                 {
-                    var treeToMutateRoot = _rng.GetRandomElement(child.GetRoots());
-
-                    uint choice = _rng.NextUint(1, 3);
-                    switch (choice)
-                    {
-                        case 1:
-                            AddANode(treeToMutateRoot);
-                            break;
-
-                        case 2:
-                            if (treeToMutateRoot.GetDescendantsNodeCount() == 1)
-                            {
-                                AddANode(treeToMutateRoot);
-                            }
-                            else
-                            {
-                                DeleteANode(treeToMutateRoot);
-                            }
-                            break;
-
-                        case 3:
-                            ChangeANode(treeToMutateRoot);
-                            break;
-                    }
+                    child.Mutate(_rng);                    
                 }
             }
         }
 
-        private void DeleteANode(TreeNode treeToMutateRoot)
-        {
-            var leafNodes = treeToMutateRoot.GetDescendants().Where(x => x.IsLeafNode).ToList();
-            //TODO TEST THIS CODE
-            var levelOneNodes = treeToMutateRoot.GetDescendants().Where(x => leafNodes.Where(y => x.IsChild(y)).Any()).ToList();
-            var nodeToDelete = _rng.GetRandomElement(levelOneNodes);
-            TreeNode replacementNode;
-            var childNodes = nodeToDelete.GetDescendants().ToList();
-            var childStateNodes = childNodes.Where(x => x is StateOneNode).ToList();
-            if (childStateNodes.Count > 0)
-            {
-                replacementNode = _rng.GetRandomElement(childStateNodes);
-            }
-            else
-            {
-                replacementNode = _rng.GetRandomElement(childNodes);
-            }
-            treeToMutateRoot.ReplaceAllChildReferences(nodeToDelete, replacementNode);
-        }
+        
 
-        private void ChangeANode(TreeNode treeToMutateRoot)
-        {
-            //change a node
-            //find a random node
-            //heavily favor changing a constant by flipping a bit
-            //if it's a constant, change the constant, or change the constant to a state.
-            //if it's a state node, change it to the other state, or change it to a constant if that doesn't invalidate the parent.
-            //if it's a binary node, flip the type.
+        
 
-            var descendants = treeToMutateRoot.GetDescendants().ToList();
-            var nodeToMutate = _rng.GetRandomElement(descendants);
-            if (nodeToMutate is ConstantNode constantNode)
-            {
-                ulong x = _rng.FlipRandomBit(constantNode.Value);
-                if (x > long.MaxValue)
-                {
-                    x ^= (1UL << 63);
-                }
-                constantNode.Value = x;
-                //flip a bit
-            }
-            else if (nodeToMutate is StateOneNode)
-            {
-                var newNode = new ConstantNode(_rng.NextUlong(0, long.MaxValue));
-                                
-                treeToMutateRoot.ReplaceAllChildReferences(nodeToMutate, newNode);
-            }            
-            else if (nodeToMutate.IsBinaryNode())
-            {
-                var newNode = MakeNewNode(nodeToMutate.GetFirstChild(), nodeToMutate.GetSecondChild());
-                treeToMutateRoot.ReplaceAllChildReferences(nodeToMutate, newNode);
-            }
-        }
-
-        private List<RngSpecies> Crossover(RngSpecies dad, RngSpecies mom)
-        {
-            RngSpecies son = dad.DeepCopy();
-            RngSpecies daughter = mom.DeepCopy();
-            son.Fitness = 0;
-            daughter.Fitness = 0;
-            son.Generation = _generation;
-            daughter.Generation = _generation;            
-
-            CrossoverTree(son.StateRoot, daughter.StateRoot);
-            CrossoverTree(son.OutputRoot, daughter.OutputRoot);
-           
-            return new List<RngSpecies>() { son, daughter };
-        }
-
-        private void CrossoverTree(TreeNode sonTreeRoot, TreeNode daughterTreeRoot)
-        {
-            TreeNode sonTreeNode = PickRandomTreeNode(sonTreeRoot);
-            TreeNode daughterTreeNode = PickRandomTreeNode(daughterTreeRoot);
-            sonTreeRoot.ReplaceAllChildReferences(sonTreeNode, daughterTreeNode);
-            daughterTreeRoot.ReplaceAllChildReferences(daughterTreeNode, sonTreeNode);
-        }
-
-        private TreeNode PickRandomTreeNode(TreeNode sonTreeRoot)
-        {
-            var childrenNodes = sonTreeRoot.GetDescendants();
-            return _rng.GetRandomElement(childrenNodes);
-        }
-
-        private RngSpecies SelectRandomFitSpecimen(List<RngSpecies> specimensToBreed)
+        private IGeneticSpecimen SelectRandomFitSpecimen(List<IGeneticSpecimen> specimensToBreed)
         {
             if (SpecimensPerTournament == 1)
             {
                 return _rng.GetRandomElement(specimensToBreed);
             }
-            var tourney = new List<RngSpecies>(SpecimensPerTournament);
+            var tourney = new List<IGeneticSpecimen>(SpecimensPerTournament);
             for (int i=0; i < SpecimensPerTournament; i++)
             {
                 tourney.Add(_rng.GetRandomElement(specimensToBreed));
@@ -389,7 +291,8 @@ namespace RngGenetics
         public double TournamentProbability { set; get; }
 
         public double MutationChance { set; get; }
-        public int NumberOfGenerationsForConvergence { set; get; }                
-
+        public int NumberOfGenerationsForConvergence { set; get; }
+        public bool ConstrainStateOne { get; set; }
+        public string StateOneConstraint { get; set; }
     }
 }

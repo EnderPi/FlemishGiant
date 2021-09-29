@@ -67,7 +67,7 @@ namespace EnderPi.Random.Test
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="seed"></param>
-        public RandomnessTest(IRandomEngine engine, ulong seed)
+        public RandomnessTest(IRandomEngine engine, ulong seed, long maxFitness)
         {
             _randomEngine = engine;
             _seed = seed;
@@ -76,7 +76,7 @@ namespace EnderPi.Random.Test
             _tests.Add(new GcdTest());
             _tests.Add(new GorillaTest(7));
 
-            _targetNumberOfIterations = 1000000;
+            _targetNumberOfIterations = maxFitness;
         }
         
         /// <summary>
