@@ -12,7 +12,7 @@ namespace EnderPi.Genetics.Tree64Rng
     /// Tree-based genetic representation of RNG
     /// </summary>
     [Serializable]
-    public class RngSpecies
+    public abstract class RngSpecies : IGeneticSpecimen
     {
         /// <summary>
         /// The generation this was born in.
@@ -32,21 +32,24 @@ namespace EnderPi.Genetics.Tree64Rng
         /// <summary>
         /// The total number of operations, between the state transition and the output.
         /// </summary>
-        public int Operations { get { return StateRoot.GetOperationCount() + OutputRoot.GetOperationCount(); } }
+        public abstract int Operations { get; }
 
-        /// <summary>
-        /// The state transition function expression tree root.
-        /// </summary>
-        public TreeNode StateRoot { set; get; }
-        /// <summary>
-        /// The output function expression tree root.
-        /// </summary>
-        public TreeNode OutputRoot { set; get; }
+        public abstract void AddInitialGenes(RandomNumberGenerator rng);
+
+        public abstract List<IGeneticSpecimen> Crossover(IGeneticSpecimen other, RandomNumberGenerator rng);
+
+        public abstract string GetDescription();
+
+        public abstract void Mutate(RandomNumberGenerator rng);
+
+        public abstract bool IsValid(out string errors);
+
+        public abstract void Fold();
 
         /// <summary>
         /// Values of all constants.  Used in pretty printing.
         /// </summary>
-        private List<Tuple<ulong, string>> _constantValue;
+        protected List<Tuple<ulong, string>> _constantValue;
 
         /// <summary>
         /// Names of all constants.  Used in pretty printing.
@@ -57,50 +60,10 @@ namespace EnderPi.Genetics.Tree64Rng
         /// Basic constructor.
         /// </summary>
         public RngSpecies()
-        {
-            StateRoot = new IntronNode(new StateOneNode());
-            OutputRoot = new IntronNode(new StateOneNode());
+        {           
         }
 
-        /// <summary>
-        /// Does routine validation, like ensuring state depends on state and output depends on state.
-        /// </summary>
-        /// <param name="errors"></param>
-        /// <returns></returns>
-        public bool IsValid(out string errors)
-        {
-            StringBuilder sb = new StringBuilder();
-            bool stateOneHasStateOne = StateRoot.GetDescendants().Any(x => x is StateOneNode);
-            bool outputHasStateOne = OutputRoot.GetDescendants().Any(x => x is StateOneNode);
-            int nodes = StateRoot.GetTotalNodeCount() + OutputRoot.GetTotalNodeCount();
-            if (nodes > 50)
-            {
-                sb.AppendLine("Node count over 50!");
-            }
-            if (!outputHasStateOne)
-            {
-                sb.AppendLine("Output lacks state.");
-            }
-            if (!stateOneHasStateOne)
-            {
-                sb.AppendLine("State doesn't depend on state.");
-            }
-            errors = sb.ToString();
-            if (string.IsNullOrWhiteSpace(errors))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Gets all the roots, in case you want to iterate over the trees.
-        /// </summary>
-        /// <returns></returns>
-        public List<TreeNode> GetRoots()
-        {
-            return new List<TreeNode>() { StateRoot, OutputRoot};
-        }
+        
 
         /// <summary>
         /// Gets an image representing this species.
@@ -143,68 +106,13 @@ namespace EnderPi.Genetics.Tree64Rng
             return bitmap;            
         }
 
-        /// <summary>
-        /// Returns a pretty-printed version of the output function.
-        /// </summary>
-        /// <returns></returns>
-        public string GetOutputFunctionPretty()
-        {
-            return OutputRoot.EvaluatePretty();
-        }
-
-        /// <summary>
-        /// Gets a pretty-printed version of the state transition function.
-        /// </summary>
-        /// <returns></returns>
-        public string GetStateFunctionPretty()
-        {
-            return StateRoot.EvaluatePretty();
-        }
 
         /// <summary>
         /// Gets a random number engine for this species.
         /// </summary>
         /// <returns></returns>
-        public IRandomEngine GetEngine()
-        {
-            return new DynamicRandomEngine(StateRoot.Evaluate(), OutputRoot.Evaluate());
-        }
+        public abstract IRandomEngine GetEngine();        
 
-        /// <summary>
-        /// Names all the constants so it can be displayed appropriately.
-        /// </summary>
-        public void NameConstants()
-        {
-            int counter = 1;
-            _constantValue = new List<Tuple<ulong, string>>();
-            foreach (var tree in GetRoots())
-            {                
-                var descendantConstants = tree.GetDescendants().Distinct().Where(x => x is ConstantNode).ToList();
-
-                foreach (var node in descendantConstants)
-                {
-                    var constNode = node as ConstantNode;
-                    if (constNode != null)
-                    {
-                        if (!_constantValue.Any(x => x.Item1 == constNode.Value))
-                        {
-                            _constantValue.Add(new Tuple<ulong, string>(constNode.Value, $"C{counter++}"));
-                        }
-                    }
-                }
-                foreach (var node in descendantConstants)
-                {
-                    var constNode = node as ConstantNode;
-                    if (constNode != null)
-                    {
-                        var item = _constantValue.FirstOrDefault(x => x.Item1 == constNode.Value);
-                        if (item != null)
-                        {
-                            constNode.Name = item.Item2;
-                        }
-                    }
-                }
-            }
-        }
+        
     }
 }

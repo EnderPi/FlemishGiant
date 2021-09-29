@@ -13,3 +13,5 @@
 	-single thread
 	-10k max deviates
 - remove prime testing?
+- Allow user to view average fitness/generation
+
