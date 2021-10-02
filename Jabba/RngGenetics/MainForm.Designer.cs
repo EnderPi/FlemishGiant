@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -114,6 +114,32 @@
             this.comboBoxGeneticType = new System.Windows.Forms.ComboBox();
             this.label16 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.buttonPushToTesting = new System.Windows.Forms.Button();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.progressBarRngTesting = new System.Windows.Forms.ProgressBar();
+            this.label20 = new System.Windows.Forms.Label();
+            this.pictureBoxRngTesting = new System.Windows.Forms.PictureBox();
+            this.textBoxDescriptionRngTesting = new System.Windows.Forms.TextBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.textBoxTestsPassedRngTesting = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.textBoxFitnessRngTesting = new System.Windows.Forms.TextBox();
+            this.label25 = new System.Windows.Forms.Label();
+            this.buttonStopTesting = new System.Windows.Forms.Button();
+            this.buttonStartTesting = new System.Windows.Forms.Button();
+            this.numericUpDownMaxFitnessRngTesting = new System.Windows.Forms.NumericUpDown();
+            this.label19 = new System.Windows.Forms.Label();
+            this.textBoxOutputRngTesting = new System.Windows.Forms.TextBox();
+            this.textBoxStateExpressionRngTesting = new System.Windows.Forms.TextBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.dataGridViewLog = new System.Windows.Forms.DataGridView();
+            this.ColumnId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnTimeStamp = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStripMain.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -125,6 +151,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAverageFitness)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownThreads)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxFitness)).BeginInit();
+            this.tabControl1.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRngTesting)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxFitnessRngTesting)).BeginInit();
+            this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLog)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStripMain
@@ -136,7 +169,7 @@
             this.helpToolStripMenuItem});
             this.menuStripMain.Location = new System.Drawing.Point(0, 0);
             this.menuStripMain.Name = "menuStripMain";
-            this.menuStripMain.Size = new System.Drawing.Size(1079, 24);
+            this.menuStripMain.Size = new System.Drawing.Size(1264, 24);
             this.menuStripMain.TabIndex = 0;
             this.menuStripMain.Text = "menuStrip1";
             // 
@@ -367,9 +400,9 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripProgressBarMain,
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 496);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 659);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1079, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1264, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -399,7 +432,7 @@
             this.helpToolStripButton});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1079, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1264, 25);
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -487,7 +520,7 @@
             // 
             // buttonRunSimulation
             // 
-            this.buttonRunSimulation.Location = new System.Drawing.Point(139, 389);
+            this.buttonRunSimulation.Location = new System.Drawing.Point(201, 382);
             this.buttonRunSimulation.Name = "buttonRunSimulation";
             this.buttonRunSimulation.Size = new System.Drawing.Size(75, 23);
             this.buttonRunSimulation.TabIndex = 3;
@@ -497,7 +530,7 @@
             // 
             // pictureBoxMain
             // 
-            this.pictureBoxMain.Location = new System.Drawing.Point(470, 52);
+            this.pictureBoxMain.Location = new System.Drawing.Point(532, 45);
             this.pictureBoxMain.Name = "pictureBoxMain";
             this.pictureBoxMain.Size = new System.Drawing.Size(256, 256);
             this.pictureBoxMain.TabIndex = 4;
@@ -505,7 +538,7 @@
             // 
             // textBoxBestDescription
             // 
-            this.textBoxBestDescription.Location = new System.Drawing.Point(470, 314);
+            this.textBoxBestDescription.Location = new System.Drawing.Point(532, 307);
             this.textBoxBestDescription.Multiline = true;
             this.textBoxBestDescription.Name = "textBoxBestDescription";
             this.textBoxBestDescription.ReadOnly = true;
@@ -515,7 +548,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(397, 337);
+            this.label1.Location = new System.Drawing.Point(459, 330);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 15);
             this.label1.TabIndex = 7;
@@ -524,7 +557,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 109);
+            this.label3.Location = new System.Drawing.Point(74, 102);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(145, 15);
             this.label3.TabIndex = 10;
@@ -532,7 +565,7 @@
             // 
             // numericUpDownSpecimensPerGeneration
             // 
-            this.numericUpDownSpecimensPerGeneration.Location = new System.Drawing.Point(175, 107);
+            this.numericUpDownSpecimensPerGeneration.Location = new System.Drawing.Point(237, 100);
             this.numericUpDownSpecimensPerGeneration.Maximum = new decimal(new int[] {
             65536,
             0,
@@ -555,7 +588,7 @@
             // 
             // numericUpDownConvergenceAge
             // 
-            this.numericUpDownConvergenceAge.Location = new System.Drawing.Point(175, 136);
+            this.numericUpDownConvergenceAge.Location = new System.Drawing.Point(237, 129);
             this.numericUpDownConvergenceAge.Maximum = new decimal(new int[] {
             64,
             0,
@@ -579,7 +612,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 138);
+            this.label4.Location = new System.Drawing.Point(74, 131);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(101, 15);
             this.label4.TabIndex = 12;
@@ -593,7 +626,7 @@
             0,
             0,
             131072});
-            this.numericUpDownMutationRate.Location = new System.Drawing.Point(175, 165);
+            this.numericUpDownMutationRate.Location = new System.Drawing.Point(237, 158);
             this.numericUpDownMutationRate.Maximum = new decimal(new int[] {
             1,
             0,
@@ -612,7 +645,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 167);
+            this.label5.Location = new System.Drawing.Point(74, 160);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(82, 15);
             this.label5.TabIndex = 14;
@@ -620,7 +653,7 @@
             // 
             // numericUpDownSpecimensPerTournament
             // 
-            this.numericUpDownSpecimensPerTournament.Location = new System.Drawing.Point(175, 194);
+            this.numericUpDownSpecimensPerTournament.Location = new System.Drawing.Point(237, 187);
             this.numericUpDownSpecimensPerTournament.Maximum = new decimal(new int[] {
             65536,
             0,
@@ -644,7 +677,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 196);
+            this.label6.Location = new System.Drawing.Point(74, 189);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(151, 15);
             this.label6.TabIndex = 16;
@@ -653,7 +686,7 @@
             // buttonStop
             // 
             this.buttonStop.Enabled = false;
-            this.buttonStop.Location = new System.Drawing.Point(251, 389);
+            this.buttonStop.Location = new System.Drawing.Point(313, 382);
             this.buttonStop.Name = "buttonStop";
             this.buttonStop.Size = new System.Drawing.Size(75, 23);
             this.buttonStop.TabIndex = 18;
@@ -664,7 +697,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(388, 414);
+            this.label7.Location = new System.Drawing.Point(450, 407);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(65, 15);
             this.label7.TabIndex = 20;
@@ -672,7 +705,7 @@
             // 
             // textBoxGeneration
             // 
-            this.textBoxGeneration.Location = new System.Drawing.Point(470, 411);
+            this.textBoxGeneration.Location = new System.Drawing.Point(532, 404);
             this.textBoxGeneration.Name = "textBoxGeneration";
             this.textBoxGeneration.ReadOnly = true;
             this.textBoxGeneration.Size = new System.Drawing.Size(110, 23);
@@ -682,19 +715,19 @@
             // 
             this.dataGridViewAverageFitness.AllowUserToAddRows = false;
             this.dataGridViewAverageFitness.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridViewAverageFitness.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewAverageFitness.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridViewAverageFitness.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewAverageFitness.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ColumnGeneration,
             this.ColumnAverageFitness});
-            this.dataGridViewAverageFitness.Location = new System.Drawing.Point(783, 52);
+            this.dataGridViewAverageFitness.Location = new System.Drawing.Point(845, 45);
             this.dataGridViewAverageFitness.Name = "dataGridViewAverageFitness";
             this.dataGridViewAverageFitness.ReadOnly = true;
             this.dataGridViewAverageFitness.RowHeadersVisible = false;
@@ -717,7 +750,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(12, 225);
+            this.label8.Location = new System.Drawing.Point(74, 218);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(64, 15);
             this.label8.TabIndex = 22;
@@ -725,7 +758,7 @@
             // 
             // numericUpDownThreads
             // 
-            this.numericUpDownThreads.Location = new System.Drawing.Point(175, 223);
+            this.numericUpDownThreads.Location = new System.Drawing.Point(237, 216);
             this.numericUpDownThreads.Minimum = new decimal(new int[] {
             1,
             0,
@@ -743,7 +776,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(408, 444);
+            this.label9.Location = new System.Drawing.Point(470, 437);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(43, 15);
             this.label9.TabIndex = 24;
@@ -751,7 +784,7 @@
             // 
             // textBoxFitness
             // 
-            this.textBoxFitness.Location = new System.Drawing.Point(470, 440);
+            this.textBoxFitness.Location = new System.Drawing.Point(532, 433);
             this.textBoxFitness.Name = "textBoxFitness";
             this.textBoxFitness.ReadOnly = true;
             this.textBoxFitness.Size = new System.Drawing.Size(110, 23);
@@ -765,7 +798,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(801, 337);
+            this.label10.Location = new System.Drawing.Point(863, 330);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(118, 15);
             this.label10.TabIndex = 26;
@@ -773,7 +806,7 @@
             // 
             // textBoxSpecimensEvaluated
             // 
-            this.textBoxSpecimensEvaluated.Location = new System.Drawing.Point(944, 334);
+            this.textBoxSpecimensEvaluated.Location = new System.Drawing.Point(1006, 327);
             this.textBoxSpecimensEvaluated.Name = "textBoxSpecimensEvaluated";
             this.textBoxSpecimensEvaluated.ReadOnly = true;
             this.textBoxSpecimensEvaluated.Size = new System.Drawing.Size(79, 23);
@@ -782,7 +815,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(801, 376);
+            this.label11.Location = new System.Drawing.Point(863, 369);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(108, 15);
             this.label11.TabIndex = 28;
@@ -790,7 +823,7 @@
             // 
             // textBoxCurrentGeneration
             // 
-            this.textBoxCurrentGeneration.Location = new System.Drawing.Point(944, 373);
+            this.textBoxCurrentGeneration.Location = new System.Drawing.Point(1006, 366);
             this.textBoxCurrentGeneration.Name = "textBoxCurrentGeneration";
             this.textBoxCurrentGeneration.ReadOnly = true;
             this.textBoxCurrentGeneration.Size = new System.Drawing.Size(79, 23);
@@ -804,7 +837,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(586, 444);
+            this.label12.Location = new System.Drawing.Point(648, 437);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(65, 15);
             this.label12.TabIndex = 30;
@@ -812,7 +845,7 @@
             // 
             // textBoxOperations
             // 
-            this.textBoxOperations.Location = new System.Drawing.Point(657, 441);
+            this.textBoxOperations.Location = new System.Drawing.Point(719, 434);
             this.textBoxOperations.Name = "textBoxOperations";
             this.textBoxOperations.ReadOnly = true;
             this.textBoxOperations.Size = new System.Drawing.Size(68, 23);
@@ -821,7 +854,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(380, 472);
+            this.label13.Location = new System.Drawing.Point(442, 465);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(71, 15);
             this.label13.TabIndex = 32;
@@ -829,7 +862,7 @@
             // 
             // textBoxTestsPassed
             // 
-            this.textBoxTestsPassed.Location = new System.Drawing.Point(470, 472);
+            this.textBoxTestsPassed.Location = new System.Drawing.Point(532, 465);
             this.textBoxTestsPassed.Name = "textBoxTestsPassed";
             this.textBoxTestsPassed.ReadOnly = true;
             this.textBoxTestsPassed.Size = new System.Drawing.Size(110, 23);
@@ -837,7 +870,7 @@
             // 
             // numericUpDownMaxFitness
             // 
-            this.numericUpDownMaxFitness.Location = new System.Drawing.Point(175, 252);
+            this.numericUpDownMaxFitness.Location = new System.Drawing.Point(237, 245);
             this.numericUpDownMaxFitness.Maximum = new decimal(new int[] {
             1410065408,
             2,
@@ -861,7 +894,7 @@
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(12, 254);
+            this.label14.Location = new System.Drawing.Point(74, 247);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(69, 15);
             this.label14.TabIndex = 35;
@@ -869,7 +902,7 @@
             // 
             // textBoxStateOneFunction
             // 
-            this.textBoxStateOneFunction.Location = new System.Drawing.Point(175, 284);
+            this.textBoxStateOneFunction.Location = new System.Drawing.Point(237, 277);
             this.textBoxStateOneFunction.Name = "textBoxStateOneFunction";
             this.textBoxStateOneFunction.Size = new System.Drawing.Size(224, 23);
             this.textBoxStateOneFunction.TabIndex = 37;
@@ -877,7 +910,7 @@
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(13, 80);
+            this.label15.Location = new System.Drawing.Point(75, 73);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(105, 15);
             this.label15.TabIndex = 39;
@@ -886,7 +919,7 @@
             // comboBoxGeneticType
             // 
             this.comboBoxGeneticType.FormattingEnabled = true;
-            this.comboBoxGeneticType.Location = new System.Drawing.Point(174, 77);
+            this.comboBoxGeneticType.Location = new System.Drawing.Point(236, 70);
             this.comboBoxGeneticType.Name = "comboBoxGeneticType";
             this.comboBoxGeneticType.Size = new System.Drawing.Size(225, 23);
             this.comboBoxGeneticType.TabIndex = 40;
@@ -895,7 +928,7 @@
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(13, 287);
+            this.label16.Location = new System.Drawing.Point(75, 280);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(116, 15);
             this.label16.TabIndex = 41;
@@ -904,52 +937,323 @@
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(470, 28);
+            this.label17.Location = new System.Drawing.Point(532, 13);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(109, 15);
             this.label17.TabIndex = 42;
             this.label17.Text = "Randomness Visual";
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Location = new System.Drawing.Point(12, 52);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(1199, 530);
+            this.tabControl1.TabIndex = 43;
+            this.tabControl1.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControl1_Selected);
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.buttonPushToTesting);
+            this.tabPage1.Controls.Add(this.label15);
+            this.tabPage1.Controls.Add(this.label17);
+            this.tabPage1.Controls.Add(this.buttonRunSimulation);
+            this.tabPage1.Controls.Add(this.label16);
+            this.tabPage1.Controls.Add(this.pictureBoxMain);
+            this.tabPage1.Controls.Add(this.comboBoxGeneticType);
+            this.tabPage1.Controls.Add(this.textBoxBestDescription);
+            this.tabPage1.Controls.Add(this.label1);
+            this.tabPage1.Controls.Add(this.textBoxStateOneFunction);
+            this.tabPage1.Controls.Add(this.label3);
+            this.tabPage1.Controls.Add(this.label14);
+            this.tabPage1.Controls.Add(this.numericUpDownSpecimensPerGeneration);
+            this.tabPage1.Controls.Add(this.numericUpDownMaxFitness);
+            this.tabPage1.Controls.Add(this.label4);
+            this.tabPage1.Controls.Add(this.textBoxTestsPassed);
+            this.tabPage1.Controls.Add(this.numericUpDownConvergenceAge);
+            this.tabPage1.Controls.Add(this.label13);
+            this.tabPage1.Controls.Add(this.label5);
+            this.tabPage1.Controls.Add(this.textBoxOperations);
+            this.tabPage1.Controls.Add(this.numericUpDownMutationRate);
+            this.tabPage1.Controls.Add(this.label12);
+            this.tabPage1.Controls.Add(this.label6);
+            this.tabPage1.Controls.Add(this.textBoxCurrentGeneration);
+            this.tabPage1.Controls.Add(this.numericUpDownSpecimensPerTournament);
+            this.tabPage1.Controls.Add(this.label11);
+            this.tabPage1.Controls.Add(this.buttonStop);
+            this.tabPage1.Controls.Add(this.textBoxSpecimensEvaluated);
+            this.tabPage1.Controls.Add(this.textBoxGeneration);
+            this.tabPage1.Controls.Add(this.label10);
+            this.tabPage1.Controls.Add(this.label7);
+            this.tabPage1.Controls.Add(this.textBoxFitness);
+            this.tabPage1.Controls.Add(this.dataGridViewAverageFitness);
+            this.tabPage1.Controls.Add(this.label9);
+            this.tabPage1.Controls.Add(this.label8);
+            this.tabPage1.Controls.Add(this.numericUpDownThreads);
+            this.tabPage1.Location = new System.Drawing.Point(4, 24);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(1191, 502);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "RNG Genetics";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // buttonPushToTesting
+            // 
+            this.buttonPushToTesting.Location = new System.Drawing.Point(313, 422);
+            this.buttonPushToTesting.Name = "buttonPushToTesting";
+            this.buttonPushToTesting.Size = new System.Drawing.Size(75, 58);
+            this.buttonPushToTesting.TabIndex = 43;
+            this.buttonPushToTesting.Text = "Push to Testing";
+            this.buttonPushToTesting.UseVisualStyleBackColor = true;
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.progressBarRngTesting);
+            this.tabPage3.Controls.Add(this.label20);
+            this.tabPage3.Controls.Add(this.pictureBoxRngTesting);
+            this.tabPage3.Controls.Add(this.textBoxDescriptionRngTesting);
+            this.tabPage3.Controls.Add(this.label21);
+            this.tabPage3.Controls.Add(this.textBoxTestsPassedRngTesting);
+            this.tabPage3.Controls.Add(this.label22);
+            this.tabPage3.Controls.Add(this.textBoxFitnessRngTesting);
+            this.tabPage3.Controls.Add(this.label25);
+            this.tabPage3.Controls.Add(this.buttonStopTesting);
+            this.tabPage3.Controls.Add(this.buttonStartTesting);
+            this.tabPage3.Controls.Add(this.numericUpDownMaxFitnessRngTesting);
+            this.tabPage3.Controls.Add(this.label19);
+            this.tabPage3.Controls.Add(this.textBoxOutputRngTesting);
+            this.tabPage3.Controls.Add(this.textBoxStateExpressionRngTesting);
+            this.tabPage3.Controls.Add(this.label18);
+            this.tabPage3.Controls.Add(this.label2);
+            this.tabPage3.Location = new System.Drawing.Point(4, 24);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(1191, 502);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "RNG Testing";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // progressBarRngTesting
+            // 
+            this.progressBarRngTesting.Location = new System.Drawing.Point(22, 304);
+            this.progressBarRngTesting.Name = "progressBarRngTesting";
+            this.progressBarRngTesting.Size = new System.Drawing.Size(174, 23);
+            this.progressBarRngTesting.TabIndex = 55;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(565, 10);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(109, 15);
+            this.label20.TabIndex = 54;
+            this.label20.Text = "Randomness Visual";
+            // 
+            // pictureBoxRngTesting
+            // 
+            this.pictureBoxRngTesting.Location = new System.Drawing.Point(565, 42);
+            this.pictureBoxRngTesting.Name = "pictureBoxRngTesting";
+            this.pictureBoxRngTesting.Size = new System.Drawing.Size(256, 256);
+            this.pictureBoxRngTesting.TabIndex = 43;
+            this.pictureBoxRngTesting.TabStop = false;
+            // 
+            // textBoxDescriptionRngTesting
+            // 
+            this.textBoxDescriptionRngTesting.Location = new System.Drawing.Point(565, 304);
+            this.textBoxDescriptionRngTesting.Multiline = true;
+            this.textBoxDescriptionRngTesting.Name = "textBoxDescriptionRngTesting";
+            this.textBoxDescriptionRngTesting.ReadOnly = true;
+            this.textBoxDescriptionRngTesting.Size = new System.Drawing.Size(256, 91);
+            this.textBoxDescriptionRngTesting.TabIndex = 44;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(492, 327);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(67, 15);
+            this.label21.TabIndex = 45;
+            this.label21.Text = "Description";
+            // 
+            // textBoxTestsPassedRngTesting
+            // 
+            this.textBoxTestsPassedRngTesting.Location = new System.Drawing.Point(565, 462);
+            this.textBoxTestsPassedRngTesting.Name = "textBoxTestsPassedRngTesting";
+            this.textBoxTestsPassedRngTesting.ReadOnly = true;
+            this.textBoxTestsPassedRngTesting.Size = new System.Drawing.Size(110, 23);
+            this.textBoxTestsPassedRngTesting.TabIndex = 53;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(475, 462);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(71, 15);
+            this.label22.TabIndex = 52;
+            this.label22.Text = "Tests Passed";
+            // 
+            // textBoxFitnessRngTesting
+            // 
+            this.textBoxFitnessRngTesting.Location = new System.Drawing.Point(565, 430);
+            this.textBoxFitnessRngTesting.Name = "textBoxFitnessRngTesting";
+            this.textBoxFitnessRngTesting.ReadOnly = true;
+            this.textBoxFitnessRngTesting.Size = new System.Drawing.Size(110, 23);
+            this.textBoxFitnessRngTesting.TabIndex = 49;
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(503, 434);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(43, 15);
+            this.label25.TabIndex = 48;
+            this.label25.Text = "Fitness";
+            // 
+            // buttonStopTesting
+            // 
+            this.buttonStopTesting.Location = new System.Drawing.Point(117, 250);
+            this.buttonStopTesting.Name = "buttonStopTesting";
+            this.buttonStopTesting.Size = new System.Drawing.Size(134, 23);
+            this.buttonStopTesting.TabIndex = 7;
+            this.buttonStopTesting.Text = "Stop";
+            this.buttonStopTesting.UseVisualStyleBackColor = true;
+            // 
+            // buttonStartTesting
+            // 
+            this.buttonStartTesting.Location = new System.Drawing.Point(117, 220);
+            this.buttonStartTesting.Name = "buttonStartTesting";
+            this.buttonStartTesting.Size = new System.Drawing.Size(134, 23);
+            this.buttonStartTesting.TabIndex = 6;
+            this.buttonStartTesting.Text = "Start Testing";
+            this.buttonStartTesting.UseVisualStyleBackColor = true;
+            this.buttonStartTesting.Click += new System.EventHandler(this.buttonStartTesting_Click);
+            // 
+            // numericUpDownMaxFitnessRngTesting
+            // 
+            this.numericUpDownMaxFitnessRngTesting.Location = new System.Drawing.Point(133, 155);
+            this.numericUpDownMaxFitnessRngTesting.Maximum = new decimal(new int[] {
+            -727379968,
+            232,
+            0,
+            0});
+            this.numericUpDownMaxFitnessRngTesting.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.numericUpDownMaxFitnessRngTesting.Name = "numericUpDownMaxFitnessRngTesting";
+            this.numericUpDownMaxFitnessRngTesting.Size = new System.Drawing.Size(144, 23);
+            this.numericUpDownMaxFitnessRngTesting.TabIndex = 5;
+            this.numericUpDownMaxFitnessRngTesting.ThousandsSeparator = true;
+            this.numericUpDownMaxFitnessRngTesting.Value = new decimal(new int[] {
+            100000000,
+            0,
+            0,
+            0});
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(6, 157);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(69, 15);
+            this.label19.TabIndex = 4;
+            this.label19.Text = "Max Fitness";
+            // 
+            // textBoxOutputRngTesting
+            // 
+            this.textBoxOutputRngTesting.Location = new System.Drawing.Point(133, 78);
+            this.textBoxOutputRngTesting.Multiline = true;
+            this.textBoxOutputRngTesting.Name = "textBoxOutputRngTesting";
+            this.textBoxOutputRngTesting.Size = new System.Drawing.Size(345, 63);
+            this.textBoxOutputRngTesting.TabIndex = 3;
+            // 
+            // textBoxStateExpressionRngTesting
+            // 
+            this.textBoxStateExpressionRngTesting.Location = new System.Drawing.Point(133, 7);
+            this.textBoxStateExpressionRngTesting.Multiline = true;
+            this.textBoxStateExpressionRngTesting.Name = "textBoxStateExpressionRngTesting";
+            this.textBoxStateExpressionRngTesting.Size = new System.Drawing.Size(345, 63);
+            this.textBoxStateExpressionRngTesting.TabIndex = 2;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(6, 81);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(104, 15);
+            this.label18.TabIndex = 1;
+            this.label18.Text = "Output Expression";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 12);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(92, 15);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "State Expression";
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.dataGridViewLog);
+            this.tabPage2.Location = new System.Drawing.Point(4, 24);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(1191, 502);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Logging";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // dataGridViewLog
+            // 
+            this.dataGridViewLog.AllowUserToAddRows = false;
+            this.dataGridViewLog.AllowUserToDeleteRows = false;
+            this.dataGridViewLog.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewLog.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ColumnId,
+            this.ColumnTimeStamp,
+            this.ColumnMessage});
+            this.dataGridViewLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewLog.Location = new System.Drawing.Point(3, 3);
+            this.dataGridViewLog.Name = "dataGridViewLog";
+            this.dataGridViewLog.ReadOnly = true;
+            this.dataGridViewLog.RowHeadersVisible = false;
+            this.dataGridViewLog.RowTemplate.Height = 25;
+            this.dataGridViewLog.Size = new System.Drawing.Size(1185, 496);
+            this.dataGridViewLog.TabIndex = 0;
+            // 
+            // ColumnId
+            // 
+            this.ColumnId.HeaderText = "Id";
+            this.ColumnId.Name = "ColumnId";
+            this.ColumnId.ReadOnly = true;
+            this.ColumnId.Width = 42;
+            // 
+            // ColumnTimeStamp
+            // 
+            this.ColumnTimeStamp.HeaderText = "Timestamp";
+            this.ColumnTimeStamp.Name = "ColumnTimeStamp";
+            this.ColumnTimeStamp.ReadOnly = true;
+            this.ColumnTimeStamp.Width = 91;
+            // 
+            // ColumnMessage
+            // 
+            this.ColumnMessage.HeaderText = "Message";
+            this.ColumnMessage.Name = "ColumnMessage";
+            this.ColumnMessage.ReadOnly = true;
+            this.ColumnMessage.Width = 1000;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1079, 518);
-            this.Controls.Add(this.label17);
-            this.Controls.Add(this.label16);
-            this.Controls.Add(this.comboBoxGeneticType);
-            this.Controls.Add(this.label15);
-            this.Controls.Add(this.textBoxStateOneFunction);
-            this.Controls.Add(this.label14);
-            this.Controls.Add(this.numericUpDownMaxFitness);
-            this.Controls.Add(this.textBoxTestsPassed);
-            this.Controls.Add(this.label13);
-            this.Controls.Add(this.textBoxOperations);
-            this.Controls.Add(this.label12);
-            this.Controls.Add(this.textBoxCurrentGeneration);
-            this.Controls.Add(this.label11);
-            this.Controls.Add(this.textBoxSpecimensEvaluated);
-            this.Controls.Add(this.label10);
-            this.Controls.Add(this.textBoxFitness);
-            this.Controls.Add(this.label9);
-            this.Controls.Add(this.numericUpDownThreads);
-            this.Controls.Add(this.label8);
-            this.Controls.Add(this.dataGridViewAverageFitness);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.textBoxGeneration);
-            this.Controls.Add(this.buttonStop);
-            this.Controls.Add(this.numericUpDownSpecimensPerTournament);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.numericUpDownMutationRate);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.numericUpDownConvergenceAge);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.numericUpDownSpecimensPerGeneration);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBoxBestDescription);
-            this.Controls.Add(this.pictureBoxMain);
-            this.Controls.Add(this.buttonRunSimulation);
+            this.ClientSize = new System.Drawing.Size(1264, 681);
+            this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStripMain);
@@ -971,6 +1275,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAverageFitness)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownThreads)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxFitness)).EndInit();
+            this.tabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRngTesting)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxFitnessRngTesting)).EndInit();
+            this.tabPage2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLog)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1061,6 +1374,32 @@
         private System.Windows.Forms.ComboBox comboBoxGeneticType;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.DataGridView dataGridViewLog;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnId;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnTimeStamp;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnMessage;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.Button buttonPushToTesting;
+        private System.Windows.Forms.TextBox textBoxStateExpressionRngTesting;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox textBoxOutputRngTesting;
+        private System.Windows.Forms.NumericUpDown numericUpDownMaxFitnessRngTesting;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Button buttonStopTesting;
+        private System.Windows.Forms.Button buttonStartTesting;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.PictureBox pictureBoxRngTesting;
+        private System.Windows.Forms.TextBox textBoxDescriptionRngTesting;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox textBoxTestsPassedRngTesting;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.TextBox textBoxFitnessRngTesting;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.ProgressBar progressBarRngTesting;
     }
 }
 

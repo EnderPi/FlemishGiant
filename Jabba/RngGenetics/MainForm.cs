@@ -1,14 +1,11 @@
 ﻿using EnderPi.Genetics;
 using EnderPi.Genetics.Tree64Rng;
+using EnderPi.Random;
+using EnderPi.Random.Test;
+using EnderPi.System;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RngGenetics
@@ -25,10 +22,21 @@ namespace RngGenetics
         /// </summary>
         private CancellationTokenSource _source;
 
-        private delegate void SimFinished();
+        private CancellationTokenSource _sourceRngTesting;
 
+        /// <summary>
+        /// A delegate just used to marshal events to the main form UI thread.
+        /// </summary>
+        private delegate void FormDelegate();
+
+        /// <summary>
+        /// The number of specimens evaluated.
+        /// </summary>
         private long _specimensEvaluated;
 
+        /// <summary>
+        /// Current generation.
+        /// </summary>
         private long _generation;
 
         private IGeneticSpecimen _best;
@@ -75,7 +83,7 @@ namespace RngGenetics
                         _best = _simulation.GetNextBetterRng(null);
                         if (_best != null)
                         {
-                            Invoke(new SimFinished(()=>PopulatePictureBox(_best)));
+                            Invoke(new FormDelegate(()=>PopulatePictureBox(_best)));
                         }
                     }
                 }
@@ -85,12 +93,19 @@ namespace RngGenetics
 
         private void PopulatePictureBox(IGeneticSpecimen best)
         {
-            pictureBoxMain.Image = best.GetImage(1);
-            textBoxBestDescription.Text = best.GetDescription();            
-            textBoxGeneration.Text = best.Generation.ToString();
-            textBoxFitness.Text = best.Fitness.ToString("N0");
-            textBoxOperations.Text = best.Operations.ToString("N0");
-            textBoxTestsPassed.Text = best.TestsPassed.ToString("N0");
+            try
+            {
+                pictureBoxMain.Image = GeneticHelper.GetImage(best.GetEngine(), 1);
+                textBoxBestDescription.Text = best.GetDescription();
+                textBoxGeneration.Text = best.Generation.ToString();
+                textBoxFitness.Text = best.Fitness.ToString("N0");
+                textBoxOperations.Text = best.Operations.ToString("N0");
+                textBoxTestsPassed.Text = best.TestsPassed.ToString("N0");
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError(ex.ToString());                
+            }
         }
 
         private void buttonRunSimulation_Click(object sender, EventArgs e)
@@ -133,7 +148,7 @@ namespace RngGenetics
             _simulation.Threads = (int)numericUpDownThreads.Value;
             _simulation.MaxFitness = (long)numericUpDownMaxFitness.Value;            
             _simulation.StateOneConstraint = textBoxStateOneFunction.Text;
-            _simulation.RngSpecimenType = (SpecimenType)comboBoxGeneticType.SelectedItem;
+            _simulation.RngSpecimenType = (SpecimenType)comboBoxGeneticType.SelectedItem;            
         }
 
         private void RunSimulation()
@@ -144,7 +159,7 @@ namespace RngGenetics
             }
             finally
             {
-                Invoke(new SimFinished(SimulationFinished));
+                Invoke(new FormDelegate(SimulationFinished));
             }
         }
 
@@ -238,5 +253,76 @@ namespace RngGenetics
                     break;
             }
         }
+
+        private void tabControl1_Selected(object sender, TabControlEventArgs e)
+        {
+            if (tabControl1.SelectedTab == tabPage2)
+            {
+                dataGridViewLog.SuspendLayout();
+                dataGridViewLog.Rows.Clear();
+                var logMessages = Logging.GetLogMessages();
+                foreach(var logmessage in logMessages)
+                {
+                    dataGridViewLog.Rows.Add(logmessage.Id, logmessage.TimeStamp.ToShortTimeString(), logmessage.Message);
+                }
+                dataGridViewLog.ResumeLayout();
+            }
+        }
+
+        private void buttonStartTesting_Click(object sender, EventArgs e)
+        {
+            _sourceRngTesting = new CancellationTokenSource();
+            DynamicRandomEngine engine = null;
+            try
+            {
+                engine = new DynamicRandomEngine(textBoxStateExpressionRngTesting.Text, textBoxOutputRngTesting.Text);
+            }
+            catch(Exception ex) 
+            {
+                MessageBox.Show($"Error compiling expression!  {ex}", "Compilation error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            engine.Seed(1);
+            
+            //EnableControls(true);
+                        
+            textBoxFitnessRngTesting.Text = null;
+            textBoxTestsPassedRngTesting.Text = null;
+            pictureBoxRngTesting.Image = null;
+            
+            progressBarRngTesting.Style = ProgressBarStyle.Marquee;
+            //toolStripStatusLabel1.Text = "Running...";
+
+            long maxFitness = (long)numericUpDownMaxFitnessRngTesting.Value;
+            var thread = new Thread(()=>RunRngTest(engine, maxFitness));
+            thread.IsBackground = true;
+            thread.Start();                        
+        }
+
+        private void RunRngTest(IRandomEngine engine, long maxFitness)
+        {
+            RandomnessTest simulation = null;
+            try
+            {
+                simulation = new RandomnessTest(engine, 1, maxFitness);
+                simulation.Start();                
+            }
+            finally
+            {
+                Invoke(new FormDelegate(()=>RngTestingFinished(simulation, engine)));
+            }
+            
+
+        }
+
+        private void RngTestingFinished(RandomnessTest simulation, IRandomEngine engine)
+        {
+            textBoxFitnessRngTesting.Text = simulation.Iterations.ToString("N0");
+            textBoxTestsPassedRngTesting.Text = simulation.TestsPassed.ToString();
+            pictureBoxRngTesting.Image = GeneticHelper.GetImage(engine, 1);            
+            progressBarRngTesting.Style =  ProgressBarStyle.Blocks;
+            textBoxDescriptionRngTesting.Text = simulation.GetFailedTestsDescription();
+        }                        
     }
 }

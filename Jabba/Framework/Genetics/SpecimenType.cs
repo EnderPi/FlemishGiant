@@ -7,5 +7,6 @@
     {
         TreeUnconstrained64 = 0,
         TreeStateConstrained64 = 1,        
+        LinearUnconstrained = 2
     }
 }

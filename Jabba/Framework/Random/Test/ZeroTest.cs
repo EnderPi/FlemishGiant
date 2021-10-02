@@ -48,6 +48,11 @@ namespace EnderPi.Random.Test
                 _queue.Dequeue();
             }
         }
-                
+
+        public override string ToString()
+        {
+            return $"Zero Test: Queue Length:50, Dupe Max:10";
+        }
+
     }
 }

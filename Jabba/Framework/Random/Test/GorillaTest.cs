@@ -23,8 +23,7 @@ namespace EnderPi.Random.Test
         private TestResult _aggregateTestResult;
         private TestResult _overallTestResult;
         private int _cellCount;
-        private string _detailedResult;
-
+        
         public TestResult Result => _overallTestResult;
 
         public int TestsPassed { get { return _testResults.Where(x => x != TestResult.Fail).Count(); } }
@@ -36,7 +35,7 @@ namespace EnderPi.Random.Test
             _minimumIterationsForResult = Convert.ToUInt64(5 * _cellCount);
         }
 
-        private string GetDetailedResult()
+        public string GetDetailedResult()
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Gorilla Test with word size = {_wordSize}");
@@ -109,9 +108,7 @@ namespace EnderPi.Random.Test
             _aggregateTestResult = TestHelper.GetTestResultFromPValue(_aggregatePValue);
 
             TestResult minimumTestResult = TestHelper.ReturnLowestConclusiveResult(_testResults);
-            _overallTestResult = TestHelper.ReturnLowestConclusiveResult(minimumTestResult, _aggregateTestResult);
-
-            _detailedResult = GetDetailedResult();
+            _overallTestResult = TestHelper.ReturnLowestConclusiveResult(minimumTestResult, _aggregateTestResult);                       
 
             return;
         }
@@ -129,6 +126,10 @@ namespace EnderPi.Random.Test
             _words = new BitByBitWords(_wordSize);
         }
 
-        
+        public override string ToString()
+        {
+            return $"Gorilla Test, Word length {_wordSize} bits";
+        }
+
     }
 }

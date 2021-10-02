@@ -3,6 +3,11 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using Flee.PublicTypes;
+using EnderPi.Genetics;
+using EnderPi.Genetics.Tree64Rng.Nodes;
+using System.Text.RegularExpressions;
+using System.Text;
 
 namespace UnitTest
 {
@@ -33,6 +38,32 @@ namespace UnitTest
 
         //first 64  32-bit primes with a leading 1.
         //2147483659,2147483693,2147483713,2147483743,2147483777,2147483783,2147483813,2147483857,2147483867,2147483869,2147483887,2147483893,2147483929,2147483951,2147483993,2147483999,2147484007,2147484037,2147484041,2147484043,2147484061,2147484083,2147484109,2147484161,2147484167,2147484197,2147484203,2147484221,2147484223,2147484233,2147484239,2147484259,2147484271,2147484277,2147484331,2147484337,2147484349,2147484377,2147484433,2147484439,2147484461,2147484491,2147484499,2147484517,2147484527,2147484541,2147484553,2147484569,2147484601,2147484611,2147484613,2147484617,2147484641,2147484679,2147484697,2147484721,2147484733,2147484751,2147484791,2147484821,2147484851,2147484869,2147484877,2147484919
+
+        [Test]
+        public void TestFleeStatic()
+        {
+            var _context = GeneticHelper.GetContext();
+            _context.Variables[StateOneNode.Name] = ulong.MaxValue - 66;
+            string expression = "A+1+2+3+42+5+6+7";
+            var newExpression = Sanitize(expression);
+            var _expressionStateOne = _context.CompileGeneric<ulong>(newExpression);
+            var result = _expressionStateOne.Evaluate();
+            Assert.IsTrue(result == ulong.MaxValue);
+        }
+
+        public string Sanitize(string expression)
+        {
+            var match = Regex.Match(expression, "\\d+");
+            var sb = new StringBuilder();
+            while (match.Success)
+            {
+                sb.Append(expression.Substring(0, match.Index) + match.Value + "UL");
+                expression =  expression.Substring(match.Index + match.Length);
+                match = Regex.Match(expression, "\\d+(?!UL)+");
+            }
+            sb.Append(expression);
+            return sb.ToString();
+        }
 
 
     }
