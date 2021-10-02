@@ -1,6 +1,5 @@
 ﻿using EnderPi.Random;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace EnderPi.Genetics
 {
@@ -18,8 +17,7 @@ namespace EnderPi.Genetics
         public List<IGeneticSpecimen> Crossover(IGeneticSpecimen other, RandomNumberGenerator rng);
         public void Mutate(RandomNumberGenerator rng);
         public void Fold();
-        void AddInitialGenes(RandomNumberGenerator rng);
-        public Bitmap GetImage(int seed, int randomsToPlot = 4096);
+        void AddInitialGenes(RandomNumberGenerator rng);        
         public string GetDescription();
     }
 }

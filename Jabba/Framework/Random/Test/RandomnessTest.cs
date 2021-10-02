@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace EnderPi.Random.Test
 {
@@ -130,7 +131,19 @@ namespace EnderPi.Random.Test
                 testResults.Add(test.Result);
             }
             _overallResult = TestHelper.ReturnLowestConclusiveResultEnumerable(testResults);
-        }                
-                
+        }
+
+        public string GetFailedTestsDescription()
+        {
+            var sb = new StringBuilder();
+            foreach (var test in _tests)
+            {
+                if (test.Result == TestResult.Fail)
+                {
+                    sb.AppendLine(test.ToString());
+                }
+            }
+            return sb.ToString();
+        }
     }
 }

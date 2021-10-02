@@ -12,13 +12,11 @@
 - species explorer (view graph, specs, failes/passed tests)
 - add nextlong to randomnumbergeenerator API (divide ulong by 2, reflect it?)
 - Add special functions?
-- Add something like logging to the application?  Probably doesn't need saved to the file.
 - remove cost from the treenode class, needs to be abstracted as a visitor class.
 - Animator for seed changes in species explorer - set min, set max, roll.....
 - Increase unit test coverage
 - save/load
 - warn on close
-- disable form while running
 - change up for 32-bit rngs?
 - feistel rngs
 - get constants, like birthdasy empirical, uniformity, etc
@@ -26,3 +24,14 @@
 - overall stats on operations, node counts, etc.
 - Clear results on start.
 - Make variable stopping criteria - elitism, total number of generation, etc
+- configure max nodes for validity
+- Split up the tabs to be separate controls.
+- Add refresh to log button
+- Add mode to program cleaner for hash mode
+- add hash mode to testing
+- add differential tests
+- add linear tests
+- add button to display C# class - whole thing - for 8099.
+- Add configuration for 8099 program length.
+- write own RNG in assembly and test
+- Add context to addinitial genes method, for amount to add + things that can add.

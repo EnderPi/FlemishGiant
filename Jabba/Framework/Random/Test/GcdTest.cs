@@ -28,7 +28,7 @@ namespace EnderPi.Random.Test
         /// <summary>
         /// Numbers to be processed.  This test processes two non-zero numbers at a time.
         /// </summary>        
-        private Queue<UInt64> _numbers;
+        private Queue<ulong> _numbers;
 
         /// <summary>
         /// The count of GCD's
@@ -147,6 +147,11 @@ namespace EnderPi.Random.Test
             _gcds[gcd]++;
             _iterationsPerformed++;
         }
-                
+
+        public override string ToString()
+        {
+            return $"Gcd Test";
+        }
+
     }
 }

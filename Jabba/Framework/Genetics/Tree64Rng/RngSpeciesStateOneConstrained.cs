@@ -6,6 +6,9 @@ using System.Text;
 
 namespace EnderPi.Genetics.Tree64Rng
 {
+    /// <summary>
+    /// A tree-based random number generator with state one constrained to be some specific function.
+    /// </summary>
     [Serializable]
     public class RngSpeciesStateOneConstrained : Tree64RngSpecimen
     {

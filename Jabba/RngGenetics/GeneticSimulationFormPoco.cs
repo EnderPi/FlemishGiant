@@ -1,12 +1,13 @@
 ﻿using EnderPi.Genetics;
+using EnderPi.Genetics.Linear8099;
 using EnderPi.Genetics.Tree64Rng;
-using EnderPi.Genetics.Tree64Rng.Nodes;
 using EnderPi.Random;
 using EnderPi.Random.Test;
 using EnderPi.System;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,7 +41,7 @@ namespace RngGenetics
         private long _specimensEvaluated;
 
         private ConcurrentQueue<IGeneticSpecimen> _processingQueueForBetterSpecimens;
-
+                        
         public long MaxFitness { set; get; }
 
         public long SpecimensEvaluated { get { return Interlocked.Read(ref _specimensEvaluated); } }
@@ -127,6 +128,8 @@ namespace RngGenetics
                     return new UnconstrainedTree64Factory();                    
                 case SpecimenType.TreeStateConstrained64:
                     return new ConstrainedTree64Factory(StateOneConstraint);
+                case SpecimenType.LinearUnconstrained:
+                    return new LinearGeneticSpecimenFactory();
             }
             throw new NotImplementedException();
         }                
@@ -168,7 +171,7 @@ namespace RngGenetics
         }
 
         private void EvaluateFitnesses(List<IGeneticSpecimen> specimens)
-        {
+        {            
             ParallelOptions options = new ParallelOptions() { CancellationToken = _token, MaxDegreeOfParallelism = Threads };
             try
             {
@@ -184,7 +187,7 @@ namespace RngGenetics
         {
             if (specimen.Fitness != 0) return;            
             try
-            {
+            {                
                 var randomnessTest = new RandomnessTest(specimen.GetEngine(), 1, MaxFitness);
                 randomnessTest.Start();
                 specimen.Fitness = randomnessTest.Iterations;
@@ -192,6 +195,10 @@ namespace RngGenetics
             }
             catch (Exception ex)
             {
+                if (!(ex is DivideByZeroException))
+                {
+                    Logging.LogError(ex.ToString());
+                }
                 specimen.Fitness = -1;
                 specimen.TestsPassed = 0;
             }
@@ -200,8 +207,7 @@ namespace RngGenetics
                 _processingQueueForBetterSpecimens.Enqueue(specimen);
                 OnSpecimenEValuated(Interlocked.Increment(ref _specimensEvaluated));                
             }
-
-        }
+        }                
 
         private List<IGeneticSpecimen> SelectAndBreed(List<IGeneticSpecimen> specimensToBreed)
         {
@@ -223,7 +229,7 @@ namespace RngGenetics
                 }
                 catch (Exception ex)
                 {
-                    
+                    Logging.LogError(ex.ToString());
                 }
             }
             if (nextGen.Count < SpecimensPerGeneration)
@@ -263,11 +269,7 @@ namespace RngGenetics
                 }
             }
         }
-
         
-
-        
-
         private IGeneticSpecimen SelectRandomFitSpecimen(List<IGeneticSpecimen> specimensToBreed)
         {
             if (SpecimensPerTournament == 1)
@@ -289,7 +291,6 @@ namespace RngGenetics
         public int NumberOfEliteSpecimens { set; get; }
         public int SpecimensPerTournament { set; get; }
         public double TournamentProbability { set; get; }
-
         public double MutationChance { set; get; }
         public int NumberOfGenerationsForConvergence { set; get; }
         public bool ConstrainStateOne { get; set; }

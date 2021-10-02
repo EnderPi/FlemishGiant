@@ -14,4 +14,7 @@
 	-10k max deviates
 - remove prime testing?
 - Allow user to view average fitness/generation
+- disable form while running
+- Add something like logging to the application?  Probably doesn't need saved to the file.
+
 

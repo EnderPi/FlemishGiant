@@ -1,6 +1,11 @@
-﻿using Flee.PublicTypes;
+﻿using EnderPi.Random;
+using EnderPi.System;
+using Flee.PublicTypes;
 using System;
+using System.Drawing;
 using System.Numerics;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace EnderPi.Genetics
 {
@@ -43,5 +48,59 @@ namespace EnderPi.Genetics
             return context;
         }
 
+        /// <summary>
+        /// Gets an image representing this species.
+        /// </summary>
+        /// <param name="randomsToPlot">The number of randoms to plot.  4096 doesn't quite half-fill the space.</param>
+        /// <returns></returns>
+        public static Bitmap GetImage(IRandomEngine engine, int seed, int randomsToPlot = 4096)
+        {
+            Bitmap bitmap = new Bitmap(256, 256);
+            for (int i = 0; i < 256; i++)
+            {
+                for (int j = 0; j < 256; j++)
+                {
+                    bitmap.SetPixel(i, j, Color.Blue);                    
+                }
+            }
+                        
+            engine.Seed((ulong)seed);
+            var c1 = Color.Red;
+            var c2 = Color.Yellow;
+            try
+            {
+                for (int k = 0; k < randomsToPlot; k++)
+                {
+                    var bytes = BitConverter.GetBytes(engine.Nextulong());
+                    var bytes2 = BitConverter.GetBytes(engine.Nextulong());
+                    bitmap.SetPixel(bytes[0], bytes2[0], c1);
+                    bitmap.SetPixel(bytes[1], bytes2[1], c1);
+                    bitmap.SetPixel(bytes[2], bytes2[2], c1);
+                    bitmap.SetPixel(bytes[3], bytes2[3], c1);
+                    bitmap.SetPixel(bytes[4], bytes2[4], c2);
+                    bitmap.SetPixel(bytes[5], bytes2[5], c2);
+                    bitmap.SetPixel(bytes[6], bytes2[6], c2);
+                    bitmap.SetPixel(bytes[7], bytes2[7], c2);
+                }
+            }
+            catch (Exception)
+            { }
+            return bitmap;
+        }
+
+        public static string Sanitize(string expression)
+        {
+            var match = Regex.Match(expression, "\\d+");
+            var sb = new StringBuilder();
+            while (match.Success)
+            {
+                sb.Append(expression.Substring(0, match.Index) + match.Value + "UL");
+                expression = expression.Substring(match.Index + match.Length);
+                match = Regex.Match(expression, "\\d+(?!UL)+");
+            }
+            sb.Append(expression);
+            return sb.ToString();
+        }
+        
     }
 }
