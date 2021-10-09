@@ -131,5 +131,31 @@ namespace EnderPi.Random.Test
             return $"Gorilla Test, Word length {_wordSize} bits";
         }
 
+        public string GetFailureDescriptions()
+        {
+            StringBuilder sb = new StringBuilder();
+            if (Result == TestResult.Fail)
+            {
+                sb.AppendLine($"Gorilla Test with word size = {_wordSize}");
+                for (int i = 0; i < 64; i++)
+                {
+                    if (_testResults[i] == TestResult.Fail)
+                    {
+                        sb.AppendLine($"p-value for bit {i} = {_pValues[i]} with test result {_testResults[i]}");
+                    }
+                }
+                if (_overallTestResult == TestResult.Fail)
+                {
+                    sb.AppendLine($"Aggregate p-value {_aggregatePValue}");
+                    sb.AppendLine($"Result of {_overallTestResult}");
+                }
+            }
+            return sb.ToString();
+        }
+
+        public TestType GetTestType()
+        {
+            return TestType.Gorilla;
+        }
     }
 }

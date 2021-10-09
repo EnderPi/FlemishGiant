@@ -1,4 +1,5 @@
 ﻿using EnderPi.Random;
+using EnderPi.Random.Test;
 using System;
 using System.Collections.Generic;
 
@@ -77,6 +78,8 @@ namespace EnderPi.Genetics.Tree64Rng
         /// Names of all constants.  Used in pretty printing.
         /// </summary>
         public List<Tuple<ulong, string>> ConstantNameList { get { return _constantValue; } }
+
+        public TestType[] FailedTests { get; set; }
 
         /// <summary>
         /// Basic constructor.

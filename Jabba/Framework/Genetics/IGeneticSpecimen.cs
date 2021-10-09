@@ -1,4 +1,5 @@
 ﻿using EnderPi.Random;
+using EnderPi.Random.Test;
 using System.Collections.Generic;
 
 namespace EnderPi.Genetics
@@ -13,11 +14,13 @@ namespace EnderPi.Genetics
         public long Fitness { set; get; }
         public int Operations { get; }
         public int TestsPassed { set; get; }
+        public TestType[] FailedTests { set; get; }
         public IRandomEngine GetEngine();
         public List<IGeneticSpecimen> Crossover(IGeneticSpecimen other, RandomNumberGenerator rng);
         public void Mutate(RandomNumberGenerator rng);
         public void Fold();
         void AddInitialGenes(RandomNumberGenerator rng);        
         public string GetDescription();
+
     }
 }

@@ -255,5 +255,10 @@ namespace EnderPi.Genetics.Linear8099
                     break;
             }
         }
+
+        public IEnumerable<Command8099> GetGenerationProgram()
+        {
+            return _generationProgram;
+        }
     }
 }

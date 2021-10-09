@@ -16,6 +16,8 @@ namespace EnderPi.Random.Test
         private Queue<ulong> _queue;
         public TestResult Result => _result;
 
+        private string _failure;
+
         public int TestsPassed => _result == TestResult.Fail ? 0 : 1;
 
         /// <summary>
@@ -26,12 +28,27 @@ namespace EnderPi.Random.Test
         {
             if (_queue.Count == 50)
             {
-                var countOfDupes = _queue.GroupBy(x => x).OrderByDescending(y => y.Count()).First().Count();
+                var dupes = _queue.GroupBy(x => x).OrderByDescending(y => y.Count()).First();
+                var countOfDupes = dupes.Count();
                 if (countOfDupes > 10)
                 {
                     _result = TestResult.Fail;
+                    if (detailed)
+                    {
+                        _failure = $"{dupes.Key} duplicated {countOfDupes} times in 50 elements."; 
+                    }
                 }
             }
+        }
+
+        public string GetFailureDescriptions()
+        {
+            if (Result == TestResult.Fail)
+            {
+                //return $"Zero Test: Queue Length:50, Dupe Max:10";
+                return _failure;
+            }
+            return "";
         }
 
         public void Initialize()
@@ -54,5 +71,9 @@ namespace EnderPi.Random.Test
             return $"Zero Test: Queue Length:50, Dupe Max:10";
         }
 
+        public TestType GetTestType()
+        {
+            return TestType.ZeroTest;
+        }
     }
 }

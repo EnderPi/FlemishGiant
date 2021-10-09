@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace EnderPi.Random.Test
 {
@@ -36,7 +37,9 @@ namespace EnderPi.Random.Test
         /// Current overall result of the test.  Is the minimum amongst the conclusive tests, i.e. a fail of one means a fail.
         /// </summary>
         private TestResult _overallResult;
-        
+
+        private CancellationToken _token;
+
         /// <summary>
         /// The seed for the engine.
         /// </summary>
@@ -51,6 +54,16 @@ namespace EnderPi.Random.Test
         /// Property that wraps the current number of iterations.
         /// </summary>
         public long Iterations { get { return _currentNumberOfIterations; } }
+
+
+        public delegate void RandomnessTestEventHandler(object sender, RandomnessTestEventArgs e);
+
+        public event RandomnessTestEventHandler CheckpointPassed;
+
+        public void OnCheckpointPassed()
+        {
+            CheckpointPassed?.Invoke(this, new RandomnessTestEventArgs() {  Iterations = _currentNumberOfIterations, Result = _overallResult });
+        }
 
         /// <summary>
         /// Property that wraps the current number of tests passed.
@@ -68,16 +81,32 @@ namespace EnderPi.Random.Test
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="seed"></param>
-        public RandomnessTest(IRandomEngine engine, ulong seed, long maxFitness)
+        public RandomnessTest(IRandomEngine engine, CancellationToken token, RandomTestParameters parameters)
         {
             _randomEngine = engine;
-            _seed = seed;
+            _seed = parameters.Seed;
             _tests = new List<IIncrementalRandomTest>();
             _tests.Add(new ZeroTest());
             _tests.Add(new GcdTest());
             _tests.Add(new GorillaTest(7));
-
-            _targetNumberOfIterations = maxFitness;
+            if (parameters.MaxFitness > 12000000)
+            {
+                _tests.Add(new GorillaTest(17));
+            }
+            if (parameters.IncludeLinearHashTests)
+            {
+                _tests.Add(new LinearHashTest(engine));
+            }
+            if (parameters.IncludeDifferentialHashTests)
+            {
+                _tests.Add(new DifferentialTest(engine, parameters.MaxFitness));
+            }
+            if (parameters.IncludeLinearSerialTests)
+            {
+                _tests.Add(new LinearSerialTest());
+            }
+            _token = token;
+            _targetNumberOfIterations = parameters.MaxFitness;
         }
         
         /// <summary>
@@ -93,13 +122,14 @@ namespace EnderPi.Random.Test
                 test.Initialize();
             }
             
-            while (_currentNumberOfIterations < _targetNumberOfIterations && _overallResult != TestResult.Fail)
+            while (_currentNumberOfIterations < _targetNumberOfIterations && _overallResult != TestResult.Fail && !_token.IsCancellationRequested)
             {
                 DoOneIteration();
                 if (_currentNumberOfIterations == _nextIterationCheck)
                 {
                     _nextIterationCheck += _nextIterationCheck / 10;
-                    CalculateResults(false);                    
+                    CalculateResults(false);
+                    OnCheckpointPassed();
                 }
             }
             CalculateResults(true);
@@ -138,12 +168,22 @@ namespace EnderPi.Random.Test
             var sb = new StringBuilder();
             foreach (var test in _tests)
             {
-                if (test.Result == TestResult.Fail)
-                {
-                    sb.AppendLine(test.ToString());
-                }
+                sb.AppendLine(test.GetFailureDescriptions());                
             }
             return sb.ToString();
+        }
+
+        public TestType[] FailedTests()
+        {
+            List<TestType> tests = new List<TestType>();
+            foreach (var test in _tests)
+            {
+                if (test.Result == TestResult.Fail)
+                {
+                    tests.Add(test.GetTestType());
+                }
+            }
+            return tests.ToArray();
         }
     }
 }

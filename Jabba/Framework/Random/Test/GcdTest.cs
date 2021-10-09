@@ -76,12 +76,10 @@ namespace EnderPi.Random.Test
         private string GetDetailedResult()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Gcd Test with N = {_iterationsPerformed} GCDs calculated");
-            sb.AppendLine($"p-value for GCD {_chiSquaredGcd.PValue}");
-            sb.AppendLine($"Result of {_chiSquaredGcd.Result} for GCD");
+            sb.AppendLine($"Gcd Test with {_iterationsPerformed} GCDs calculated");            
             foreach (var item in _chiSquaredGcd.TopContributors)
             {
-                sb.AppendLine($"Contributor GCD {item.Index} with expected count {item.ExpectedCount} and actual count {item.ActualCount}, {Math.Round(item.FractionOfChiQuared * 100, 2)}% of ChiSquared");
+                sb.AppendLine($"GCD {item.Index} with expected count {item.ExpectedCount:N0} and actual count {item.ActualCount}, {Math.Round(item.FractionOfChiQuared * 100, 2)}% of ChiSquared");
             }
             
             return sb.ToString();
@@ -153,5 +151,21 @@ namespace EnderPi.Random.Test
             return $"Gcd Test";
         }
 
+        public string GetFailureDescriptions()
+        {
+            if (Result == TestResult.Fail)
+            {
+                return GetDetailedResult();
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        public TestType GetTestType()
+        {
+            return TestType.GcdTest;
+        }
     }
 }
