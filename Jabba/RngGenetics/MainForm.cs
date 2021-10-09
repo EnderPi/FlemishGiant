@@ -1,4 +1,5 @@
 ﻿using EnderPi.Genetics;
+using EnderPi.Genetics.Linear8099;
 using EnderPi.Genetics.Tree64Rng;
 using EnderPi.Random;
 using EnderPi.Random.Test;
@@ -54,7 +55,9 @@ namespace RngGenetics
             {
                 comboBoxGeneticType.Items.Add(specimenType);
             }
-            comboBoxGeneticType.SelectedIndex = 0;
+            comboBoxGeneticType.SelectedIndex = 2;
+            comboBoxRngTestingType.Items.AddRange(new object[] { SpecimenType.TreeUnconstrained64, SpecimenType.LinearUnconstrained});
+            comboBoxRngTestingType.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -83,7 +86,7 @@ namespace RngGenetics
                         _best = _simulation.GetNextBetterRng(null);
                         if (_best != null)
                         {
-                            Invoke(new FormDelegate(()=>PopulatePictureBox(_best)));
+                            Invoke(new FormDelegate(()=>PopulatePictureBox()));
                         }
                     }
                 }
@@ -91,16 +94,16 @@ namespace RngGenetics
             Interlocked.Exchange(ref _specimensEvaluated, e.SpecimensEvaluated);
         }
 
-        private void PopulatePictureBox(IGeneticSpecimen best)
+        private void PopulatePictureBox()
         {
             try
             {
-                pictureBoxMain.Image = GeneticHelper.GetImage(best.GetEngine(), 1);
-                textBoxBestDescription.Text = best.GetDescription();
-                textBoxGeneration.Text = best.Generation.ToString();
-                textBoxFitness.Text = best.Fitness.ToString("N0");
-                textBoxOperations.Text = best.Operations.ToString("N0");
-                textBoxTestsPassed.Text = best.TestsPassed.ToString("N0");
+                pictureBoxMain.Image = GeneticHelper.GetImage(_best.GetEngine(), 1);
+                textBoxBestDescription.Text = _best.GetDescription();
+                textBoxGeneration.Text = _best.Generation.ToString();
+                textBoxFitness.Text = _best.Fitness.ToString("N0");
+                textBoxOperations.Text = _best.Operations.ToString("N0");
+                textBoxTestsPassed.Text = _best.TestsPassed.ToString("N0");
             }
             catch (Exception ex)
             {
@@ -148,7 +151,12 @@ namespace RngGenetics
             _simulation.Threads = (int)numericUpDownThreads.Value;
             _simulation.MaxFitness = (long)numericUpDownMaxFitness.Value;            
             _simulation.StateOneConstraint = textBoxStateOneFunction.Text;
-            _simulation.RngSpecimenType = (SpecimenType)comboBoxGeneticType.SelectedItem;            
+            _simulation.RngSpecimenType = (SpecimenType)comboBoxGeneticType.SelectedItem;
+            _simulation.SelectionPressure = (double)numericUpDownSelectionPressure.Value;
+            _simulation.IncludeLinearHash = checkBoxLinearHash.Checked;
+            _simulation.IncludeLinearSerial = checkBoxGeneticLinearSerial.Checked;
+            _simulation.IncludeDifferentialHash = checkBoxDifferentialTest.Checked;
+
         }
 
         private void RunSimulation()
@@ -167,17 +175,19 @@ namespace RngGenetics
         {
             timerUpdateUI.Enabled = false;
             timerUpdateVisual.Enabled = false;
-            PopulatePictureBox(_simulation.Best);                        
+            _best = _simulation.Best;
+            PopulatePictureBox();                        
             dataGridViewAverageFitness.SuspendLayout();
             dataGridViewAverageFitness.Rows.Clear();
             for (int i=0; i < _simulation._allSpecimens.Count; i++)
             {
-                dataGridViewAverageFitness.Rows.Add(i, _simulation._allSpecimens[i].Average(x => x.Fitness).ToString("N0"));
+                dataGridViewAverageFitness.Rows.Add(i, _simulation._allSpecimens[i].Average(x => x.Fitness).ToString("N0"));                
             }
             dataGridViewAverageFitness.ResumeLayout();            
             toolStripProgressBarMain.Style = ProgressBarStyle.Continuous;
             toolStripProgressBarMain.Value = 0;
             toolStripStatusLabel1.Text = "";
+            textBoxFailures.Text = _simulation.GetFailureOccurences();
             EnableControls(false);
             _source.Dispose();
         }
@@ -198,6 +208,8 @@ namespace RngGenetics
             numericUpDownMaxFitness.Enabled = !isRunning;
             comboBoxGeneticType.Enabled = !isRunning;
             textBoxStateOneFunction.Enabled = !isRunning && comboBoxGeneticType.SelectedItem is SpecimenType.TreeStateConstrained64;
+            numericUpDownSelectionPressure.Enabled = !isRunning;
+            buttonPushToTesting.Enabled = !isRunning;
         }
 
         /// <summary>
@@ -237,7 +249,18 @@ namespace RngGenetics
             if (result != null)
             {
                 _best = result;
-                PopulatePictureBox(_best);
+                PopulatePictureBox();
+            }
+            lock (_simulation._specimensPadlock)
+            {
+                dataGridViewAverageFitness.SuspendLayout();
+                dataGridViewAverageFitness.Rows.Clear();
+                for (int i = _simulation._allSpecimens.Count - 1; i >= 0 ; i--)
+                {
+                    dataGridViewAverageFitness.Rows.Add(i, _simulation._allSpecimens[i].Average(x => x.Fitness).ToString("N0"));                    
+                }
+                dataGridViewAverageFitness.ResumeLayout();
+                textBoxFailures.Text = _simulation.GetFailureOccurences();
             }
         }
         
@@ -258,24 +281,37 @@ namespace RngGenetics
         {
             if (tabControl1.SelectedTab == tabPage2)
             {
-                dataGridViewLog.SuspendLayout();
-                dataGridViewLog.Rows.Clear();
-                var logMessages = Logging.GetLogMessages();
-                foreach(var logmessage in logMessages)
-                {
-                    dataGridViewLog.Rows.Add(logmessage.Id, logmessage.TimeStamp.ToShortTimeString(), logmessage.Message);
-                }
-                dataGridViewLog.ResumeLayout();
+                PopulateLogs();
             }
+        }
+
+        private void PopulateLogs()
+        {
+            dataGridViewLog.SuspendLayout();
+            dataGridViewLog.Rows.Clear();
+            var logMessages = Logging.GetLogMessages();
+            foreach (var logmessage in logMessages)
+            {
+                dataGridViewLog.Rows.Add(logmessage.Id, logmessage.TimeStamp.ToShortTimeString(), logmessage.Message);
+            }
+            dataGridViewLog.ResumeLayout();
         }
 
         private void buttonStartTesting_Click(object sender, EventArgs e)
         {
-            _sourceRngTesting = new CancellationTokenSource();
-            DynamicRandomEngine engine = null;
+            _sourceRngTesting = new CancellationTokenSource();            
+            IRandomEngine engine = null;
             try
             {
-                engine = new DynamicRandomEngine(textBoxStateExpressionRngTesting.Text, textBoxOutputRngTesting.Text);
+                if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.TreeUnconstrained64)
+                {
+                    engine = new DynamicRandomEngine(textBoxStateExpressionRngTesting.Text, textBoxOutputRngTesting.Text);
+                }
+                else if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.LinearUnconstrained)
+                {
+                    var commands = LinearGeneticHelper.Parse(textBoxStateExpressionRngTesting.Text);
+                    engine = new LinearGeneticEngine(commands);
+                }
             }
             catch(Exception ex) 
             {
@@ -295,17 +331,20 @@ namespace RngGenetics
             //toolStripStatusLabel1.Text = "Running...";
 
             long maxFitness = (long)numericUpDownMaxFitnessRngTesting.Value;
-            var thread = new Thread(()=>RunRngTest(engine, maxFitness));
+            var parameters = new RandomTestParameters() { MaxFitness = maxFitness, Seed = 1, IncludeDifferentialHashTests = checkBoxDifferentialHashTests.Checked, IncludeLinearHashTests = checkBoxLinearHashTests.Checked };
+            parameters.IncludeLinearSerialTests = checkBoxLinearSerialTests.Checked;
+            var thread = new Thread(()=>RunRngTest(engine, parameters));
             thread.IsBackground = true;
             thread.Start();                        
         }
 
-        private void RunRngTest(IRandomEngine engine, long maxFitness)
+        private void RunRngTest(IRandomEngine engine, RandomTestParameters parameters)
         {
             RandomnessTest simulation = null;
             try
             {
-                simulation = new RandomnessTest(engine, 1, maxFitness);
+                simulation = new RandomnessTest(engine, _sourceRngTesting.Token, parameters);
+                simulation.CheckpointPassed += RngCheckpointPassed;
                 simulation.Start();                
             }
             finally
@@ -316,6 +355,16 @@ namespace RngGenetics
 
         }
 
+        private void RngCheckpointPassed(object sender, RandomnessTestEventArgs e)
+        {
+            Invoke(new FormDelegate(() => RngTestingCheckpoint(e)));
+        }
+
+        private void RngTestingCheckpoint(RandomnessTestEventArgs e)
+        {
+            textBoxFitnessRngTesting.Text = e.Iterations.ToString("N0");
+        }
+
         private void RngTestingFinished(RandomnessTest simulation, IRandomEngine engine)
         {
             textBoxFitnessRngTesting.Text = simulation.Iterations.ToString("N0");
@@ -323,6 +372,53 @@ namespace RngGenetics
             pictureBoxRngTesting.Image = GeneticHelper.GetImage(engine, 1);            
             progressBarRngTesting.Style =  ProgressBarStyle.Blocks;
             textBoxDescriptionRngTesting.Text = simulation.GetFailedTestsDescription();
-        }                        
+        }
+
+        private void buttonPushToTesting_Click(object sender, EventArgs e)
+        {            
+            if (_best is Tree64RngSpecimen bestTree)
+            {
+                comboBoxRngTestingType.SelectedIndex = 0;
+                textBoxStateExpressionRngTesting.Text = bestTree.StateRoot.Evaluate();
+                textBoxOutputRngTesting.Text = bestTree.OutputRoot.Evaluate();
+                tabControl1.SelectedTab = tabPage3;
+            }
+            if (_best is LinearRngSpecimen bestLinear)
+            {
+                comboBoxRngTestingType.SelectedIndex = 1;
+                textBoxStateExpressionRngTesting.Text = LinearGeneticHelper.PrintProgram(bestLinear.GetGenerationProgram());                
+                tabControl1.SelectedTab = tabPage3;
+            }
+        }
+
+        private void comboBoxRngTestingType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch ((SpecimenType)comboBoxRngTestingType.SelectedItem)
+            {
+                case SpecimenType.TreeUnconstrained64:
+                    labelFieldTwo.Visible = true;
+                    textBoxOutputRngTesting.Visible = true;                    
+                    labelFieldOne.Text = "State Function Expression";
+                    break;
+                case SpecimenType.LinearUnconstrained:
+                    labelFieldTwo.Visible = false;
+                    textBoxOutputRngTesting.Visible = false;
+                    labelFieldOne.Text = "Generation Program";
+                    break;
+            }
+        }
+
+        private void buttonStopTesting_Click(object sender, EventArgs e)
+        {
+            if (_sourceRngTesting != null && !_sourceRngTesting.IsCancellationRequested)
+            {
+                _sourceRngTesting.Cancel();
+            }
+        }
+
+        private void buttonRefreshLogs_Click(object sender, EventArgs e)
+        {
+            PopulateLogs();
+        }
     }
 }

@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +32,8 @@ namespace RngGenetics
         private RandomNumberGenerator _rng;
 
         public List<List<IGeneticSpecimen>> _allSpecimens;
+
+        public object _specimensPadlock = new object();
 
         private int _generation;
 
@@ -56,7 +59,7 @@ namespace RngGenetics
         /// </summary>
         public event SimulationEventHandler GenerationFinished;
 
-        public void OnSpecimenEValuated(long specimensEvaluated)
+        public void OnSpecimenEvaluated(long specimensEvaluated)
         {
             SpecimenEvaluated?.Invoke(this, new SimulationEventArgs() { SpecimensEvaluated = specimensEvaluated });
         }
@@ -66,11 +69,32 @@ namespace RngGenetics
             GenerationFinished?.Invoke(this, new SimulationEventArgs() { Generation = generation });
         }
 
+        private int[] _failureModes;
+
+        public string GetFailureOccurences()
+        {
+            if (_failureModes == null)
+            {
+                return null;
+            }
+            var sb = new StringBuilder();
+            for (int i=0; i < _failureModes.Length; i++)
+            {
+                if (_failureModes[i] != 0)
+                {
+                    sb.AppendLine($"{(TestType)i} : {_failureModes[i]}");
+                }
+            }
+            return sb.ToString();
+        }
 
         internal void Run(CancellationToken token)
         {
             _processingQueueForBetterSpecimens = new ConcurrentQueue<IGeneticSpecimen>();
-            _allSpecimens = new List<List<IGeneticSpecimen>>();
+            lock (_specimensPadlock)
+            {
+                _allSpecimens = new List<List<IGeneticSpecimen>>();
+            }
             _specimensEvaluated = 0;
             _token = token;
             bool converged = false;
@@ -78,7 +102,8 @@ namespace RngGenetics
             _rng = new RandomNumberGenerator(new RandomHash());
             _rng.SeedRandom();
             List<IGeneticSpecimen> _specimens = InitializeGeneration();
-            OnGenerationFinished(_generation);
+            CalculateFailureModes();
+            OnGenerationFinished(_generation);            
             List<IGeneticSpecimen> _specimensNextGeneration = new List<IGeneticSpecimen>();
             
             while (!converged && !_token.IsCancellationRequested)
@@ -86,10 +111,14 @@ namespace RngGenetics
                 _specimensNextGeneration = new List<IGeneticSpecimen>();
                 _specimensNextGeneration.Add(_specimens[0]);
                 _specimensNextGeneration.AddRange(SelectAndBreed(_specimens));
-                _allSpecimens.Add(_specimens);
+                lock (_specimensPadlock)
+                {
+                    _allSpecimens.Add(_specimens);
+                    CalculateFailureModes();
+                }
                 _specimens = _specimensNextGeneration;  //replacing....
 
-                EvaluateFitnesses(_specimens);
+                EvaluateFitnesses(_specimens, token);
                 _specimens = _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
                 Best = _specimens[0];
                 OnGenerationFinished(_generation);
@@ -98,9 +127,31 @@ namespace RngGenetics
                 converged = (Best.Generation + NumberOfGenerationsForConvergence) <= _generation;
                 _generation++;
             }
-            _allSpecimens.Add(_specimens);
+            lock (_specimensPadlock)
+            {
+                _allSpecimens.Add(_specimens);
+                CalculateFailureModes();
+            }
         }
-            
+
+        private void CalculateFailureModes()
+        {
+            _failureModes = new int[6];
+            foreach (var gen in _allSpecimens)
+            {
+                foreach (var specimen in gen)
+                {
+                    if (specimen.FailedTests != null)
+                    {
+                        foreach (var failure in specimen.FailedTests)
+                        {
+                            _failureModes[(int)failure]++;
+                        }
+                    }
+                }
+            }
+        }
+
         public List<IGeneticSpecimen> InitializeGeneration()
         {            
             var _specimens = new List<IGeneticSpecimen>(SpecimensPerGeneration);
@@ -113,7 +164,7 @@ namespace RngGenetics
                 AddSpeciesToListIfValid(_specimens, species);
             }
             _generation++;
-            EvaluateFitnesses(_specimens);
+            EvaluateFitnesses(_specimens, _token);
             var returnValue = _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
             Best = returnValue[0];
             _processingQueueForBetterSpecimens.Enqueue(Best);
@@ -136,7 +187,7 @@ namespace RngGenetics
 
         public IGeneticSpecimen GetNextBetterRng(IGeneticSpecimen species)
         {
-            IGeneticSpecimen returnValue;
+            IGeneticSpecimen returnValue = null;
             if (species == null)
             {
                 _processingQueueForBetterSpecimens.TryDequeue(out returnValue);
@@ -144,7 +195,6 @@ namespace RngGenetics
             }
 
             var compararer = GetSpeciesComparer();
-            
             do
             {
                 _processingQueueForBetterSpecimens.TryDequeue(out returnValue);
@@ -170,28 +220,30 @@ namespace RngGenetics
             return new SpeciesComparer();
         }
 
-        private void EvaluateFitnesses(List<IGeneticSpecimen> specimens)
+        private void EvaluateFitnesses(List<IGeneticSpecimen> specimens, CancellationToken token)
         {            
             ParallelOptions options = new ParallelOptions() { CancellationToken = _token, MaxDegreeOfParallelism = Threads };
             try
             {
-                Parallel.ForEach(specimens, options, x => EvaluateFitness(x));
+                Parallel.ForEach(specimens, options, x => EvaluateFitness(x, token));
             }
             catch (OperationCanceledException )
             { }
-
+            
                         
         }
 
-        private void EvaluateFitness(IGeneticSpecimen specimen)
+        private void EvaluateFitness(IGeneticSpecimen specimen, CancellationToken token)
         {
-            if (specimen.Fitness != 0) return;            
+            if (specimen.Fitness != 0) return;
+            var parameters = new RandomTestParameters() { Seed = 1, MaxFitness = MaxFitness, IncludeLinearHashTests = IncludeLinearHash, IncludeDifferentialHashTests = IncludeDifferentialHash, IncludeLinearSerialTests = IncludeLinearSerial };
             try
             {                
-                var randomnessTest = new RandomnessTest(specimen.GetEngine(), 1, MaxFitness);
+                var randomnessTest = new RandomnessTest(specimen.GetEngine(), token, parameters);
                 randomnessTest.Start();
                 specimen.Fitness = randomnessTest.Iterations;
                 specimen.TestsPassed = randomnessTest.TestsPassed;
+                specimen.FailedTests = randomnessTest.FailedTests();
             }
             catch (Exception ex)
             {
@@ -205,7 +257,7 @@ namespace RngGenetics
             finally
             {
                 _processingQueueForBetterSpecimens.Enqueue(specimen);
-                OnSpecimenEValuated(Interlocked.Increment(ref _specimensEvaluated));                
+                OnSpecimenEvaluated(Interlocked.Increment(ref _specimensEvaluated));                
             }
         }                
 
@@ -282,7 +334,7 @@ namespace RngGenetics
                 tourney.Add(_rng.GetRandomElement(specimensToBreed));
             }
             tourney = tourney.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
-            int index = (_rng.NextDouble() < 0.7) ? 0 : _rng.NextInt(1, SpecimensPerTournament-1);
+            int index = (_rng.NextDouble() < SelectionPressure) ? 0 : _rng.NextInt(1, SpecimensPerTournament-1);
             return tourney[index];            
         }
 
@@ -295,5 +347,12 @@ namespace RngGenetics
         public int NumberOfGenerationsForConvergence { set; get; }
         public bool ConstrainStateOne { get; set; }
         public string StateOneConstraint { get; set; }
+        public double SelectionPressure { set; get; }
+
+        public bool IncludeLinearHash { set; get; }
+
+        public bool IncludeDifferentialHash { set; get; }
+
+        public bool IncludeLinearSerial { set; get; }
     }
 }
