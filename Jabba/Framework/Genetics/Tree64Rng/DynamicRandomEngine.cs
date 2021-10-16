@@ -57,10 +57,11 @@ namespace EnderPi.Genetics.Tree64Rng
             if (_context == null)
             {
                 Initialize();
-            }
+            }            
+            var x =  _expressionOutput.Evaluate();
             _stateOne = _expressionStateOne.Evaluate();
             _context.Variables[StateOneNode.Name] = _stateOne;
-            return _expressionOutput.Evaluate();
+            return x;
         }
 
         /// <summary>

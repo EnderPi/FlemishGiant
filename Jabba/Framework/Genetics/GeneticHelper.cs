@@ -1,5 +1,5 @@
 ﻿using EnderPi.Random;
-using EnderPi.System;
+using EnderPi.SystemE;
 using Flee.PublicTypes;
 using System;
 using System.Drawing;
@@ -30,10 +30,33 @@ namespace EnderPi.Genetics
         /// </summary>
         /// <param name="x">The number to rotate.</param>
         /// <param name="k">The value to rotate by.</param>
+        /// <returns>RotateLeft(x, k & 63)</returns>
+        public static uint RotaterLeft(uint x, uint k)
+        {
+            return BitOperations.RotateLeft(x, (int)(k & 31U));
+        }
+
+
+        /// <summary>
+        /// Bitwise rotation, but takes the low bits of the rotation constant.  Useful in genetic algorithms.
+        /// </summary>
+        /// <param name="x">The number to rotate.</param>
+        /// <param name="k">The value to rotate by.</param>
         /// <returns>RotateRight(x, k & 63)</returns>
         public static ulong RotaterRight(ulong x, ulong k)
         {
             return BitOperations.RotateRight(x, (int)(k & 63UL));
+        }
+
+        /// <summary>
+        /// Bitwise rotation, but takes the low bits of the rotation constant.  Useful in genetic algorithms.
+        /// </summary>
+        /// <param name="x">The number to rotate.</param>
+        /// <param name="k">The value to rotate by.</param>
+        /// <returns>RotateRight(x, k & 63)</returns>
+        public static ulong RotaterRight(uint x, uint k)
+        {
+            return BitOperations.RotateRight(x, (int)(k & 31U));
         }
 
         /// <summary>

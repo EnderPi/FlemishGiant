@@ -35,7 +35,7 @@ namespace EnderPi.Genetics.Tree64Rng
         /// Adds some initial state to the generator.  May be nodes for a tree, or commands for a linear.
         /// </summary>
         /// <param name="rng"></param>
-        public abstract void AddInitialGenes(RandomNumberGenerator rng);
+        public abstract void AddInitialGenes(RandomNumberGenerator rng, GeneticParameters geneticParameters);
 
         /// <summary>
         /// Abstract method for crossing over specimens.
@@ -55,7 +55,7 @@ namespace EnderPi.Genetics.Tree64Rng
         /// This call definitely mutates, and uses the RNG for any needed randomness.
         /// </summary>
         /// <param name="rng"></param>
-        public abstract void Mutate(RandomNumberGenerator rng);
+        public abstract void Mutate(RandomNumberGenerator rng, GeneticParameters geneticParameters);
 
         /// <summary>
         /// Determines whether or not this specimen is valid.

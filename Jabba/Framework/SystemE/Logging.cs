@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace EnderPi.System
+namespace EnderPi.SystemE
 {
     /// <summary>
     /// Lightweight in-memory logging.

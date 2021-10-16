@@ -7,6 +7,7 @@
     {
         TreeUnconstrained64 = 0,
         TreeStateConstrained64 = 1,        
-        LinearUnconstrained = 2
+        LinearUnconstrained = 2,
+        Feistel
     }
 }

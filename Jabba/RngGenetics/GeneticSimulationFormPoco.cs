@@ -3,7 +3,7 @@ using EnderPi.Genetics.Linear8099;
 using EnderPi.Genetics.Tree64Rng;
 using EnderPi.Random;
 using EnderPi.Random.Test;
-using EnderPi.System;
+using EnderPi.SystemE;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -44,7 +44,10 @@ namespace RngGenetics
         private long _specimensEvaluated;
 
         private ConcurrentQueue<IGeneticSpecimen> _processingQueueForBetterSpecimens;
-                        
+
+        public bool TestAsHash { set; get; }
+                 
+        public GeneticParameters SimulationParameters { set; get; }
         public long MaxFitness { set; get; }
 
         public long SpecimensEvaluated { get { return Interlocked.Read(ref _specimensEvaluated); } }
@@ -82,7 +85,7 @@ namespace RngGenetics
             {
                 if (_failureModes[i] != 0)
                 {
-                    sb.AppendLine($"{(TestType)i} : {_failureModes[i]}");
+                    sb.AppendLine($"{(TestType)i} : {_failureModes[i]:N0}");
                 }
             }
             return sb.ToString();
@@ -160,7 +163,7 @@ namespace RngGenetics
             {
                 var species = factory.CreateGeneticSpecimen(_rng);
                 //damn dependency issue.  I need a node provider i pass down
-                species.AddInitialGenes(_rng);                
+                species.AddInitialGenes(_rng, SimulationParameters);                
                 AddSpeciesToListIfValid(_specimens, species);
             }
             _generation++;
@@ -236,7 +239,7 @@ namespace RngGenetics
         private void EvaluateFitness(IGeneticSpecimen specimen, CancellationToken token)
         {
             if (specimen.Fitness != 0) return;
-            var parameters = new RandomTestParameters() { Seed = 1, MaxFitness = MaxFitness, IncludeLinearHashTests = IncludeLinearHash, IncludeDifferentialHashTests = IncludeDifferentialHash, IncludeLinearSerialTests = IncludeLinearSerial };
+            var parameters = new RandomTestParameters() { Seed = 1, MaxFitness = MaxFitness, TestAsHash = TestAsHash };
             try
             {                
                 var randomnessTest = new RandomnessTest(specimen.GetEngine(), token, parameters);
@@ -317,7 +320,7 @@ namespace RngGenetics
             {
                 while (_rng.NextDoubleInclusive() < MutationChance)
                 {
-                    child.Mutate(_rng);                    
+                    child.Mutate(_rng, SimulationParameters);                    
                 }
             }
         }

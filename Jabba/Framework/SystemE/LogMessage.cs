@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EnderPi.System
+namespace EnderPi.SystemE
 {
     /// <summary>
     /// POCO for log messages.

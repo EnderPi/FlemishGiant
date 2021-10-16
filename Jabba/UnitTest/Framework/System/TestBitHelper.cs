@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Text;
 using EnderPi.Cryptography;
-using EnderPi.System;
+using EnderPi.SystemE;
 using NUnit.Framework;
 
 namespace UnitTest.Framework.System

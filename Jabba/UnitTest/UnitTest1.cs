@@ -8,6 +8,7 @@ using EnderPi.Genetics;
 using EnderPi.Genetics.Tree64Rng.Nodes;
 using System.Text.RegularExpressions;
 using System.Text;
+using System.Linq;
 
 namespace UnitTest
 {
@@ -65,6 +66,41 @@ namespace UnitTest
             return sb.ToString();
         }
 
+        private ushort RotaterLeft(ushort x, ushort y)
+        {
+            int rot = (int)(y & 15);
+            return (ushort)(x << rot | x >> (16 - rot));
+        }
+
+        [Test]
+        public void TestRotater()
+        {
+            ushort[] rotaters = new ushort[ushort.MaxValue + 1];
+            for (int i=0; i <= ushort.MaxValue; i++)
+            {
+                ushort z = (ushort)i;
+                rotaters[i] = (ushort)(z ^ (ushort)(z >> 8));
+            }
+            Array.Sort(rotaters);
+            bool failed = false;
+            for (int i=1; i < rotaters.Length; i++)
+            {
+                if (rotaters[i-1] == rotaters[i])
+                {
+                    failed = true;
+                }
+            }
+            int missing = 0;
+            for (int i=0; i < rotaters.Length; i++)
+            {
+                if (!rotaters.Contains((ushort)i))
+                {
+                    missing++;
+                }
+            }
+
+            Assert.IsFalse(failed);
+        }
 
     }
 }

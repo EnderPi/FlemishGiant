@@ -35,3 +35,7 @@
 - Add configuration for 8099 program length.
 - write own RNG in assembly and test
 - Add context to addinitial genes method, for amount to add + things that can add.
+- generation stats - number of nodes by type
+- add seed control to rng testing
+- add ability to test multiple seeds in testing
+- Make folding expressions recogniz (A-A = C(0))

@@ -1,4 +1,4 @@
-﻿using EnderPi.System;
+﻿using EnderPi.SystemE;
 using System.Numerics;
 
 namespace EnderPi.Cryptography

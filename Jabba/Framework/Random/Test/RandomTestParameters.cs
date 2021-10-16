@@ -8,9 +8,10 @@ namespace EnderPi.Random.Test
     {
         public ulong Seed { set; get; }
         public long MaxFitness { set; get; }
-        public bool IncludeLinearHashTests { set; get; }
-        public bool IncludeDifferentialHashTests { set; get; }
+        
 
-        public bool IncludeLinearSerialTests { set; get; }
+        public bool TestAsHash { set; get; }
+
+        
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace EnderPi.System
+namespace EnderPi.SystemE
 {
     public static class Extensions
     {

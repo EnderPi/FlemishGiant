@@ -9,6 +9,6 @@ namespace EnderPi.Random.Test
         public int PreviousBit { set; get; }
         public int NextBit { set; get; }
         public double Expected { set; get; }
-        public int Actual { set; get; }
+        public long Actual { set; get; }
     }
 }

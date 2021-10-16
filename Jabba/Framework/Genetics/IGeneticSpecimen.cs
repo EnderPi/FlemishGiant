@@ -17,9 +17,9 @@ namespace EnderPi.Genetics
         public TestType[] FailedTests { set; get; }
         public IRandomEngine GetEngine();
         public List<IGeneticSpecimen> Crossover(IGeneticSpecimen other, RandomNumberGenerator rng);
-        public void Mutate(RandomNumberGenerator rng);
+        public void Mutate(RandomNumberGenerator rng, GeneticParameters geneticParameters);
         public void Fold();
-        void AddInitialGenes(RandomNumberGenerator rng);        
+        void AddInitialGenes(RandomNumberGenerator rng, GeneticParameters geneticParameters);        
         public string GetDescription();
 
     }

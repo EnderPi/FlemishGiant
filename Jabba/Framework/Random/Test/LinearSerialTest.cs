@@ -11,7 +11,7 @@ namespace EnderPi.Random.Test
 
         protected long _currentNumberOfIterations;
 
-        private int[][] _countOfZeros;
+        private long[][] _countOfZeros;
 
         public TestResult Result { set; get; }
 
@@ -21,14 +21,16 @@ namespace EnderPi.Random.Test
 
         private ulong _last;
 
+        private bool _initialNumberProcessed;
+
         public LinearSerialTest()
         {            
             _masks = new ulong[64];
-            _countOfZeros = new int[64][];
+            _countOfZeros = new long[64][];
             for (int i = 0; i < 64; i++)
             {
                 _masks[i] = 1UL << i;
-                _countOfZeros[i] = new int[64];
+                _countOfZeros[i] = new long[64];
             }
         }
 
@@ -69,22 +71,30 @@ namespace EnderPi.Random.Test
         public void Initialize()
         {
             Result = TestResult.Inconclusive;
+            _initialNumberProcessed = false;
         }
 
         public void Process(ulong randomNumber)
-        {            
-            for (int i = 0; i < 64; i++)
+        {
+            if (_initialNumberProcessed)
             {
-                for (int j = 0; j < 64; j++)
+                for (int i = 0; i < 64; i++)
                 {
-                    var xor = ((randomNumber & _masks[i]) >> i) ^ ((_last & _masks[j]) >> j);
-                    if (xor == 0)
+                    for (int j = 0; j < 64; j++)
                     {
-                        _countOfZeros[i][j]++;
+                        var xor = ((randomNumber & _masks[i]) >> i) ^ ((_last & _masks[j]) >> j);
+                        if (xor == 0)
+                        {
+                            _countOfZeros[i][j]++;
+                        }
                     }
                 }
+                _currentNumberOfIterations++;
             }
-            _currentNumberOfIterations++;
+            else
+            {
+                _initialNumberProcessed = true;
+            }
             _last = randomNumber;
         }
 
