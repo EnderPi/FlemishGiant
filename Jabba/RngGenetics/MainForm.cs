@@ -1,9 +1,10 @@
-﻿using EnderPi.Genetics;
+﻿using EnderPi.Cryptography;
+using EnderPi.Genetics;
 using EnderPi.Genetics.Linear8099;
 using EnderPi.Genetics.Tree64Rng;
 using EnderPi.Random;
 using EnderPi.Random.Test;
-using EnderPi.System;
+using EnderPi.SystemE;
 using System;
 using System.Linq;
 using System.Threading;
@@ -56,8 +57,17 @@ namespace RngGenetics
                 comboBoxGeneticType.Items.Add(specimenType);
             }
             comboBoxGeneticType.SelectedIndex = 2;
-            comboBoxRngTestingType.Items.AddRange(new object[] { SpecimenType.TreeUnconstrained64, SpecimenType.LinearUnconstrained});
+            comboBoxRngTestingType.Items.AddRange(new object[] { SpecimenType.TreeUnconstrained64, SpecimenType.LinearUnconstrained, SpecimenType.Feistel});
+            comboBoxKeyType.Items.AddRange(new object[] { FeistelKeyType.Prime, FeistelKeyType.Hash, FeistelKeyType.Integer });
+            comboBoxKeyType.SelectedIndex = 1;
             comboBoxRngTestingType.SelectedIndex = 0;
+            for (int i=0; i < checkedListBoxOperations.Items.Count; i++)
+            {
+                if (i != 3 && i != 4)
+                {
+                    checkedListBoxOperations.SetItemChecked(i, true);
+                }
+            }
         }
 
         /// <summary>
@@ -98,7 +108,14 @@ namespace RngGenetics
         {
             try
             {
-                pictureBoxMain.Image = GeneticHelper.GetImage(_best.GetEngine(), 1);
+                if (_simulation.TestAsHash)
+                {
+                    pictureBoxMain.Image = GeneticHelper.GetImage(new HashWrapper(_best.GetEngine()), 1);
+                }
+                else
+                {
+                    pictureBoxMain.Image = GeneticHelper.GetImage(_best.GetEngine(), 1);
+                }
                 textBoxBestDescription.Text = _best.GetDescription();
                 textBoxGeneration.Text = _best.Generation.ToString();
                 textBoxFitness.Text = _best.Fitness.ToString("N0");
@@ -152,11 +169,24 @@ namespace RngGenetics
             _simulation.MaxFitness = (long)numericUpDownMaxFitness.Value;            
             _simulation.StateOneConstraint = textBoxStateOneFunction.Text;
             _simulation.RngSpecimenType = (SpecimenType)comboBoxGeneticType.SelectedItem;
-            _simulation.SelectionPressure = (double)numericUpDownSelectionPressure.Value;
-            _simulation.IncludeLinearHash = checkBoxLinearHash.Checked;
-            _simulation.IncludeLinearSerial = checkBoxGeneticLinearSerial.Checked;
-            _simulation.IncludeDifferentialHash = checkBoxDifferentialTest.Checked;
-
+            _simulation.SelectionPressure = (double)numericUpDownSelectionPressure.Value;            
+            _simulation.TestAsHash = checkBoxTestAsHash.Checked;
+            var parameters = new GeneticParameters();
+            parameters.AllowAdditionNodes = checkedListBoxOperations.GetItemChecked(0);
+            parameters.AllowSubtractionNodes = checkedListBoxOperations.GetItemChecked(1);
+            parameters.AllowMultiplicationNodes = checkedListBoxOperations.GetItemChecked(2);
+            parameters.AllowDivisionNodes = checkedListBoxOperations.GetItemChecked(3);
+            parameters.AllowRemainderNodes = checkedListBoxOperations.GetItemChecked(4);
+            parameters.AllowRightShiftNodes = checkedListBoxOperations.GetItemChecked(5);
+            parameters.AllowLeftShiftNodes = checkedListBoxOperations.GetItemChecked(6);
+            parameters.AllowRotateRightNodes = checkedListBoxOperations.GetItemChecked(7);
+            parameters.AllowRotateLeftNodes = checkedListBoxOperations.GetItemChecked(8);
+            parameters.AllowAndNodes = checkedListBoxOperations.GetItemChecked(9);
+            parameters.AllowOrNodes = checkedListBoxOperations.GetItemChecked(10);
+            parameters.AllowXorNodes = checkedListBoxOperations.GetItemChecked(11);
+            parameters.AllowNotNodes = checkedListBoxOperations.GetItemChecked(12);
+            parameters.InitialNodes = (int)numericUpDownInitialAdds.Value;
+            _simulation.SimulationParameters = parameters;
         }
 
         private void RunSimulation()
@@ -179,7 +209,7 @@ namespace RngGenetics
             PopulatePictureBox();                        
             dataGridViewAverageFitness.SuspendLayout();
             dataGridViewAverageFitness.Rows.Clear();
-            for (int i=0; i < _simulation._allSpecimens.Count; i++)
+            for (int i= _simulation._allSpecimens.Count-1; i >= 0 ; i--)
             {
                 dataGridViewAverageFitness.Rows.Add(i, _simulation._allSpecimens[i].Average(x => x.Fitness).ToString("N0"));                
             }
@@ -208,8 +238,8 @@ namespace RngGenetics
             numericUpDownMaxFitness.Enabled = !isRunning;
             comboBoxGeneticType.Enabled = !isRunning;
             textBoxStateOneFunction.Enabled = !isRunning && comboBoxGeneticType.SelectedItem is SpecimenType.TreeStateConstrained64;
-            numericUpDownSelectionPressure.Enabled = !isRunning;
-            buttonPushToTesting.Enabled = !isRunning;
+            numericUpDownSelectionPressure.Enabled = !isRunning;            
+            numericUpDownInitialAdds.Enabled = !isRunning;
         }
 
         /// <summary>
@@ -312,30 +342,64 @@ namespace RngGenetics
                     var commands = LinearGeneticHelper.Parse(textBoxStateExpressionRngTesting.Text);
                     engine = new LinearGeneticEngine(commands);
                 }
+                else if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.Feistel)
+                {
+                    int rounds = (int)numericUpDownFeistelRounds.Value;
+                    uint[] keys = GetKeys(rounds, (FeistelKeyType)comboBoxKeyType.SelectedItem);
+                    engine = new Feistel64Engine(textBoxStateExpressionRngTesting.Text, rounds, keys);
+                }
             }
             catch(Exception ex) 
             {
                 MessageBox.Show($"Error compiling expression!  {ex}", "Compilation error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
-            }
-
-            engine.Seed(1);
+            }                        
             
             //EnableControls(true);
                         
             textBoxFitnessRngTesting.Text = null;
             textBoxTestsPassedRngTesting.Text = null;
             pictureBoxRngTesting.Image = null;
+            textBoxDescriptionRngTesting.Text = null;
             
             progressBarRngTesting.Style = ProgressBarStyle.Marquee;
             //toolStripStatusLabel1.Text = "Running...";
 
             long maxFitness = (long)numericUpDownMaxFitnessRngTesting.Value;
-            var parameters = new RandomTestParameters() { MaxFitness = maxFitness, Seed = 1, IncludeDifferentialHashTests = checkBoxDifferentialHashTests.Checked, IncludeLinearHashTests = checkBoxLinearHashTests.Checked };
-            parameters.IncludeLinearSerialTests = checkBoxLinearSerialTests.Checked;
+            var parameters = new RandomTestParameters() { MaxFitness = maxFitness, Seed = (ulong)numericUpDownSeed.Value};
+            parameters.TestAsHash = checkBoxRngTestAsHash.Checked;
             var thread = new Thread(()=>RunRngTest(engine, parameters));
             thread.IsBackground = true;
             thread.Start();                        
+        }
+
+        private uint[] GetKeys(int rounds, FeistelKeyType selectedItem)
+        {
+            uint[] result = new uint[rounds];
+            if (selectedItem == FeistelKeyType.Hash)
+            {
+                var hash = new RandomNumberGenerator(new RandomHash());
+                hash.Seed(0);
+                for (int i=0; i < rounds; i++)
+                {
+                    result[i] = hash.Nextuint();
+                }
+            }
+            else if (selectedItem == FeistelKeyType.Prime)
+            {                
+                for (int i = 0; i < rounds; i++)
+                {
+                    result[i] = Primes.FirstPrimes[i];
+                }
+            }
+            else if (selectedItem == FeistelKeyType.Integer)
+            {
+                for (int i = 0; i < rounds; i++)
+                {
+                    result[i] = (uint)(i+1);
+                }
+            }
+            return result;
         }
 
         private void RunRngTest(IRandomEngine engine, RandomTestParameters parameters)
@@ -349,7 +413,14 @@ namespace RngGenetics
             }
             finally
             {
-                Invoke(new FormDelegate(()=>RngTestingFinished(simulation, engine)));
+                try
+                {
+                    Invoke(new FormDelegate(() => RngTestingFinished(simulation, engine)));
+                }
+                catch (Exception ex)
+                {
+                    Logging.LogError(ex.ToString());
+                }
             }
             
 
@@ -375,19 +446,22 @@ namespace RngGenetics
         }
 
         private void buttonPushToTesting_Click(object sender, EventArgs e)
-        {            
-            if (_best is Tree64RngSpecimen bestTree)
+        {
+            lock (_padlock)
             {
-                comboBoxRngTestingType.SelectedIndex = 0;
-                textBoxStateExpressionRngTesting.Text = bestTree.StateRoot.Evaluate();
-                textBoxOutputRngTesting.Text = bestTree.OutputRoot.Evaluate();
-                tabControl1.SelectedTab = tabPage3;
-            }
-            if (_best is LinearRngSpecimen bestLinear)
-            {
-                comboBoxRngTestingType.SelectedIndex = 1;
-                textBoxStateExpressionRngTesting.Text = LinearGeneticHelper.PrintProgram(bestLinear.GetGenerationProgram());                
-                tabControl1.SelectedTab = tabPage3;
+                if (_best is Tree64RngSpecimen bestTree)
+                {
+                    comboBoxRngTestingType.SelectedIndex = 0;
+                    textBoxStateExpressionRngTesting.Text = bestTree.StateRoot.Evaluate();
+                    textBoxOutputRngTesting.Text = bestTree.OutputRoot.Evaluate();
+                    tabControl1.SelectedTab = tabPage3;
+                }
+                if (_best is LinearRngSpecimen bestLinear)
+                {
+                    comboBoxRngTestingType.SelectedIndex = 1;
+                    textBoxStateExpressionRngTesting.Text = LinearGeneticHelper.PrintProgram(bestLinear.GetGenerationProgram());
+                    tabControl1.SelectedTab = tabPage3;
+                }
             }
         }
 
@@ -404,6 +478,11 @@ namespace RngGenetics
                     labelFieldTwo.Visible = false;
                     textBoxOutputRngTesting.Visible = false;
                     labelFieldOne.Text = "Generation Program";
+                    break;
+                case SpecimenType.Feistel:
+                    labelFieldTwo.Visible = false;
+                    textBoxOutputRngTesting.Visible = false;
+                    labelFieldOne.Text = "Round Function";
                     break;
             }
         }

@@ -1,4 +1,4 @@
-﻿using EnderPi.System;
+﻿using EnderPi.SystemE;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,18 +6,49 @@ using System.Text;
 
 namespace EnderPi.Random.Test
 {
+    /// <summary>
+    /// Test for differential randomness.  Slightly oddball test, as this discards the deviate that 
+    /// it gets in the (process) method.  Instead, it tests the generator as a hash.
+    /// </summary>
+    /// <remarks>
+    /// At each step, it hashs a number x => F(x), then compares that to F(x ^ 1) by calculating
+    /// y1 = F(x) ^ F(x^1), y2 = F(x) ^ F(x^2), y3 = F(x) ^ F(x^4), y4 = F(x) ^ F(x^8), etc.
+    /// The stream of y1's is treated as a stream of random numbers, as is the stream of y2's, etc.
+    /// Applies a test suite to each of these, consisting of the zero test, GCD Test, and gorilla test.
+    /// Extremely hard test to pass.  In all simulations where
+    /// this test was included, it was the most discriminatory, followed by the serial correlation 
+    /// test.
+    /// </remarks>
     public class DifferentialTest : IIncrementalRandomTest
     {
-        private IRandomEngine _function;
+        /// <summary>
+        /// The engine being tested.
+        /// </summary>
+        private IRandomEngine _engine;
 
+        /// <summary>
+        /// Current number of iterations.
+        /// </summary>
         protected long _currentNumberOfIterations;
 
+        /// <summary>
+        /// Sub-tests being run on the differentials.
+        /// </summary>
         protected List<IIncrementalRandomTest>[] _tests;
 
+        /// <summary>
+        /// Just an array of bit masks for bit flipping.
+        /// </summary>
         private ulong[] _masks;
 
+        /// <summary>
+        /// The overall result.
+        /// </summary>
         public TestResult Result { set; get; }
 
+        /// <summary>
+        /// How many tests have passed.
+        /// </summary>
         public int TestsPassed
         {
             get
@@ -27,6 +58,10 @@ namespace EnderPi.Random.Test
 
         }
 
+        /// <summary>
+        /// Calculates the result.
+        /// </summary>
+        /// <param name="detailed">True if you want final outputs recorded.</param>
         public void CalculateResult(bool detailed)
         {
             List<TestResult> testResults = new List<TestResult>();
@@ -41,9 +76,14 @@ namespace EnderPi.Random.Test
             Result = TestHelper.ReturnLowestConclusiveResultEnumerable(testResults);
         }
 
+        /// <summary>
+        /// Basic constructor.  Needs the raw engine and max fitness so it can design a sub-suite.
+        /// </summary>
+        /// <param name="function"></param>
+        /// <param name="maxFitness"></param>
         public DifferentialTest(IRandomEngine function, long maxFitness)
         {
-            _function = function.DeepCopy();
+            _engine = function.DeepCopy();
             _tests = new List<IIncrementalRandomTest>[64];
             _masks = new ulong[64];
             for (int i = 0; i < 64; i++)
@@ -56,10 +96,13 @@ namespace EnderPi.Random.Test
                 {
                     _tests[i].Add(new GorillaTest(17));
                 }
-                _tests[i].Add(new ZeroTest());
+                _tests[i].Add(new ZeroTest());                
             }
         }
 
+        /// <summary>
+        /// INitializes each test.
+        /// </summary>
         public void Initialize()
         {
             Result = TestResult.Inconclusive;
@@ -72,6 +115,10 @@ namespace EnderPi.Random.Test
             }
         }
 
+        /// <summary>
+        /// Increments each test.  Rare situation where the input is actually discarded.
+        /// </summary>
+        /// <param name="randomNumber"></param>
         public void Process(ulong randomNumber)
         {
             //ignore the random number, not relevant.
@@ -90,17 +137,42 @@ namespace EnderPi.Random.Test
             _currentNumberOfIterations++;
         }
            
+        /// <summary>
+        /// Treats the random engine like a hash by directly seeding it, then asking for the output.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
         private ulong Hash(ulong x)
         {
-            _function.Seed(x);
-            return _function.Nextulong();
+            _engine.Seed(x);
+            return _engine.Nextulong();
         }
 
+        /// <summary>
+        /// For the output text box.  Gets a description of how this test was failed.
+        /// </summary>
+        /// <returns></returns>
         public string GetFailureDescriptions()
         {
-            throw new NotImplementedException();
+            var sb = new StringBuilder();
+            sb.AppendLine("Differential Test");
+            for (int i=0; i < 64; i++)
+            {
+                foreach (var test in _tests[i])
+                {
+                    if (test.Result == TestResult.Fail)
+                    {
+                        sb.AppendLine($"Bit {i}, {test.GetFailureDescriptions()}");
+                    }
+                }
+            }
+            return sb.ToString();
         }
 
+        /// <summary>
+        /// For recording testing stats.
+        /// </summary>
+        /// <returns>The test type.</returns>
         public TestType GetTestType()
         {
             return TestType.DifferentialHash;

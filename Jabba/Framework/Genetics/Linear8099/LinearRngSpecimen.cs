@@ -1,7 +1,7 @@
 ﻿using EnderPi.Genetics.Linear8099.Commands;
 using EnderPi.Genetics.Tree64Rng;
 using EnderPi.Random;
-using EnderPi.System;
+using EnderPi.SystemE;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,12 +28,12 @@ namespace EnderPi.Genetics.Linear8099
         /// So this probably needs a context passed in.
         /// </summary>
         /// <param name="rng"></param>
-        public override void AddInitialGenes(RandomNumberGenerator rng)
+        public override void AddInitialGenes(RandomNumberGenerator rng, GeneticParameters geneticParameters)
         {
             List<Command8099> program = new List<Command8099>();
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < geneticParameters.InitialNodes; i++)
             {
-                program.Add(GetRandomCommand(rng));
+                program.Add(GetRandomCommand(rng, geneticParameters));
             }
             int randomStateRegister = rng.NextInt(0, 2);
             program.Add(new XorRegister(7, randomStateRegister));
@@ -45,7 +45,7 @@ namespace EnderPi.Genetics.Linear8099
         /// </summary>
         /// <param name="_randomEngine"></param>
         /// <returns></returns>
-        private Command8099 GetRandomCommand(RandomNumberGenerator _randomEngine)
+        private Command8099 GetRandomCommand(RandomNumberGenerator _randomEngine, GeneticParameters geneticParameters)
         {
             List<Command8099> potentialCommmands = new List<Command8099>();
             int targetRegister = _randomEngine.NextInt(0, 3);
@@ -58,45 +58,70 @@ namespace EnderPi.Genetics.Linear8099
             potentialCommmands.Add(new MoveRegister(targetRegister, sourceRegister));
             potentialCommmands.Add(new MoveConstant(targetRegister, randomUlong));
             potentialCommmands.Add(new IntronCommand());
-
-            potentialCommmands.Add(new AddRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new AddConstant(targetRegister, randomUlong));
-
-            potentialCommmands.Add(new SubtractRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new SubtractConstant(targetRegister, randomUlong));
-
-            potentialCommmands.Add(new MultiplyRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new MultiplyConstant(targetRegister, randomUlong));
-
-            potentialCommmands.Add(new DivideRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new DivideConstant(targetRegister, randomUlong));
-
-            potentialCommmands.Add(new RemainderRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new RemainderConstant(targetRegister, randomUlong));
-
-            potentialCommmands.Add(new AndRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new AndConstant(targetRegister, randomUlong));
-
-            potentialCommmands.Add(new OrRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new OrConstant(targetRegister, randomUlong));
-
-            potentialCommmands.Add(new XorRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new XorConstant(targetRegister, randomUlong));
-
-            potentialCommmands.Add(new Not(targetRegister));
-
-            potentialCommmands.Add(new RightShiftRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new RightShiftConstant(targetRegister, randomInt));
-
-            potentialCommmands.Add(new LeftShiftRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new LeftShiftConstant(targetRegister, randomInt));
-
-            potentialCommmands.Add(new RotateRightRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new RotateRightConstant(targetRegister, randomInt));
-
-            potentialCommmands.Add(new RotateLeftRegister(targetRegister, sourceRegister));
-            potentialCommmands.Add(new RotateLeftConstant(targetRegister, randomInt));
-
+            if (geneticParameters.AllowAdditionNodes)
+            {
+                potentialCommmands.Add(new AddRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new AddConstant(targetRegister, randomUlong));
+            }
+            if (geneticParameters.AllowSubtractionNodes)
+            {
+                potentialCommmands.Add(new SubtractRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new SubtractConstant(targetRegister, randomUlong));
+            }
+            if (geneticParameters.AllowMultiplicationNodes)
+            {
+                potentialCommmands.Add(new MultiplyRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new MultiplyConstant(targetRegister, randomUlong));
+            }
+            if (geneticParameters.AllowDivisionNodes)
+            {
+                potentialCommmands.Add(new DivideRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new DivideConstant(targetRegister, randomUlong));
+            }
+            if (geneticParameters.AllowRemainderNodes)
+            {
+                potentialCommmands.Add(new RemainderRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new RemainderConstant(targetRegister, randomUlong));
+            }
+            if (geneticParameters.AllowAndNodes)
+            {
+                potentialCommmands.Add(new AndRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new AndConstant(targetRegister, randomUlong));
+            }
+            if (geneticParameters.AllowOrNodes)
+            {
+                potentialCommmands.Add(new OrRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new OrConstant(targetRegister, randomUlong));
+            }
+            if (geneticParameters.AllowXorNodes)
+            {
+                potentialCommmands.Add(new XorRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new XorConstant(targetRegister, randomUlong));
+            }
+            if (geneticParameters.AllowNotNodes)
+            {
+                potentialCommmands.Add(new Not(targetRegister));
+            }
+            if (geneticParameters.AllowRightShiftNodes)
+            {
+                potentialCommmands.Add(new RightShiftRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new RightShiftConstant(targetRegister, randomInt));
+            }
+            if (geneticParameters.AllowLeftShiftNodes)
+            {
+                potentialCommmands.Add(new LeftShiftRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new LeftShiftConstant(targetRegister, randomInt));
+            }
+            if (geneticParameters.AllowRotateRightNodes)
+            {
+                potentialCommmands.Add(new RotateRightRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new RotateRightConstant(targetRegister, randomInt));
+            }
+            if (geneticParameters.AllowRotateLeftNodes)
+            {
+                potentialCommmands.Add(new RotateLeftRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new RotateLeftConstant(targetRegister, randomInt));
+            }
             return _randomEngine.GetRandomElement(potentialCommmands);
         }
 
@@ -219,11 +244,11 @@ namespace EnderPi.Genetics.Linear8099
         /// Standard mutation command.
         /// </summary>
         /// <param name="rng">Source of entropy.</param>
-        public override void Mutate(RandomNumberGenerator rng)
+        public override void Mutate(RandomNumberGenerator rng, GeneticParameters parameters)
         {
             int programLength = _generationProgram.Count;
             int randomIndex = rng.NextInt(0, programLength - 1);
-            var newCommand = GetRandomCommand(rng);
+            var newCommand = GetRandomCommand(rng, parameters);
             uint choice = rng.NextUint(1, 5);
             switch (choice)
             {

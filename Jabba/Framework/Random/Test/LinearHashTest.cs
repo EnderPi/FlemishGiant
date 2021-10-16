@@ -1,4 +1,4 @@
-﻿using EnderPi.System;
+﻿using EnderPi.SystemE;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +6,10 @@ using System.Text;
 
 namespace EnderPi.Random.Test
 {
+    /// <summary>
+    /// Tests a random engine like a hash.  Detects any bit-to-bit
+    /// linear correlations in the hash function.
+    /// </summary>
     public class LinearHashTest :IIncrementalRandomTest
     {
         private IRandomEngine _function;
@@ -36,6 +40,7 @@ namespace EnderPi.Random.Test
 
         public void CalculateResult(bool detailed)
         {
+            _failures = new List<LinearFailureResult>();
             List<TestResult> testResults = new List<TestResult>();
             var expected = _currentNumberOfIterations * 0.5;
             var standardDeviation = Math.Sqrt(2) * Math.Sqrt(_currentNumberOfIterations * 0.5 * 0.5);
@@ -50,6 +55,10 @@ namespace EnderPi.Random.Test
                     //bonferroni correction
                     var prob = MathNet.Numerics.SpecialFunctions.Erfc(z);
                     var result = TestHelper.GetTestResultFromPValue(prob, 4096, false);
+                    if (detailed && result == TestResult.Fail)
+                    {
+                        _failures.Add(new LinearFailureResult() { PreviousBit = j, NextBit = i, Expected = expected, Actual = _countOfZeros[i][j] });
+                    }
                     testResults.Add(result);
                 }
             }
@@ -85,9 +94,20 @@ namespace EnderPi.Random.Test
             return _function.Nextulong();
         }
 
+        private List<LinearFailureResult> _failures;
+
         public string GetFailureDescriptions()
         {
-            throw new NotImplementedException();
+            var sb = new StringBuilder();
+            if (Result == TestResult.Fail)
+            {
+                sb.AppendLine($"Linear Hash Correlation Test - Expected count ~{_currentNumberOfIterations / 2 }");
+                foreach (var failure in _failures)
+                {
+                    sb.AppendLine($"Previous bit {failure.PreviousBit}, Next bit {failure.NextBit}, Actual {failure.Actual}");
+                }
+            }
+            return sb.ToString();
         }
 
         public TestType GetTestType()

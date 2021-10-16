@@ -1,6 +1,6 @@
 ﻿using EnderPi.Genetics.Tree64Rng.Nodes;
 using EnderPi.Random;
-using EnderPi.System;
+using EnderPi.SystemE;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +22,14 @@ namespace EnderPi.Genetics.Tree64Rng
 
         public override int Operations => StateRoot.GetOperationCount() + OutputRoot.GetOperationCount();
 
-        public override void AddInitialGenes(RandomNumberGenerator rng)
+        public override void AddInitialGenes(RandomNumberGenerator rng, GeneticParameters parameters)
         {
             foreach (var root in GetRoots())
             {
-                AddANode(root, rng);
+                for (int i = 0; i < parameters.InitialNodes; i++)
+                {
+                    AddANode(root, rng, parameters);
+                }
             }
         }
 
@@ -110,7 +113,7 @@ namespace EnderPi.Genetics.Tree64Rng
             return new List<TreeNode>() { StateRoot, OutputRoot };
         }
 
-        public override void Mutate(RandomNumberGenerator _rng)
+        public override void Mutate(RandomNumberGenerator _rng, GeneticParameters parameters)
         {
             var treeToMutateRoot = _rng.GetRandomElement(GetRoots());
 
@@ -118,13 +121,13 @@ namespace EnderPi.Genetics.Tree64Rng
             switch (choice)
             {
                 case 1:
-                    AddANode(treeToMutateRoot, _rng);
+                    AddANode(treeToMutateRoot, _rng, parameters);
                     break;
 
                 case 2:
                     if (treeToMutateRoot.GetDescendantsNodeCount() == 1)
                     {
-                        AddANode(treeToMutateRoot, _rng);
+                        AddANode(treeToMutateRoot, _rng, parameters);
                     }
                     else
                     {
@@ -133,12 +136,12 @@ namespace EnderPi.Genetics.Tree64Rng
                     break;
 
                 case 3:
-                    ChangeANode(treeToMutateRoot, _rng);
+                    ChangeANode(treeToMutateRoot, _rng, parameters);
                     break;
             }
         }
 
-        private void ChangeANode(TreeNode treeToMutateRoot, RandomNumberGenerator _rng)
+        private void ChangeANode(TreeNode treeToMutateRoot, RandomNumberGenerator _rng, GeneticParameters parameters)
         {
             //change a node
             //find a random node
@@ -167,7 +170,7 @@ namespace EnderPi.Genetics.Tree64Rng
             }
             else if (nodeToMutate.IsBinaryNode())
             {
-                var newNode = MakeNewNode(nodeToMutate.GetFirstChild(), nodeToMutate.GetSecondChild(), _rng);
+                var newNode = MakeNewNode(nodeToMutate.GetFirstChild(), nodeToMutate.GetSecondChild(), _rng, parameters);
                 treeToMutateRoot.ReplaceAllChildReferences(nodeToMutate, newNode);
             }
         }
@@ -192,7 +195,7 @@ namespace EnderPi.Genetics.Tree64Rng
             treeToMutateRoot.ReplaceAllChildReferences(nodeToDelete, replacementNode);
         }
 
-        private void AddANode(TreeNode treeToMutateRoot, RandomNumberGenerator _rng)
+        private void AddANode(TreeNode treeToMutateRoot, RandomNumberGenerator _rng, GeneticParameters parameters)
         {
             var leafNodes = treeToMutateRoot.GetDescendants().Where(x => x.IsLeafNode).ToList();
             var randomLeaf = _rng.GetRandomElement(leafNodes);
@@ -209,27 +212,65 @@ namespace EnderPi.Genetics.Tree64Rng
 
             //todo handle this abstractly
             //secondNode.GenerationOfOrigin = _generation;
-            TreeNode newNode = MakeNewNode(randomLeaf, secondNode, _rng);
+            TreeNode newNode = MakeNewNode(randomLeaf, secondNode, _rng, parameters);
             treeToMutateRoot.ReplaceAllChildReferences(randomLeaf, newNode);
         }
 
-        private TreeNode MakeNewNode(TreeNode randomLeaf, TreeNode secondNode, RandomNumberGenerator _rng)
+        private TreeNode MakeNewNode(TreeNode randomLeaf, TreeNode secondNode, RandomNumberGenerator _rng, GeneticParameters geneticParameters)
         {
             List<TreeNode> possibleNodes = new List<TreeNode>(16);
-            possibleNodes.Add(_rng.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new SubtractNode(randomLeaf, secondNode), new SubtractNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new MultiplicationNode(randomLeaf, secondNode), new MultiplicationNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new DivideNode(randomLeaf, secondNode), new DivideNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new OrNode(randomLeaf, secondNode), new OrNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new XorNode(randomLeaf, secondNode), new XorNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new AndNode(randomLeaf, secondNode), new AndNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new LeftShiftNode(randomLeaf, secondNode), new LeftShiftNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new RightShiftNode(randomLeaf, secondNode), new RightShiftNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new RotateLeftNode(randomLeaf, secondNode), new RotateLeftNode(secondNode, randomLeaf)));
-            possibleNodes.Add(_rng.PickRandomElement(new RotateRightNode(randomLeaf, secondNode), new RotateRightNode(secondNode, randomLeaf)));
-            possibleNodes.Add(new NotNode(randomLeaf));
-            possibleNodes.Add(_rng.PickRandomElement(new RemainderNode(randomLeaf, secondNode), new RemainderNode(secondNode, randomLeaf)));
-
+            if (geneticParameters.AllowAdditionNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowSubtractionNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new SubtractNode(randomLeaf, secondNode), new SubtractNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowMultiplicationNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new MultiplicationNode(randomLeaf, secondNode), new MultiplicationNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowDivisionNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new DivideNode(randomLeaf, secondNode), new DivideNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowOrNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new OrNode(randomLeaf, secondNode), new OrNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowXorNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new XorNode(randomLeaf, secondNode), new XorNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowAndNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new AndNode(randomLeaf, secondNode), new AndNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowLeftShiftNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new LeftShiftNode(randomLeaf, secondNode), new LeftShiftNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowRightShiftNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new RightShiftNode(randomLeaf, secondNode), new RightShiftNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowRotateLeftNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new RotateLeftNode(randomLeaf, secondNode), new RotateLeftNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowRotateRightNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new RotateRightNode(randomLeaf, secondNode), new RotateRightNode(secondNode, randomLeaf)));
+            }
+            if (geneticParameters.AllowNotNodes)
+            {
+                possibleNodes.Add(new NotNode(randomLeaf));
+            }
+            if (geneticParameters.AllowRemainderNodes)
+            {
+                possibleNodes.Add(_rng.PickRandomElement(new RemainderNode(randomLeaf, secondNode), new RemainderNode(secondNode, randomLeaf)));
+            }
             TreeNode result = _rng.GetRandomElement(possibleNodes);
             //result.GenerationOfOrigin = _generation;
             return result;

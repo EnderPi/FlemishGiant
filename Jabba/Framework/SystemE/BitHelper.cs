@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace EnderPi.System
+namespace EnderPi.SystemE
 {
     /// <summary>
     /// Some simple static bit and byte-based operations.

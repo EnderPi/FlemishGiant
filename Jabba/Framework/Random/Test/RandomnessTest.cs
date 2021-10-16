@@ -83,28 +83,30 @@ namespace EnderPi.Random.Test
         /// <param name="seed"></param>
         public RandomnessTest(IRandomEngine engine, CancellationToken token, RandomTestParameters parameters)
         {
-            _randomEngine = engine;
             _seed = parameters.Seed;
             _tests = new List<IIncrementalRandomTest>();
+            if (parameters.TestAsHash)
+            {
+                _randomEngine = new HashWrapper(engine);
+                _tests.Add(new LinearHashTest(engine));
+                _tests.Add(new DifferentialTest(engine, parameters.MaxFitness));
+            }
+            else
+            {
+                _randomEngine = engine;                
+            }
+            
             _tests.Add(new ZeroTest());
             _tests.Add(new GcdTest());
             _tests.Add(new GorillaTest(7));
+            _tests.Add(new LinearSerialTest());
+
             if (parameters.MaxFitness > 12000000)
             {
                 _tests.Add(new GorillaTest(17));
             }
-            if (parameters.IncludeLinearHashTests)
-            {
-                _tests.Add(new LinearHashTest(engine));
-            }
-            if (parameters.IncludeDifferentialHashTests)
-            {
-                _tests.Add(new DifferentialTest(engine, parameters.MaxFitness));
-            }
-            if (parameters.IncludeLinearSerialTests)
-            {
-                _tests.Add(new LinearSerialTest());
-            }
+            
+            
             _token = token;
             _targetNumberOfIterations = parameters.MaxFitness;
         }
@@ -168,7 +170,10 @@ namespace EnderPi.Random.Test
             var sb = new StringBuilder();
             foreach (var test in _tests)
             {
-                sb.AppendLine(test.GetFailureDescriptions());                
+                if (test.Result == TestResult.Fail)
+                {
+                    sb.AppendLine(test.GetFailureDescriptions());
+                }
             }
             return sb.ToString();
         }

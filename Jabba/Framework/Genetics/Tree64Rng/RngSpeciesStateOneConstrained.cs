@@ -33,9 +33,15 @@ namespace EnderPi.Genetics.Tree64Rng
         {
             var sb = new StringBuilder();
             NameConstants();
-            sb.AppendLine($"State Function {_stateOneExpression}");
-            sb.AppendLine($"Output Function {GetOutputFunctionPretty()}");
-            return sb.ToString();
+            sb.AppendLine($"State Function:");
+            sb.AppendLine(_stateOneExpression);
+            sb.AppendLine($"Output Function:");
+            sb.AppendLine(GetOutputFunctionPretty());
+            foreach (var constant in _constantValue)
+            {
+                sb.AppendLine($"{constant.Item2} = {constant.Item1}");
+            }
+            return sb.ToString();            
         }
     }
 }
