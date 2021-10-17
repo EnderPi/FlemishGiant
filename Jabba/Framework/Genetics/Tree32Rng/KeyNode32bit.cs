@@ -30,5 +30,10 @@ namespace EnderPi.Genetics.Tree32Rng
         {
             return Name;
         }
+
+        protected override TreeNode FoldInternal()
+        {
+            return this;
+        }
     }
 }

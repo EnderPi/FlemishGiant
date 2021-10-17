@@ -35,5 +35,9 @@
         /// The number of initial nodes to use.
         /// </summary>
         public int InitialNodes { set; get; }
+
+        public int FeistelRounds { set; get; }
+
+        public FeistelKeyType KeyTypeForFeistel { set; get; }
     }
 }

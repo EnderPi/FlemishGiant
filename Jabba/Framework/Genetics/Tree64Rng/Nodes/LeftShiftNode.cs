@@ -51,7 +51,34 @@ namespace EnderPi.Genetics.Tree64Rng.Nodes
         /// <returns>A pretty-printed version.</returns>
         public override string EvaluatePretty()
         {
-            return $"LeftShift({_children[0].EvaluatePretty()}, {_children[1].EvaluatePretty()})";
+            if (_children[1] is ConstantNode constantNode)
+            {
+                return $"LeftShift({_children[0].EvaluatePretty()}, {constantNode.Value & 63})";
+            }
+            else
+            {
+                return $"LeftShift({_children[0].EvaluatePretty()}, {_children[1].EvaluatePretty()})";
+            }
+        }
+
+        protected override TreeNode FoldInternal()
+        {
+            if (_children[0] is ConstantNode c1 && _children[1] is ConstantNode c2)
+            {
+                return new ConstantNode(c1.Value << (int)(c2.Value & 63UL));
+            }
+            else if (_children[1] is ConstantNode c3 && c3.Value == 0)
+            {
+                return _children[0];
+            }
+            else if (_children[0] is ConstantNode c4 && c4.Value == 0)
+            {
+                return new ConstantNode(0);
+            }
+            else
+            {
+                return this;
+            }
         }
     }
 }

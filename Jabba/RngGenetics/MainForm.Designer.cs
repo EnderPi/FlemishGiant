@@ -116,6 +116,9 @@
             this.label17 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.comboBoxGeneticFeistelType = new System.Windows.Forms.ComboBox();
+            this.label26 = new System.Windows.Forms.Label();
+            this.numericUpDownGeneticFeistelRounds = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.numericUpDownInitialAdds = new System.Windows.Forms.NumericUpDown();
             this.checkBoxTestAsHash = new System.Windows.Forms.CheckBox();
@@ -125,6 +128,9 @@
             this.label23 = new System.Windows.Forms.Label();
             this.buttonPushToTesting = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.labelFeistelRounds = new System.Windows.Forms.Label();
+            this.numericUpDownFeistelRounds = new System.Windows.Forms.NumericUpDown();
+            this.comboBoxKeyType = new System.Windows.Forms.ComboBox();
             this.numericUpDownSeed = new System.Windows.Forms.NumericUpDown();
             this.label18 = new System.Windows.Forms.Label();
             this.checkBoxRngTestAsHash = new System.Windows.Forms.CheckBox();
@@ -154,9 +160,6 @@
             this.ColumnTimeStamp = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.buttonRefreshLogs = new System.Windows.Forms.Button();
-            this.comboBoxKeyType = new System.Windows.Forms.ComboBox();
-            this.numericUpDownFeistelRounds = new System.Windows.Forms.NumericUpDown();
-            this.labelFeistelRounds = new System.Windows.Forms.Label();
             this.menuStripMain.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -170,16 +173,17 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxFitness)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownGeneticFeistelRounds)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownInitialAdds)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSelectionPressure)).BeginInit();
             this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFeistelRounds)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSeed)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRngTesting)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxFitnessRngTesting)).BeginInit();
             this.tabPage2.SuspendLayout();
             this.tableLayoutPanelLogs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLog)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFeistelRounds)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStripMain
@@ -981,6 +985,9 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.comboBoxGeneticFeistelType);
+            this.tabPage1.Controls.Add(this.label26);
+            this.tabPage1.Controls.Add(this.numericUpDownGeneticFeistelRounds);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.numericUpDownInitialAdds);
             this.tabPage1.Controls.Add(this.checkBoxTestAsHash);
@@ -1031,6 +1038,46 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "RNG Genetics";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // comboBoxGeneticFeistelType
+            // 
+            this.comboBoxGeneticFeistelType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxGeneticFeistelType.FormattingEnabled = true;
+            this.comboBoxGeneticFeistelType.Location = new System.Drawing.Point(290, 307);
+            this.comboBoxGeneticFeistelType.Name = "comboBoxGeneticFeistelType";
+            this.comboBoxGeneticFeistelType.Size = new System.Drawing.Size(121, 23);
+            this.comboBoxGeneticFeistelType.TabIndex = 56;
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(8, 310);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(83, 15);
+            this.label26.TabIndex = 55;
+            this.label26.Text = "Feistel Rounds";
+            // 
+            // numericUpDownGeneticFeistelRounds
+            // 
+            this.numericUpDownGeneticFeistelRounds.Location = new System.Drawing.Point(168, 308);
+            this.numericUpDownGeneticFeistelRounds.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericUpDownGeneticFeistelRounds.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownGeneticFeistelRounds.Name = "numericUpDownGeneticFeistelRounds";
+            this.numericUpDownGeneticFeistelRounds.Size = new System.Drawing.Size(75, 23);
+            this.numericUpDownGeneticFeistelRounds.TabIndex = 54;
+            this.numericUpDownGeneticFeistelRounds.Value = new decimal(new int[] {
+            6,
+            0,
+            0,
+            0});
             // 
             // label2
             // 
@@ -1108,10 +1155,10 @@
             this.numericUpDownSelectionPressure.Size = new System.Drawing.Size(75, 23);
             this.numericUpDownSelectionPressure.TabIndex = 45;
             this.numericUpDownSelectionPressure.Value = new decimal(new int[] {
-            51,
+            7,
             0,
             0,
-            131072});
+            65536});
             // 
             // label23
             // 
@@ -1166,6 +1213,45 @@
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "RNG Testing";
             this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // labelFeistelRounds
+            // 
+            this.labelFeistelRounds.AutoSize = true;
+            this.labelFeistelRounds.Location = new System.Drawing.Point(15, 308);
+            this.labelFeistelRounds.Name = "labelFeistelRounds";
+            this.labelFeistelRounds.Size = new System.Drawing.Size(83, 15);
+            this.labelFeistelRounds.TabIndex = 63;
+            this.labelFeistelRounds.Text = "Feistel Rounds";
+            // 
+            // numericUpDownFeistelRounds
+            // 
+            this.numericUpDownFeistelRounds.Location = new System.Drawing.Point(133, 303);
+            this.numericUpDownFeistelRounds.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.numericUpDownFeistelRounds.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownFeistelRounds.Name = "numericUpDownFeistelRounds";
+            this.numericUpDownFeistelRounds.Size = new System.Drawing.Size(77, 23);
+            this.numericUpDownFeistelRounds.TabIndex = 62;
+            this.numericUpDownFeistelRounds.Value = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            // 
+            // comboBoxKeyType
+            // 
+            this.comboBoxKeyType.FormattingEnabled = true;
+            this.comboBoxKeyType.Location = new System.Drawing.Point(357, 10);
+            this.comboBoxKeyType.Name = "comboBoxKeyType";
+            this.comboBoxKeyType.Size = new System.Drawing.Size(121, 23);
+            this.comboBoxKeyType.TabIndex = 61;
             // 
             // numericUpDownSeed
             // 
@@ -1455,45 +1541,6 @@
             this.buttonRefreshLogs.UseVisualStyleBackColor = true;
             this.buttonRefreshLogs.Click += new System.EventHandler(this.buttonRefreshLogs_Click);
             // 
-            // comboBoxKeyType
-            // 
-            this.comboBoxKeyType.FormattingEnabled = true;
-            this.comboBoxKeyType.Location = new System.Drawing.Point(357, 10);
-            this.comboBoxKeyType.Name = "comboBoxKeyType";
-            this.comboBoxKeyType.Size = new System.Drawing.Size(121, 23);
-            this.comboBoxKeyType.TabIndex = 61;
-            // 
-            // numericUpDownFeistelRounds
-            // 
-            this.numericUpDownFeistelRounds.Location = new System.Drawing.Point(133, 303);
-            this.numericUpDownFeistelRounds.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.numericUpDownFeistelRounds.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDownFeistelRounds.Name = "numericUpDownFeistelRounds";
-            this.numericUpDownFeistelRounds.Size = new System.Drawing.Size(77, 23);
-            this.numericUpDownFeistelRounds.TabIndex = 62;
-            this.numericUpDownFeistelRounds.Value = new decimal(new int[] {
-            4,
-            0,
-            0,
-            0});
-            // 
-            // labelFeistelRounds
-            // 
-            this.labelFeistelRounds.AutoSize = true;
-            this.labelFeistelRounds.Location = new System.Drawing.Point(15, 308);
-            this.labelFeistelRounds.Name = "labelFeistelRounds";
-            this.labelFeistelRounds.Size = new System.Drawing.Size(83, 15);
-            this.labelFeistelRounds.TabIndex = 63;
-            this.labelFeistelRounds.Text = "Feistel Rounds";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -1524,17 +1571,18 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownGeneticFeistelRounds)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownInitialAdds)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSelectionPressure)).EndInit();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFeistelRounds)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSeed)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRngTesting)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxFitnessRngTesting)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tableLayoutPanelLogs.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLog)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFeistelRounds)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1668,6 +1716,9 @@
         private System.Windows.Forms.Label labelFeistelRounds;
         private System.Windows.Forms.NumericUpDown numericUpDownFeistelRounds;
         private System.Windows.Forms.ComboBox comboBoxKeyType;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.NumericUpDown numericUpDownGeneticFeistelRounds;
+        private System.Windows.Forms.ComboBox comboBoxGeneticFeistelType;
     }
 }
 

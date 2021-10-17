@@ -28,5 +28,11 @@ namespace EnderPi.Genetics.Tree64Rng.Nodes
         {
             return $"Not({_children[0].EvaluatePretty()})";
         }
+
+        protected override TreeNode FoldInternal()
+        {
+            //Ironically, can't fold nots - a not on a ulong will always overflow a long.            
+            return this;
+        }
     }
 }

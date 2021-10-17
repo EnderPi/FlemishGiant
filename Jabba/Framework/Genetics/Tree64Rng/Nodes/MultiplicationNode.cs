@@ -28,5 +28,21 @@ namespace EnderPi.Genetics.Tree64Rng.Nodes
         {
             return $"({_children[0].EvaluatePretty()} * {_children[1].EvaluatePretty()})";
         }
+
+        protected override TreeNode FoldInternal()
+        {
+            if (_children[0] is ConstantNode c1 && _children[1] is ConstantNode c2 && (c1.Value * c2.Value) <= long.MaxValue)
+            {
+                return new ConstantNode(c1.Value * c2.Value);
+            }
+            else if ((_children[0] is ConstantNode c3 && c3.Value == 0) || (_children[1] is ConstantNode c4 && c4.Value == 0))
+            {
+                return new ConstantNode(0);
+            }
+            else
+            {
+                return this;
+            }            
+        }
     }
 }

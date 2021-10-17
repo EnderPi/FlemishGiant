@@ -59,7 +59,9 @@ namespace RngGenetics
             comboBoxGeneticType.SelectedIndex = 2;
             comboBoxRngTestingType.Items.AddRange(new object[] { SpecimenType.TreeUnconstrained64, SpecimenType.LinearUnconstrained, SpecimenType.Feistel});
             comboBoxKeyType.Items.AddRange(new object[] { FeistelKeyType.Prime, FeistelKeyType.Hash, FeistelKeyType.Integer });
+            comboBoxGeneticFeistelType.Items.AddRange(new object[] { FeistelKeyType.Prime, FeistelKeyType.Hash, FeistelKeyType.Integer });
             comboBoxKeyType.SelectedIndex = 1;
+            comboBoxGeneticFeistelType.SelectedIndex = 1;
             comboBoxRngTestingType.SelectedIndex = 0;
             for (int i=0; i < checkedListBoxOperations.Items.Count; i++)
             {
@@ -186,6 +188,8 @@ namespace RngGenetics
             parameters.AllowXorNodes = checkedListBoxOperations.GetItemChecked(11);
             parameters.AllowNotNodes = checkedListBoxOperations.GetItemChecked(12);
             parameters.InitialNodes = (int)numericUpDownInitialAdds.Value;
+            parameters.FeistelRounds = (int)numericUpDownGeneticFeistelRounds.Value;
+            parameters.KeyTypeForFeistel = (FeistelKeyType)comboBoxGeneticFeistelType.SelectedItem;
             _simulation.SimulationParameters = parameters;
         }
 
@@ -240,6 +244,8 @@ namespace RngGenetics
             textBoxStateOneFunction.Enabled = !isRunning && comboBoxGeneticType.SelectedItem is SpecimenType.TreeStateConstrained64;
             numericUpDownSelectionPressure.Enabled = !isRunning;            
             numericUpDownInitialAdds.Enabled = !isRunning;
+            numericUpDownGeneticFeistelRounds.Enabled = !isRunning;
+            comboBoxGeneticFeistelType.Enabled = !isRunning;
         }
 
         /// <summary>
@@ -410,6 +416,10 @@ namespace RngGenetics
                 simulation = new RandomnessTest(engine, _sourceRngTesting.Token, parameters);
                 simulation.CheckpointPassed += RngCheckpointPassed;
                 simulation.Start();                
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError(ex.ToString());
             }
             finally
             {

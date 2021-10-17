@@ -34,6 +34,10 @@ namespace EnderPi.Genetics.Tree64Rng.Nodes
         /// <param name="constant">The value.</param>
         public ConstantNode(ulong constant)
         {
+            if (constant > long.MaxValue)
+            {
+                throw new ArgumentException(nameof(constant));
+            }
             _state = constant;            
         }
 
@@ -62,6 +66,11 @@ namespace EnderPi.Genetics.Tree64Rng.Nodes
         public override string EvaluatePretty()
         {
             return string.IsNullOrEmpty(Name) ? _state.ToString() : Name;
+        }
+
+        protected override TreeNode FoldInternal()
+        {
+            return this;
         }
     }
 }

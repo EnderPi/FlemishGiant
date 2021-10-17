@@ -16,5 +16,16 @@
 - Allow user to view average fitness/generation
 - disable form while running
 - Add something like logging to the application?  Probably doesn't need saved to the file.
+- write own RNG in assembly and test
+- have hash mode
+- Tab to just do randomness tests, allow user to code a state transition and an output
+- overall stats for tests passed, failed (shows which tests are useful)
+- Add refresh to log button
+- add hash mode to testing
+- add differential tests
+- add linear tests
+- add seed control to rng testing
+- Make folding expressions recogniz (A-A = C(0))
+
 
 

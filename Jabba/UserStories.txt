@@ -2,12 +2,10 @@
 - Split out clors of different bytes in randomness visual
 - configure said colors and such
 - configure tests
-- have hash mode
 - allow arbitrary output or state functions (expression)
 - allow arbitrary restrictions, like "must include XOR"
 - unit test for randomHash - trivial pass GCD and gorilla test
 - push the round function of the cryptographic has harder - see when, if at all, it fails as a 64-bit hash RNG
-- Tab to just do randomness tests, allow user to code a state transition and an output
 - Allow user to make custom tournament probabilities, even negative selection
 - species explorer (view graph, specs, failes/passed tests)
 - add nextlong to randomnumbergeenerator API (divide ulong by 2, reflect it?)
@@ -20,22 +18,22 @@
 - change up for 32-bit rngs?
 - feistel rngs
 - get constants, like birthdasy empirical, uniformity, etc
-- overall stats for tests passed, failed (shows which tests are useful)
 - overall stats on operations, node counts, etc.
 - Clear results on start.
 - Make variable stopping criteria - elitism, total number of generation, etc
 - configure max nodes for validity
 - Split up the tabs to be separate controls.
-- Add refresh to log button
 - Add mode to program cleaner for hash mode
-- add hash mode to testing
-- add differential tests
-- add linear tests
 - add button to display C# class - whole thing - for 8099.
 - Add configuration for 8099 program length.
-- write own RNG in assembly and test
 - Add context to addinitial genes method, for amount to add + things that can add.
 - generation stats - number of nodes by type
-- add seed control to rng testing
 - add ability to test multiple seeds in testing
-- Make folding expressions recogniz (A-A = C(0))
+- consolidate nameconstants method into one place
+- make a feistel type that has a non-hash state transition function
+- make 32 bit tests and 32->32 rngs
+- make 64->32 rngs
+- add option to force bijection only code.
+- add xorshiftright, xorshiftleft command
+- also add addshiftright, addshiftleft commands
+- get folding running right for 32 bit trees

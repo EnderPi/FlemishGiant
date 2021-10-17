@@ -50,5 +50,21 @@ namespace EnderPi.Genetics.Tree64Rng.Nodes
         {
             return $"({_children[0].EvaluatePretty()} Xor {_children[1].EvaluatePretty()})";
         }
+
+        protected override TreeNode FoldInternal()
+        {
+            if (_children[0] is ConstantNode c1 && _children[1] is ConstantNode c2)
+            {
+                return new ConstantNode(c1.Value ^ c2.Value);
+            }
+            else if (_children[0] is StateOneNode && _children[1] is StateOneNode)
+            {
+                return new ConstantNode(0);
+            }
+            else
+            {
+                return this;
+            }
+        }
     }
 }

@@ -162,8 +162,8 @@ namespace RngGenetics
             while (_specimens.Count < SpecimensPerGeneration)
             {
                 var species = factory.CreateGeneticSpecimen(_rng);
-                //damn dependency issue.  I need a node provider i pass down
-                species.AddInitialGenes(_rng, SimulationParameters);                
+                species.AddInitialGenes(_rng, SimulationParameters);
+                species.Fold();
                 AddSpeciesToListIfValid(_specimens, species);
             }
             _generation++;
@@ -184,6 +184,8 @@ namespace RngGenetics
                     return new ConstrainedTree64Factory(StateOneConstraint);
                 case SpecimenType.LinearUnconstrained:
                     return new LinearGeneticSpecimenFactory();
+                case SpecimenType.Feistel:
+                    return new Feistel64Factory() { KeyType = SimulationParameters.KeyTypeForFeistel, Rounds = SimulationParameters.FeistelRounds };
             }
             throw new NotImplementedException();
         }                
