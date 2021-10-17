@@ -54,7 +54,7 @@ namespace EnderPi.Genetics
         /// <param name="x">The number to rotate.</param>
         /// <param name="k">The value to rotate by.</param>
         /// <returns>RotateRight(x, k & 63)</returns>
-        public static ulong RotaterRight(uint x, uint k)
+        public static uint RotaterRight(uint x, uint k)
         {
             return BitOperations.RotateRight(x, (int)(k & 31U));
         }

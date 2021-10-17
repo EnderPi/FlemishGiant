@@ -40,8 +40,8 @@ namespace EnderPi.Genetics.Tree64Rng
             son.Fitness = 0;
             daughter.Fitness = 0;
 
-            CrossoverTree(son.StateRoot, daughter.StateRoot, rng);
-            CrossoverTree(son.OutputRoot, daughter.OutputRoot, rng);
+            TreeNode.CrossoverTree(son.StateRoot, daughter.StateRoot, rng);
+            TreeNode.CrossoverTree(son.OutputRoot, daughter.OutputRoot, rng);
 
             return new List<IGeneticSpecimen>() { son, daughter };
         }
@@ -276,19 +276,7 @@ namespace EnderPi.Genetics.Tree64Rng
             return result;
         }
 
-        private void CrossoverTree(TreeNode sonTreeRoot, TreeNode daughterTreeRoot, RandomNumberGenerator rng)
-        {
-            TreeNode sonTreeNode = PickRandomTreeNode(sonTreeRoot, rng);
-            TreeNode daughterTreeNode = PickRandomTreeNode(daughterTreeRoot, rng);
-            sonTreeRoot.ReplaceAllChildReferences(sonTreeNode, daughterTreeNode);
-            daughterTreeRoot.ReplaceAllChildReferences(daughterTreeNode, sonTreeNode);
-        }
-
-        private TreeNode PickRandomTreeNode(TreeNode sonTreeRoot, RandomNumberGenerator rng)
-        {
-            var childrenNodes = sonTreeRoot.GetDescendants();
-            return rng.GetRandomElement(childrenNodes);
-        }
+        
 
         /// <summary>
         /// Returns a pretty-printed version of the output function.
@@ -341,35 +329,12 @@ namespace EnderPi.Genetics.Tree64Rng
 
         public override void Fold()
         {
-
-
-        }
-
-        private void FoldAConstantNode(TreeNode root, TreeNode node)
-        {
-            ConstantNode constantNode = new ConstantNode(node.Fold());
-            root.ReplaceAllChildReferences(node, constantNode);
-        }
-
-        private bool HasAConstantFoldableNode(Tree64RngSpecimen child, out TreeNode root, out TreeNode foldableNode)
-        {
-            root = null;
-            foldableNode = null;
-            foreach (var treeRoot in child.GetRoots())
+            foreach (var root in GetRoots())
             {
-                root = treeRoot;
-                foreach (var childNode in root.GetDescendants())
-                {
-                    if (childNode.IsFoldable())
-                    {
-                        foldableNode = childNode;
-                        return true;
-                    }
-                }
+                root.Fold();
             }
-            return false;
         }
-
+        
         /// <summary>
         /// Gets a random number engine for this species.
         /// </summary>

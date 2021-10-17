@@ -1,8 +1,7 @@
-﻿using Flee.PublicTypes;
+﻿using EnderPi.Random;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace EnderPi.Genetics.Tree64Rng.Nodes
 {
@@ -160,24 +159,28 @@ namespace EnderPi.Genetics.Tree64Rng.Nodes
         /// Returns the value of this as a constant.  Probably just throws if misused.
         /// </summary>
         /// <returns></returns>
-        public ulong Fold()
+        public TreeNode Fold()
         {
-            var context = GeneticHelper.GetContext();
-            var expressionStateOne = context.CompileGeneric<ulong>(Evaluate());
-            ulong x = expressionStateOne.Evaluate();
-            return x <= long.MaxValue ? x : x ^ (1UL << 63);
+            for (int i=0; i < _children.Count; i++)
+            {
+                _children[i] = _children[i].Fold();
+            }
+            return FoldInternal();
         }
+
+        protected abstract TreeNode FoldInternal();
+        
 
         /// <summary>
         /// Returns the value of this as a constant.  Probably just throws if misused.
         /// </summary>
         /// <returns></returns>
-        public uint Fold32()
+        public void Fold32()
         {
-            var context = GeneticHelper.GetContext();            
-            var expressionStateOne = context.CompileGeneric<uint>(Evaluate());
-            var x = expressionStateOne.Evaluate();
-            return x;
+            //var context = GeneticHelper.GetContext();            
+            //var expressionStateOne = context.CompileGeneric<uint>(Evaluate());
+            //var x = expressionStateOne.Evaluate();
+            //return x;
         }
 
         /// <summary>
@@ -221,5 +224,21 @@ namespace EnderPi.Genetics.Tree64Rng.Nodes
         {
             return (_children != null && _children.Count == 2);
         }
+
+
+        public static void CrossoverTree(TreeNode sonTreeRoot, TreeNode daughterTreeRoot, RandomNumberGenerator rng)
+        {
+            TreeNode sonTreeNode = PickRandomTreeNode(sonTreeRoot, rng);
+            TreeNode daughterTreeNode = PickRandomTreeNode(daughterTreeRoot, rng);
+            sonTreeRoot.ReplaceAllChildReferences(sonTreeNode, daughterTreeNode);
+            daughterTreeRoot.ReplaceAllChildReferences(daughterTreeNode, sonTreeNode);
+        }
+
+        private static TreeNode PickRandomTreeNode(TreeNode sonTreeRoot, RandomNumberGenerator rng)
+        {
+            var childrenNodes = sonTreeRoot.GetDescendants();
+            return rng.GetRandomElement(childrenNodes);
+        }
+
     }
 }

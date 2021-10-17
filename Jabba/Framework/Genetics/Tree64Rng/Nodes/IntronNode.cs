@@ -52,5 +52,10 @@ namespace EnderPi.Genetics.Tree64Rng.Nodes
         {
             return _children[0].EvaluatePretty();
         }
+
+        protected override TreeNode FoldInternal()
+        {            
+            return this;
+        }
     }
 }

@@ -7,7 +7,7 @@ namespace EnderPi.Genetics.Tree32Rng
     /// Statenode for 32-bit Feistel round function.
     /// </summary>
     [Serializable]
-    public class StateNode32 :TreeNode
+    public class StateNode32 : TreeNode
     {
         public const string Name = "X";
         public StateNode32()
@@ -29,6 +29,11 @@ namespace EnderPi.Genetics.Tree32Rng
         public override string EvaluatePretty()
         {
             return Name;
+        }
+
+        protected override TreeNode FoldInternal()
+        {
+            return this;
         }
     }
 }
