@@ -9,7 +9,7 @@ namespace EnderPi.Genetics
     /// </summary>
     public interface IGeneticSpecimen
     {
-        public bool IsValid(out string errors);
+        public bool IsValid(GeneticParameters parameters, out string errors);
         public int Generation { set; get; }
         public long Fitness { set; get; }
         public int Operations { get; }

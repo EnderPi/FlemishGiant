@@ -213,7 +213,7 @@ namespace RngGenetics
         private void AddSpeciesToListIfValid(List<IGeneticSpecimen> specimens, IGeneticSpecimen rngSpecies)
         {
             string errors = null;
-            if (rngSpecies.IsValid(out errors))
+            if (rngSpecies.IsValid(SimulationParameters, out errors))
             {
                 rngSpecies.Generation = _generation;
                 specimens.Add(rngSpecies);

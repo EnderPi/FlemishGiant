@@ -217,7 +217,7 @@ namespace EnderPi.Genetics.Linear8099
         /// </summary>
         /// <param name="errors">Any errors.</param>
         /// <returns>True if the command is valid, false otherwise.</returns>
-        public override bool IsValid(out string errors)
+        public override bool IsValid(GeneticParameters parameters, out string errors)
         {
             var sb = new StringBuilder();            
             var stateAffectingCommand = _generationProgram.FirstOrDefault(x => x.AffectsState());
@@ -235,9 +235,18 @@ namespace EnderPi.Genetics.Linear8099
             {
                 sb.AppendLine($"Program is too long - program length {_generationProgram.Count}");
             }
+            if (parameters.ForceBijection)
+            {
+                ValidateBijection(sb);
+            }
             //verify one command targets one state, and one command targets output.
             errors = sb.ToString();
-            return (stateAffectingCommand != null && outputAffectingCommand != null && programShortEnough);
+            return !string.IsNullOrWhiteSpace(errors);
+        }
+
+        private void ValidateBijection(StringBuilder sb)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

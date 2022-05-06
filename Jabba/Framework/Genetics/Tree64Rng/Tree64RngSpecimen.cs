@@ -301,7 +301,7 @@ namespace EnderPi.Genetics.Tree64Rng
         /// </summary>
         /// <param name="errors"></param>
         /// <returns></returns>
-        public override bool IsValid(out string errors)
+        public override bool IsValid(GeneticParameters parameters, out string errors)
         {
             StringBuilder sb = new StringBuilder();
             bool stateOneHasStateOne = StateRoot.GetDescendants().Any(x => x is StateOneNode);

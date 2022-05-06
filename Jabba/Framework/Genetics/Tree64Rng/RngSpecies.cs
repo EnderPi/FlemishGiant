@@ -62,7 +62,7 @@ namespace EnderPi.Genetics.Tree64Rng
         /// </summary>
         /// <param name="errors"></param>
         /// <returns></returns>
-        public abstract bool IsValid(out string errors);
+        public abstract bool IsValid(GeneticParameters parameters, out string errors);
 
         /// <summary>
         /// Removes redundancies in the specimen, like replacing (1+3) with (4)

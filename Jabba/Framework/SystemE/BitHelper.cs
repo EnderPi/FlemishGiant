@@ -107,6 +107,26 @@ namespace EnderPi.SystemE
             return result;
         }
 
+        public static byte[] GetBytes(ulong x)
+        {
+            var z = BitConverter.GetBytes(x);
+            if (!BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(z);
+            }
+            return z;
+        }
+
+        public static ulong ToUInt64(byte[] x)
+        {
+            var y =x;
+            if (!BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(y);
+            }
+            return BitConverter.ToUInt64(y);
+        }
+
 
     }
 }

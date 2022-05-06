@@ -39,5 +39,7 @@
         public int FeistelRounds { set; get; }
 
         public FeistelKeyType KeyTypeForFeistel { set; get; }
+
+        public bool ForceBijection { set; get; }
     }
 }
