@@ -16,6 +16,11 @@ namespace EnderPi.Random
         {
             _function = new PseudoRandomFunction(key);
         }
+        
+        public KeyedRandomHash(uint[] keyStream)
+        {
+            _function = new PseudoRandomFunction(keyStream);
+        }
 
         public ulong Nextulong()
         {

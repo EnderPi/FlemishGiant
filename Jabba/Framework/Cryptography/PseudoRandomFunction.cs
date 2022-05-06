@@ -23,28 +23,41 @@ namespace EnderPi.Cryptography
         {
             var x = new RandomNumberGenerator(new RandomHash());
             x.SeedRandom();
-            _keys = new uint[64];
-            for (int i=0; i < 64; i++)
+            _keys = new uint[24];
+            for (int i=0; i < 24; i++)
             {
                 _keys[i] = x.Nextuint();
             }           
         }
 
-
+                        
         /// <summary>
         /// Basic constructor.  Pulls a specific one from the family.  ~10^18 such functions available.
         /// </summary>
         public PseudoRandomFunction(ulong y)
         {
-            var x = new RandomNumberGenerator(new RandomHash());
-            x.Seed(y);
-            _keys = new uint[64];
-            for (int i = 0; i < 64; i++)
+            ulong temp = y;
+            _keys = new uint[24];
+            for (int i = 0; i < 24; i++)
             {
-                _keys[i] = x.Nextuint();
+                temp = (temp * 6364136223846793005) + 1442695040888963407;
+                ulong output = BitOperations.RotateLeft(temp, 9) * 1498817317654829;
+                output ^= output >> 32;
+                _keys[i] = (uint)(output & uint.MaxValue);
             }
         }
-
+                
+        /// <summary>
+        /// Basic constructor.  Pulls a specific one from the family.  ~10^18 such functions available.
+        /// </summary>
+        public PseudoRandomFunction(uint[] y)
+        {
+            _keys = new uint[y.Length];
+            for (int i = 0; i < y.Length; i++)
+            {
+                _keys[i] = y[i];
+            }
+        }
 
         /// <summary>
         /// Random function.

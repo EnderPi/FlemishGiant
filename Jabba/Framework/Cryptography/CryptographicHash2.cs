@@ -1,32 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Numerics;
 
 namespace EnderPi.Cryptography
 {
-    /// <summary>
-    /// A cryptographic hash function based on a sponge function, a type-3 generalized feistel network, and a round 
-    /// function derived from genetic programming.  The round function has significant randomness as a 64-bit random
-    /// number generator.  The round function resists differential cryptanalysis and the 
-    /// amount of output bits is significantly less than the internal state, providing high security.
-    /// </summary> 
-    /// <remarks>
-    /// This could easily be extended to longer or shorter hashes, since it uses a sponge construction.  INstances of 
-    /// this class are not thread safe, but the static API is threadsafe.
-    /// </remarks>
-    public class CryptographicHash 
+    public class CryptographicHash2
     {
         /// <summary>
         /// The internal state, which is 1 kilobyte.
         /// </summary>
         private ulong[] _state;
-        
+
         /// <summary>
         /// A set of simple 64-bit keys whish is used in the internal round function.
         /// </summary>
         /// <remarks>
         /// Derived from the SHA256 hashes of 0-63.  These are added at each round of the Feistel network, so virtually any value will work.
         /// </remarks>
-        private static readonly ulong[] _additionConstants = { 15794028255413092319, 18442280127147387751, 12729309401716732454, 7115307147812511645, 5302139897775218427, 14101262115410449445, 12208502135646234746, 18372937549027959272, 4458685334906369756, 3585144267928700831, 493103506155265287, 689370800073552075, 2303624318106399810, 9496165304756913731, 12035424005045793793, 6685197515345832855, 2656657354890179337, 9720106778309819524, 14715118401985547901, 14918721632492036331, 14916780797981785668, 6653603225583465284, 11459605610878049781, 15367375858701530787, 11689533043359152663, 15247888379347215110, 16122983862132142910, 12356767314225484987, 13581698193155494064, 15822743625088846253, 13266281975252868687, 11553465162911432431, 4972399138750820749, 5013820095768955290, 2435012454098703131, 7794617134289375954, 9491423185294945758, 5784059636265243100, 4962101747692318209, 2412233113776848279, 5474733583693578266, 10378251128189562191, 11779690937116173544, 4113455014468819836, 11181584313450578738, 15287848078269490984, 9383066286683014594, 10837563506325318076, 5104151911441924943, 4114395767014852192, 6635459657931808133, 11553165155891861824, 9573537094354532727, 4615691730115113604, 15516039487186883944, 737422353624691682, 6945706647696304751, 5691229456008476387, 1308515051450429517, 15440020319491276741, 8555343322742461026, 7481302235789478987, 4958482254342815994, 16551925689093168667 };
+        private static readonly PseudoRandomFunction[] _functions;
 
         /// <summary>
         /// This is an arbitrary initial state.
@@ -61,15 +53,24 @@ namespace EnderPi.Cryptography
         /// <returns>The hash of the input.</returns>
         public static byte[] Hash(byte[] input)
         {
-            var hasher = new CryptographicHash();
+            var hasher = new CryptographicHash2();
             return hasher.ComputeHash(input);
         }
-        
+
         /// <summary>
         /// Public constructor.  This class doesn't maintain internal state.
         /// </summary>
-        public CryptographicHash() 
-        {}
+        public CryptographicHash2()
+        { }
+
+        static CryptographicHash2()
+        {
+            _functions = new PseudoRandomFunction[64];
+            for (uint i=0; i < _functions.Length; i++)
+            {
+                _functions[i] = new PseudoRandomFunction(i);
+            }
+        }
 
         /// <summary>
         /// Computes a 256-bit hash.
@@ -103,9 +104,9 @@ namespace EnderPi.Cryptography
         {
             InitializeState();
             var padded = PadInput(input);
-            AddEntropy(padded);            
+            AddEntropy(padded);
             StirPool(64);
-            for (int i=0; i < output.Length; i++)
+            for (int i = 0; i < output.Length; i++)
             {
                 output[i] = _state[0];
                 StirPool(64);
@@ -138,7 +139,7 @@ namespace EnderPi.Cryptography
         /// </summary>
         private void ClearState()
         {
-            for (int i=0; i < _state.Length; i++)
+            for (int i = 0; i < _state.Length; i++)
             {
                 _state[i] = 0;
             }
@@ -173,7 +174,7 @@ namespace EnderPi.Cryptography
             //block copy to the passed in buffer, discarding extra
             byte[] output = new byte[bytesToRetrieve];
             Buffer.BlockCopy(newBuffer, 0, output, 0, bytesToRetrieve);
-            return output;                        
+            return output;
         }
 
         /// <summary>
@@ -182,8 +183,8 @@ namespace EnderPi.Cryptography
         /// <param name="paddedInput">The entropy to add to the internal pool.</param>
         private void AddEntropy(byte[] paddedInput)
         {
-            for (int i=0; i < (paddedInput.Length / (8 * _blockSize)); i++)
-            {                
+            for (int i = 0; i < (paddedInput.Length / (8 * _blockSize)); i++)
+            {
                 _state[0] ^= BitConverter.ToUInt64(paddedInput, i * 8);
                 StirPool(1);
             }
@@ -207,7 +208,7 @@ namespace EnderPi.Cryptography
             numberOfBlocks++;
             byte[] newBuffer = new byte[numberOfBlocks * 8 * _blockSize];
             Buffer.BlockCopy(input, 0, newBuffer, 0, input.Length);
-            Buffer.BlockCopy(BitConverter.GetBytes((ulong)input.Length), 0, newBuffer, 8 * _blockSize* (numberOfBlocks - 1), 8);            
+            Buffer.BlockCopy(BitConverter.GetBytes((ulong)input.Length), 0, newBuffer, 8 * _blockSize * (numberOfBlocks - 1), 8);
             return newBuffer;
         }
 
@@ -217,7 +218,7 @@ namespace EnderPi.Cryptography
         private void InitializeState()
         {
             _state = new ulong[_internalStateSize];
-            for (int i=0; i < _state.Length; i++)
+            for (int i = 0; i < _state.Length; i++)
             {
                 _state[i] = _initialState[i];
             }
@@ -238,7 +239,7 @@ namespace EnderPi.Cryptography
                 var first = _state[0];
                 for (int j = 0; j < _state.Length - 1; j++)
                 {
-                    _state[j] = _state[j + 1] ^ RoundFunction(_state[j], _additionConstants[_pointer]);
+                    _state[j] = _state[j + 1] ^ _functions[_pointer].F(_state[j]);//RoundFunction(_state[j], _additionConstants[_pointer]);
                 }
                 _state[_state.Length - 1] = first;
                 _pointer = (_pointer + 1) & 63;
@@ -266,7 +267,7 @@ namespace EnderPi.Cryptography
         private ulong RoundFunction(ulong x, ulong key)
         {
             x ^= key;
-            return C2 * BitOperations.RotateRight((C4 - (x * x)) * BitOperations.RotateRight((C6 - x) * x, 32), 49);            
+            return C2 * BitOperations.RotateRight((C4 - (x * x)) * BitOperations.RotateRight((C6 - x) * x, 32), 49);
         }
     }
 }

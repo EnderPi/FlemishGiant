@@ -219,7 +219,7 @@ namespace EnderPi.Genetics
             return new Feistel64Engine(_outputRoot.Evaluate(), _rounds, _keys);
         }
 
-        public override bool IsValid(out string errors)
+        public override bool IsValid(GeneticParameters parameters, out string errors)
         {
             StringBuilder sb = new StringBuilder();
             bool outputHasKey = _outputRoot.GetDescendants().Any(x => x is KeyNode32bit);
