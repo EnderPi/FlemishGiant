@@ -12,7 +12,12 @@ namespace EnderPi.Cryptography
     public class PseudoRandomFunction
     {
         /// <summary>
-        /// 
+        /// Number of rounds the function is run with.  Also used to populate the _keys array.
+        /// </summary>
+        private const int NumRounds = 24;
+
+        /// <summary>
+        /// Array that holds the keys for the pseudo-random function.  The length of the array should be equal to NumRounds.
         /// </summary>
         private uint[] _keys;
 
@@ -23,8 +28,8 @@ namespace EnderPi.Cryptography
         {
             var x = new RandomNumberGenerator(new RandomHash());
             x.SeedRandom();
-            _keys = new uint[24];
-            for (int i=0; i < 24; i++)
+            _keys = new uint[NumRounds];
+            for (int i = 0; i < NumRounds; i++)
             {
                 _keys[i] = x.Nextuint();
             }           
@@ -36,14 +41,12 @@ namespace EnderPi.Cryptography
         /// </summary>
         public PseudoRandomFunction(ulong y)
         {
-            ulong temp = y;
-            _keys = new uint[24];
-            for (int i = 0; i < 24; i++)
+            EnderLcg lcg = new EnderLcg();
+            lcg.Seed(y);
+            _keys = new uint[NumRounds];
+            for (int i = 0; i < NumRounds; i++)
             {
-                temp = (temp * 6364136223846793005) + 1442695040888963407;
-                ulong output = BitOperations.RotateLeft(temp, 9) * 1498817317654829;
-                output ^= output >> 32;
-                _keys[i] = (uint)(output & uint.MaxValue);
+                _keys[i] = (uint)(lcg.Nextulong() >> 32);
             }
         }
                 
@@ -52,6 +55,8 @@ namespace EnderPi.Cryptography
         /// </summary>
         public PseudoRandomFunction(uint[] y)
         {
+            /* Potentially unsafe if y.Length is not NumRounds.  This should probably be checked for and an error should be thrown.
+             * Also, does this need to be a deep copy? */
             _keys = new uint[y.Length];
             for (int i = 0; i < y.Length; i++)
             {
@@ -65,10 +70,10 @@ namespace EnderPi.Cryptography
         /// <returns>A random ulong.</returns>
         public ulong F(ulong x)
         {
-            uint right = Convert.ToUInt32(x & uint.MaxValue);
-            uint left = Convert.ToUInt32(x >> 32);
+            uint right = (uint)(x & uint.MaxValue);
+            uint left = (uint)(x >> 32);
             uint temp;
-            for (int i = 0; i < 64; i++)
+            for (int i = 0; i < NumRounds; i++)
             {
                 temp = right;
                 right = left ^ RoundFunction(right, _keys[i]);
