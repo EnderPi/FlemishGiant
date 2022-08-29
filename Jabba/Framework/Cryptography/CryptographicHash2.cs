@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Numerics;
 
 namespace EnderPi.Cryptography
 {
+    /// <summary>
+    /// A cryptographic hash that uses very strong S-boxes internally.
+    /// </summary>
     public class CryptographicHash2
     {
         /// <summary>
@@ -13,11 +13,8 @@ namespace EnderPi.Cryptography
         private ulong[] _state;
 
         /// <summary>
-        /// A set of simple 64-bit keys whish is used in the internal round function.
-        /// </summary>
-        /// <remarks>
-        /// Derived from the SHA256 hashes of 0-63.  These are added at each round of the Feistel network, so virtually any value will work.
-        /// </remarks>
+        /// A set of S-boxes that make up the internal round function.
+        /// </summary>        
         private static readonly PseudoRandomFunction[] _functions;
 
         /// <summary>
@@ -88,7 +85,7 @@ namespace EnderPi.Cryptography
             byte[] paddedInput = PadInput(input);
             AddEntropy(paddedInput);
             //The pool is only coarsely stirred during entropy addition.  The call below ensures that the hash is strong.
-            StirPool(64);
+            StirPool(20);
             byte[] hash = GetEntropy(requestedNumberOfOutputBytes);
             //Clear the internal state before returning the hash for security purposes.  Recovering the state could lead to an attack.
             ClearState();
@@ -105,11 +102,11 @@ namespace EnderPi.Cryptography
             InitializeState();
             var padded = PadInput(input);
             AddEntropy(padded);
-            StirPool(64);
+            StirPool(20);
             for (int i = 0; i < output.Length; i++)
             {
                 output[i] = _state[0];
-                StirPool(64);
+                StirPool(20);
             }
             ClearState();
         }
@@ -124,11 +121,11 @@ namespace EnderPi.Cryptography
             InitializeState();
             var padded = PadInput(input);
             AddEntropy(padded);
-            StirPool(64);
+            StirPool(20);
             for (int i = 0; i < output.Length; i++)
             {
                 output[i] = Convert.ToUInt32(_state[0] & UInt32.MaxValue);
-                StirPool(64);
+                StirPool(20);
             }
             ClearState();
         }
@@ -239,35 +236,12 @@ namespace EnderPi.Cryptography
                 var first = _state[0];
                 for (int j = 0; j < _state.Length - 1; j++)
                 {
-                    _state[j] = _state[j + 1] ^ _functions[_pointer].F(_state[j]);//RoundFunction(_state[j], _additionConstants[_pointer]);
+                    _state[j] = _state[j + 1] ^ _functions[_pointer].F(_state[j]);
                 }
                 _state[_state.Length - 1] = first;
                 _pointer = (_pointer + 1) & 63;
             }
         }
-
-        //The below constants were all derived from a genetic algorithm.  The round function, by itself, passes 
-        //randomness tests at 10 million deviates, and resists differential and linear cryptanalysis at 10 M deviates.        
-        private const ulong C2 = 4710464313090095487;
-        private const ulong C4 = 5589712023184130407;
-        private const ulong C6 = 6066605419050921477;
-
-
-        /// <summary>
-        /// This particular round function was designed with genetic programming.  It has strong randomness as a 
-        /// U64->U64 hash by itself, and is resistant to differential cryptanalysis.
-        /// </summary>
-        /// <remarks>
-        /// The round function from the genetic algorithm was modified by pre-whitening the input by XOR 
-        /// with the key.  
-        /// </remarks>
-        /// <param name="x">The number to hash</param>
-        /// <param name="key">The round key</param>
-        /// <returns></returns>
-        private ulong RoundFunction(ulong x, ulong key)
-        {
-            x ^= key;
-            return C2 * BitOperations.RotateRight((C4 - (x * x)) * BitOperations.RotateRight((C6 - x) * x, 32), 49);
-        }
+        
     }
 }

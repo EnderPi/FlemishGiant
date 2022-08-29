@@ -13,6 +13,7 @@ namespace EnderPi.Genetics.Linear8099
 
         public ulong Constant { set { _constant = value; } get { return _constant; } }
 
+        public int TargetRegisterIndex => _targetRegisterIndex;
         public BinaryRegisterConstantCommand(int targetRegisterIndex, ulong constant)
         {
             _targetRegisterIndex = targetRegisterIndex;

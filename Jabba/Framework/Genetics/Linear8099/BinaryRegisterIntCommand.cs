@@ -12,6 +12,9 @@ namespace EnderPi.Genetics.Linear8099
         protected int _constant;
 
         public int Constant { set { _constant = value; } get { return _constant; } }
+
+        public int TargetRegisterIndex => _targetRegisterIndex;
+
         public BinaryRegisterIntCommand(int targetRegisterIndex, int constant)
         {
             _targetRegisterIndex = targetRegisterIndex;

@@ -56,7 +56,7 @@ namespace EnderPi.Genetics.Linear8099.Commands
 
         public override string ToString()
         {
-            return $"{Machine8099Grammar.Move} {LinearGeneticHelper.GetRegister(_targetRegisterIndex)},{LinearGeneticHelper.GetRegister(_sourceRegisterIndex)}";
+            return $"{Machine8099Grammar.Move} {LinearGeneticHelper.GetRegister(_targetRegisterIndex)},{LinearGeneticHelper.GetRegister(_sourceRegisterIndex)};";
         }
 
         public override string GetCSharpCommand()

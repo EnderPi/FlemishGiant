@@ -1,5 +1,5 @@
 - Allow user to browse seed effects
-- Split out clors of different bytes in randomness visual
+- Split out colors of different bytes in randomness visual
 - configure said colors and such
 - configure tests
 - allow arbitrary output or state functions (expression)
@@ -16,8 +16,7 @@
 - save/load
 - warn on close
 - change up for 32-bit rngs?
-- feistel rngs
-- get constants, like birthdasy empirical, uniformity, etc
+- get constants, like birthday empirical, uniformity, etc
 - overall stats on operations, node counts, etc.
 - Clear results on start.
 - Make variable stopping criteria - elitism, total number of generation, etc
@@ -37,3 +36,9 @@
 - add xorshiftright, xorshiftleft command
 - also add addshiftright, addshiftleft commands
 - get folding running right for 32 bit trees
+- Deal with cryptographicHash2
+- Deal with endian-ness issue in endercryption
+- Make fitness stop at reasonably round numbers
+- While randomness test running, display current p-values and graphic
+- Make hash work correctly for byte stream imho
+- Make 8099 Program cleaner combine multiplies

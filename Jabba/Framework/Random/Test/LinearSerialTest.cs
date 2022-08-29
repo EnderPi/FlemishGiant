@@ -100,7 +100,7 @@ namespace EnderPi.Random.Test
 
         public string GetFailureDescriptions()
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder();            
             if (Result == TestResult.Fail)
             {
                 sb.AppendLine($"Linear Serial Correlation Test - Expected count ~{_currentNumberOfIterations /2 }");

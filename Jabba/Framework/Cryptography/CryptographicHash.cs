@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EnderPi.SystemE;
+using System;
 using System.Numerics;
 
 namespace EnderPi.Cryptography
@@ -10,7 +11,7 @@ namespace EnderPi.Cryptography
     /// amount of output bits is significantly less than the internal state, providing high security.
     /// </summary> 
     /// <remarks>
-    /// This could easily be extended to longer or shorter hashes, since it uses a sponge construction.  INstances of 
+    /// This could easily be extended to longer or shorter hashes, since it uses a sponge construction.  Instances of 
     /// this class are not thread safe, but the static API is threadsafe.
     /// </remarks>
     public class CryptographicHash 
@@ -21,7 +22,7 @@ namespace EnderPi.Cryptography
         private ulong[] _state;
         
         /// <summary>
-        /// A set of simple 64-bit keys whish is used in the internal round function.
+        /// A set of simple 64-bit keys which are used in the internal round function.
         /// </summary>
         /// <remarks>
         /// Derived from the SHA256 hashes of 0-63.  These are added at each round of the Feistel network, so virtually any value will work.
@@ -66,7 +67,7 @@ namespace EnderPi.Cryptography
         }
         
         /// <summary>
-        /// Public constructor.  This class doesn't maintain internal state.
+        /// Public constructor.  
         /// </summary>
         public CryptographicHash() 
         {}
@@ -74,13 +75,19 @@ namespace EnderPi.Cryptography
         /// <summary>
         /// Computes a 256-bit hash.
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">The byte array to hash.</param>
+        /// <returns>The 32-byte long hash of the input.</returns>
         public byte[] ComputeHash(byte[] input)
         {
             return ComputeHash(input, 32);
         }
 
+        /// <summary>
+        /// Computes an arbitrary-length hash.
+        /// </summary>
+        /// <param name="input">The byte array to hash.</param>
+        /// <param name="requestedNumberOfOutputBytes">The requested hash size, in number of bytes.</param>
+        /// <returns>The hash.</returns>
         public byte[] ComputeHash(byte[] input, int requestedNumberOfOutputBytes)
         {
             InitializeState();
@@ -95,10 +102,10 @@ namespace EnderPi.Cryptography
         }
 
         /// <summary>
-        /// Request an output stream of ulongs from a given input stream of ulongs.  Useful for key schedules.
+        /// Request an output stream of ulongs from a given input stream of bytes.  Useful for key schedules.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="output"></param>
+        /// <param name="input">The input byte array.</param>
+        /// <param name="output">The requested output array.</param>
         public void RequestStream(byte[] input, ulong[] output)
         {
             InitializeState();
@@ -114,7 +121,7 @@ namespace EnderPi.Cryptography
         }
 
         /// <summary>
-        /// Request an output stream of ulongs from a given input stream of ulongs.  Useful for key schedules.
+        /// Request an output stream of uints from a given input stream of bytes.  Useful for key schedules.
         /// </summary>
         /// <param name="input"></param>
         /// <param name="output"></param>
@@ -148,7 +155,7 @@ namespace EnderPi.Cryptography
         /// <summary>
         /// Retrieves entropy from the internal state.
         /// </summary>
-        /// <param name="bytesToRetrieve">How many bytes of entropy to retrive.</param>
+        /// <param name="bytesToRetrieve">How many bytes of entropy to retrieve.</param>
         /// <returns>The requested entropy.</returns>
         private byte[] GetEntropy(int bytesToRetrieve)
         {
@@ -165,7 +172,7 @@ namespace EnderPi.Cryptography
             {
                 for (int j = 0; j < _blockSize; j++)
                 {
-                    var bytes = BitConverter.GetBytes(_state[j]);
+                    var bytes = BitHelper.GetLittleEndianBytes(_state[j]);
                     Buffer.BlockCopy(bytes, 0, newBuffer, ((i * _blockSize) + j) * 8, 8);
                 }
                 StirPool(1);
@@ -199,6 +206,10 @@ namespace EnderPi.Cryptography
         /// <returns>A copied, padded byte array.</returns>
         private byte[] PadInput(byte[] input)
         {
+            if (input == null)
+            {
+                input = new byte[0];
+            }
             int numberOfBlocks = (input.Length / (_blockSize * 8));
             if ((numberOfBlocks * _blockSize * 8) != input.Length)
             {
