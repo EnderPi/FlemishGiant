@@ -22,7 +22,7 @@ namespace EnderPi.Genetics.Linear8099
         /// <summary>
         /// This abstraction is leaking a little, but this still makes sense.
         /// </summary>
-        public override int Operations => _generationProgram.Count;
+        public override int Operations => _generationProgram.Count(x => !(x is IntronCommand));
 
         /// <summary>
         /// So this probably needs a context passed in.

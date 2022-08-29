@@ -45,12 +45,16 @@ namespace EnderPi.Genetics.Linear8099
                 //we make a list of all those commands, then we reverse them
             }
             reducedProgram2.Reverse();
-            return reducedProgram2;
+            return FoldProgram(reducedProgram2.ToArray());
         }
 
         public static List<Command8099> FoldProgram(Command8099[] program)
         {
             List<Command8099> reducedProgram = new List<Command8099>(program.Length);
+            if (program.Length == 0)
+            {
+                return reducedProgram;
+            }
             int i = 0;
             //start at first command
             //add to reduced
@@ -103,7 +107,11 @@ namespace EnderPi.Genetics.Linear8099
                         reducedProgram.Add(currentCommand);
                     }
                 }                
-            } while (++i < (program.Length - 1));
+                else
+                {
+                    reducedProgram.Add(currentCommand);
+                }
+            } while (++i < (program.Length));
 
 
             return reducedProgram;
