@@ -26,7 +26,7 @@ namespace EnderPi.Cryptography
             {
                 ulong state = pseudoRandomFunction.Nextulong();
                 
-                byte[] bytes = BitHelper.GetBytes(state);
+                byte[] bytes = BitHelper.GetLittleEndianBytes(state);
                 //the second part should handle the last block fine.
                 var offset = 8 * counter;
                 for (int i = 0; (i < bytes.Length) && (i < bytesToEncrypt); i++)

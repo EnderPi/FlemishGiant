@@ -26,6 +26,8 @@
 - add linear tests
 - add seed control to rng testing
 - Make folding expressions recogniz (A-A = C(0))
+- feistel rngs
+
 
 
 

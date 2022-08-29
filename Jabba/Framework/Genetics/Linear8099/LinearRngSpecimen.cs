@@ -241,7 +241,7 @@ namespace EnderPi.Genetics.Linear8099
             }
             //verify one command targets one state, and one command targets output.
             errors = sb.ToString();
-            return !string.IsNullOrWhiteSpace(errors);
+            return string.IsNullOrWhiteSpace(errors);
         }
 
         private void ValidateBijection(StringBuilder sb)

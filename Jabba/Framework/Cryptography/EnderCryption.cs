@@ -3,6 +3,9 @@ using System.Numerics;
 
 namespace EnderPi.Cryptography
 {
+    /// <summary>
+    /// Simple stream cipher based on a 256-bit block cipher.
+    /// </summary>
     public class EnderCryption
     {       
             

@@ -107,7 +107,12 @@ namespace EnderPi.SystemE
             return result;
         }
 
-        public static byte[] GetBytes(ulong x)
+        /// <summary>
+        /// Gets the little-endian representation of x.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        public static byte[] GetLittleEndianBytes(ulong x)
         {
             var z = BitConverter.GetBytes(x);
             if (!BitConverter.IsLittleEndian)
@@ -117,6 +122,11 @@ namespace EnderPi.SystemE
             return z;
         }
 
+        /// <summary>
+        /// Endian-safe
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
         public static ulong ToUInt64(byte[] x)
         {
             var y =x;

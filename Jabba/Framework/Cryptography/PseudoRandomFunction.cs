@@ -1,8 +1,5 @@
 ﻿using EnderPi.Random;
-using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
 namespace EnderPi.Cryptography
 {
@@ -34,7 +31,6 @@ namespace EnderPi.Cryptography
                 _keys[i] = x.Nextuint();
             }           
         }
-
                         
         /// <summary>
         /// Basic constructor.  Pulls a specific one from the family.  ~10^18 such functions available.
