@@ -42,3 +42,6 @@
 - While randomness test running, display current p-values and graphic
 - Make hash work correctly for byte stream imho
 - Make 8099 Program cleaner combine multiplies
+- Make pseudo random function code (keyed hash, diff strong on key changes)
+- Store all comptetitors to elite (so, specimens with peak fitness and equal cost), allow inspection.  Need to find a good hash and this is the way.
+- Calculate unique failure modes - when a given test was the only failure mechanism

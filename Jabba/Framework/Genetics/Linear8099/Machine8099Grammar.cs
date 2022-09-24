@@ -20,6 +20,9 @@ namespace EnderPi.Genetics.Linear8099
         public const string ShiftLeft = "SHL";
         public const string ShiftRight = "SHR";
         public const string RotateRight = "ROR";
-        public const string RotateLeft = "ROL";        
+        public const string RotateLeft = "ROL";
+        public const string XorShiftRight = "XSR";
+        public const string RotateMultiply = "RMU";
+        public const string Loop = "LOP";
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace EnderPi.Random.Test
 {
+    [Serializable]
     public class LinearSerialTest :IIncrementalRandomTest
     {        
         private ulong[] _masks;
@@ -68,7 +69,7 @@ namespace EnderPi.Random.Test
             Result = TestHelper.ReturnLowestConclusiveResultEnumerable(testResults);
         }
 
-        public void Initialize()
+        public void Initialize(IRandomEngine engine)
         {
             Result = TestResult.Inconclusive;
             _initialNumberProcessed = false;
@@ -115,6 +116,11 @@ namespace EnderPi.Random.Test
         public TestType GetTestType()
         {
             return TestType.LinearCorrelation;
+        }
+
+        public override string ToString()
+        {
+            return "Linear Serial Correlation Test";
         }
     }
 }

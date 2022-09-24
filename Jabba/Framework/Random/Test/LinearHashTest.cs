@@ -10,6 +10,7 @@ namespace EnderPi.Random.Test
     /// Tests a random engine like a hash.  Detects any bit-to-bit
     /// linear correlations in the hash function.
     /// </summary>
+    [Serializable]
     public class LinearHashTest :IIncrementalRandomTest
     {
         private IRandomEngine _function;
@@ -18,7 +19,7 @@ namespace EnderPi.Random.Test
 
         protected long _currentNumberOfIterations;
 
-        private int[][] _countOfZeros;
+        private long[][] _countOfZeros;
 
         public TestResult Result { set; get; }
 
@@ -26,15 +27,14 @@ namespace EnderPi.Random.Test
 
         private int _testsPassed;
 
-        public LinearHashTest(IRandomEngine function)
-        {
-            _function = function.DeepCopy();
+        public LinearHashTest()
+        {            
             _masks = new ulong[64];
-            _countOfZeros = new int[64][];
+            _countOfZeros = new long[64][];
             for (int i = 0; i < 64; i++)
             {
                 _masks[i] = 1UL << i;
-                _countOfZeros[i] = new int[64];
+                _countOfZeros[i] = new long[64];
             }
         }
 
@@ -66,8 +66,9 @@ namespace EnderPi.Random.Test
             Result = TestHelper.ReturnLowestConclusiveResultEnumerable(testResults);
         }
 
-        public void Initialize()
+        public void Initialize(IRandomEngine engine)
         {
+            _function = engine.DeepCopy();
             Result = TestResult.Inconclusive;
         }
 
@@ -113,6 +114,11 @@ namespace EnderPi.Random.Test
         public TestType GetTestType()
         {
             return TestType.LinearHash;
+        }
+
+        public override string ToString()
+        {
+            return "Linear Cryptanalysis Test";
         }
     }
 }

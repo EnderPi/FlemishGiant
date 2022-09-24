@@ -29,7 +29,7 @@
         /// <summary>
         /// Called before the simulation starts, create any large state objects here.
         /// </summary>
-        public void Initialize();
+        public void Initialize(IRandomEngine engine);
 
         /// <summary>
         /// Returns a string with a description of the failues.

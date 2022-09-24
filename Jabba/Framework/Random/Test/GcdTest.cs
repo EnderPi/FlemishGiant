@@ -88,7 +88,7 @@ namespace EnderPi.Random.Test
         /// <summary>
         /// Initializes all the arrays.
         /// </summary>
-        public void Initialize()
+        public void Initialize(IRandomEngine engine)
         {
             _gcds = new ulong[_arraySize];            
             _numbers = new Queue<ulong>(4);

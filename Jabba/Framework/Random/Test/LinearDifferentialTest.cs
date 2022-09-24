@@ -6,21 +6,8 @@ using System.Text;
 
 namespace EnderPi.Random.Test
 {
-    /// <summary>
-    /// Test for differential randomness.  Slightly oddball test, as this discards the deviate that 
-    /// it gets in the (process) method.  Instead, it tests the generator as a hash.
-    /// </summary>
-    /// <remarks>
-    /// At each step, it hashs a number x => F(x), then compares that to F(x ^ 1) by calculating
-    /// y1 = F(x) ^ F(x^1), y2 = F(x) ^ F(x^2), y3 = F(x) ^ F(x^4), y4 = F(x) ^ F(x^8), etc.
-    /// The stream of y1's is treated as a stream of random numbers, as is the stream of y2's, etc.
-    /// Applies a test suite to each of these, consisting of the zero test, GCD Test, and gorilla test.
-    /// Extremely hard test to pass.  In all simulations where
-    /// this test was included, it was the most discriminatory, followed by the serial correlation 
-    /// test.
-    /// </remarks>
     [Serializable]
-    public class DifferentialTest : IIncrementalRandomTest
+    public class LinearDifferentialTest :IIncrementalRandomTest
     {
         /// <summary>
         /// The engine being tested.
@@ -82,23 +69,17 @@ namespace EnderPi.Random.Test
         /// </summary>
         /// <param name="function"></param>
         /// <param name="maxFitness"></param>
-        public DifferentialTest(long maxFitness = 0)
-        {            
+        public LinearDifferentialTest()
+        {
             _tests = new List<IIncrementalRandomTest>[64];
             _masks = new ulong[64];
             for (int i = 0; i < 64; i++)
             {
                 _masks[i] = 1UL << i;
                 _tests[i] = new List<IIncrementalRandomTest>();
-                _tests[i].Add(new GcdTest());
-                _tests[i].Add(new GorillaTest(7));
-                if (maxFitness > 12000000)
-                {
-                    _tests[i].Add(new GorillaTest(17));
-                }
-                _tests[i].Add(new ZeroTest());                
+                _tests[i].Add(new LinearSerialTest());                
             }
-        }               
+        }
 
         /// <summary>
         /// INitializes each test.
@@ -138,7 +119,7 @@ namespace EnderPi.Random.Test
             }
             _currentNumberOfIterations++;
         }
-           
+
         /// <summary>
         /// Treats the random engine like a hash by directly seeding it, then asking for the output.
         /// </summary>
@@ -157,8 +138,8 @@ namespace EnderPi.Random.Test
         public string GetFailureDescriptions()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Differential Test");
-            for (int i=0; i < 64; i++)
+            sb.AppendLine("Linear Differential Test");
+            for (int i = 0; i < 64; i++)
             {
                 foreach (var test in _tests[i])
                 {
@@ -177,12 +158,13 @@ namespace EnderPi.Random.Test
         /// <returns>The test type.</returns>
         public TestType GetTestType()
         {
-            return TestType.DifferentialHash;
+            return TestType.LinearDifferentialHash;
         }
 
         public override string ToString()
         {
-            return "Differential Cryptanalysis Test";
+            return "Linear Differential Cryptanalysis Test";
         }
     }
 }
+

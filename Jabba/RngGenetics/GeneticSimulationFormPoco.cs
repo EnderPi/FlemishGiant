@@ -25,6 +25,7 @@ namespace RngGenetics
     {   
         public IGeneticSpecimen Best { set; get; }
 
+        public List<IIncrementalRandomTest> RngTests { set; get; }
         public int Threads { set; get; }
 
         public SpecimenType RngSpecimenType { set; get; }
@@ -113,6 +114,9 @@ namespace RngGenetics
             {   
                 _specimensNextGeneration = new List<IGeneticSpecimen>();
                 _specimensNextGeneration.Add(_specimens[0]);
+                AddSpeciesToListIfValid(_specimensNextGeneration, GetPrunedSpecimen(_specimens[0]));
+                AddSpeciesToListIfValid(_specimensNextGeneration, GetPrunedSpecimen(_specimens[0]));
+                AddSpeciesToListIfValid(_specimensNextGeneration, GetPrunedSpecimen(_specimens[0]));
                 _specimensNextGeneration.AddRange(SelectAndBreed(_specimens));
                 lock (_specimensPadlock)
                 {
@@ -137,15 +141,27 @@ namespace RngGenetics
             }
         }
 
+        private IGeneticSpecimen GetPrunedSpecimen(IGeneticSpecimen geneticSpecimen)
+        {
+            var copy = geneticSpecimen.DeepCopy();
+            copy.PruneRandom(_rng);
+            copy.Fitness = 0;
+            return copy;
+        }
+
         private void CalculateFailureModes()
         {
-            _failureModes = new int[6];
+            _failureModes = new int[9];
             foreach (var gen in _allSpecimens)
             {
                 foreach (var specimen in gen)
                 {
                     if (specimen.FailedTests != null)
                     {
+                        //if (specimen.FailedTests.Length == 1)
+                        //{
+                        //    _failureModes[(int)specimen.FailedTests[0]]++;
+                        //}
                         foreach (var failure in specimen.FailedTests)
                         {
                             _failureModes[(int)failure]++;
@@ -186,6 +202,10 @@ namespace RngGenetics
                     return new LinearGeneticSpecimenFactory();
                 case SpecimenType.Feistel:
                     return new Feistel64Factory() { KeyType = SimulationParameters.KeyTypeForFeistel, Rounds = SimulationParameters.FeistelRounds };
+                case SpecimenType.LinearPseudoRandomFunction:
+                    return new LinearPseudoRandomSpecimenFactory();
+                case SpecimenType.LinearPrfThreeFunction:
+                    return new LinearPrfThreeSpecimenFactory();
             }
             throw new NotImplementedException();
         }                
@@ -244,7 +264,7 @@ namespace RngGenetics
             var parameters = new RandomTestParameters() { Seed = 1, MaxFitness = MaxFitness, TestAsHash = TestAsHash };
             try
             {                
-                var randomnessTest = new RandomnessTest(specimen.GetEngine(), token, parameters);
+                var randomnessTest = new RandomnessTest(RngTests, specimen.GetEngine(), token, parameters);
                 randomnessTest.Start();
                 specimen.Fitness = randomnessTest.Iterations;
                 specimen.TestsPassed = randomnessTest.TestsPassed;

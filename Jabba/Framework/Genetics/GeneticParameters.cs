@@ -31,6 +31,11 @@
 
         public bool AllowXorNodes { set; get; }
 
+        public bool AllowXorShiftRightNodes { set; get; }
+        public bool AllowRotateMultiplyNodes { set; get; }
+
+        public bool AllowLoopNodes { set; get; }
+
         /// <summary>
         /// The number of initial nodes to use.
         /// </summary>

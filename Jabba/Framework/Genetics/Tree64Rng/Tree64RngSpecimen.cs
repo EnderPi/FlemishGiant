@@ -344,5 +344,10 @@ namespace EnderPi.Genetics.Tree64Rng
             return new DynamicRandomEngine(StateRoot.Evaluate(), OutputRoot.Evaluate());
         }
 
+        public override void PruneRandom(RandomNumberGenerator rng)
+        {
+            var treeToMutateRoot = rng.GetRandomElement(GetRoots());
+            DeleteANode(treeToMutateRoot, rng);
+        }
     }
 }

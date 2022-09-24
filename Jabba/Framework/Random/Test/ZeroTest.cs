@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EnderPi.Random.Test
@@ -10,6 +11,7 @@ namespace EnderPi.Random.Test
     /// It is also needed because generators that produce all zeros won't register on 
     /// the GCD test, because it only tests non-zero numbers.
     /// </remarks>
+    [Serializable]
     public class ZeroTest : IIncrementalRandomTest
     {
         private TestResult _result;
@@ -51,7 +53,7 @@ namespace EnderPi.Random.Test
             return "";
         }
 
-        public void Initialize()
+        public void Initialize(IRandomEngine engine)
         {
             _result = TestResult.Inconclusive;
             _queue = new Queue<ulong>(55);

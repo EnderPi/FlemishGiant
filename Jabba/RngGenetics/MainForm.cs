@@ -6,6 +6,7 @@ using EnderPi.Random;
 using EnderPi.Random.Test;
 using EnderPi.SystemE;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -52,24 +53,41 @@ namespace RngGenetics
             _simulation = new GeneticSimulationFormPoco();
             _simulation.SpecimenEvaluated += SpecimenEvaluated;
             _simulation.GenerationFinished += GenerationFinished;
-            foreach(var specimenType in Enum.GetValues(typeof(SpecimenType)))
+            foreach (var specimenType in Enum.GetValues(typeof(SpecimenType)))
             {
                 comboBoxGeneticType.Items.Add(specimenType);
             }
             comboBoxGeneticType.SelectedIndex = 2;
-            comboBoxRngTestingType.Items.AddRange(new object[] { SpecimenType.TreeUnconstrained64, SpecimenType.LinearUnconstrained, SpecimenType.Feistel});
+            comboBoxRngTestingType.Items.AddRange(new object[] { SpecimenType.TreeUnconstrained64, SpecimenType.LinearUnconstrained, SpecimenType.Feistel, SpecimenType.LinearPseudoRandomFunction, SpecimenType.LinearPrfThreeFunction });
             comboBoxKeyType.Items.AddRange(new object[] { FeistelKeyType.Prime, FeistelKeyType.Hash, FeistelKeyType.Integer });
             comboBoxGeneticFeistelType.Items.AddRange(new object[] { FeistelKeyType.Prime, FeistelKeyType.Hash, FeistelKeyType.Integer });
             comboBoxKeyType.SelectedIndex = 1;
             comboBoxGeneticFeistelType.SelectedIndex = 1;
             comboBoxRngTestingType.SelectedIndex = 0;
-            for (int i=0; i < checkedListBoxOperations.Items.Count; i++)
+            for (int i = 0; i < checkedListBoxOperations.Items.Count; i++)
             {
                 if (i != 3 && i != 4)
                 {
                     checkedListBoxOperations.SetItemChecked(i, true);
                 }
             }
+            AddTestsToCheckedListBoxes(checkedListBoxRngTestingTests);
+            AddTestsToCheckedListBoxes(checkedListBoxGeneticTests);
+        }
+
+        private void AddTestsToCheckedListBoxes(CheckedListBox box)
+        {
+            box.Items.Add(new ZeroTest(), true);
+            box.Items.Add(new GcdTest(), true);
+            box.Items.Add(new GorillaTest(7), true);
+            box.Items.Add(new GorillaTest(17), false);
+            box.Items.Add(new LinearSerialTest(), true);
+            box.Items.Add(new LawOfIteratedLogarithmTest(), false);
+            box.Items.Add(new LinearHashTest(), true);
+            box.Items.Add(new DifferentialTest(), true);
+            box.Items.Add(new LinearDifferentialTest(), false);
+            box.Items.Add(new DifferentialPseudoRandomFunctionTest(), true);
+            box.Items.Add(new DifferentialPrfThreeTest(), true);
         }
 
         /// <summary>
@@ -173,6 +191,12 @@ namespace RngGenetics
             _simulation.RngSpecimenType = (SpecimenType)comboBoxGeneticType.SelectedItem;
             _simulation.SelectionPressure = (double)numericUpDownSelectionPressure.Value;            
             _simulation.TestAsHash = checkBoxTestAsHash.Checked;
+            _simulation.RngTests = new List<IIncrementalRandomTest>();
+            foreach (var t in checkedListBoxGeneticTests.CheckedItems)
+            {
+                var test = t as IIncrementalRandomTest;
+                _simulation.RngTests.Add(test);
+            }
             var parameters = new GeneticParameters();
             parameters.AllowAdditionNodes = checkedListBoxOperations.GetItemChecked(0);
             parameters.AllowSubtractionNodes = checkedListBoxOperations.GetItemChecked(1);
@@ -187,6 +211,9 @@ namespace RngGenetics
             parameters.AllowOrNodes = checkedListBoxOperations.GetItemChecked(10);
             parameters.AllowXorNodes = checkedListBoxOperations.GetItemChecked(11);
             parameters.AllowNotNodes = checkedListBoxOperations.GetItemChecked(12);
+            parameters.AllowXorShiftRightNodes = checkedListBoxOperations.GetItemChecked(13);
+            parameters.AllowRotateMultiplyNodes = checkedListBoxOperations.GetItemChecked(14);
+            parameters.AllowLoopNodes = checkedListBoxOperations.GetItemChecked(15);
             parameters.InitialNodes = (int)numericUpDownInitialAdds.Value;
             parameters.FeistelRounds = (int)numericUpDownGeneticFeistelRounds.Value;
             parameters.KeyTypeForFeistel = (FeistelKeyType)comboBoxGeneticFeistelType.SelectedItem;
@@ -354,6 +381,16 @@ namespace RngGenetics
                     uint[] keys = GetKeys(rounds, (FeistelKeyType)comboBoxKeyType.SelectedItem);
                     engine = new Feistel64Engine(textBoxStateExpressionRngTesting.Text, rounds, keys);
                 }
+                else if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.LinearPseudoRandomFunction)
+                {
+                    var commands = LinearGeneticHelper.Parse(textBoxStateExpressionRngTesting.Text);
+                    engine = new LinearRandomFunctionEngine(commands);
+                }
+                else if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.LinearPrfThreeFunction)
+                {
+                    var commands = LinearGeneticHelper.Parse(textBoxStateExpressionRngTesting.Text);
+                    engine = new LinearPrfThreeFunctionEngine(commands);
+                }
             }
             catch(Exception ex) 
             {
@@ -411,9 +448,16 @@ namespace RngGenetics
         private void RunRngTest(IRandomEngine engine, RandomTestParameters parameters)
         {
             RandomnessTest simulation = null;
+            var tests = new List<IIncrementalRandomTest>();
+            foreach (var t in checkedListBoxRngTestingTests.CheckedItems)
+            {
+                var test = t as IIncrementalRandomTest;
+                tests.Add(test);
+            }
             try
             {
-                simulation = new RandomnessTest(engine, _sourceRngTesting.Token, parameters);
+                simulation = new RandomnessTest(tests, engine, _sourceRngTesting.Token, parameters);
+                Invoke(new FormDelegate(() => pictureBoxRngTesting.Image = GeneticHelper.GetImage(engine.DeepCopy(), 1)));
                 simulation.CheckpointPassed += RngCheckpointPassed;
                 simulation.Start();                
             }
@@ -443,14 +487,13 @@ namespace RngGenetics
 
         private void RngTestingCheckpoint(RandomnessTestEventArgs e)
         {
-            textBoxFitnessRngTesting.Text = e.Iterations.ToString("N0");
+            textBoxFitnessRngTesting.Text = e.Iterations.ToString("N0");            
         }
 
         private void RngTestingFinished(RandomnessTest simulation, IRandomEngine engine)
         {
             textBoxFitnessRngTesting.Text = simulation.Iterations.ToString("N0");
-            textBoxTestsPassedRngTesting.Text = simulation.TestsPassed.ToString();
-            pictureBoxRngTesting.Image = GeneticHelper.GetImage(engine, 1);            
+            textBoxTestsPassedRngTesting.Text = simulation.TestsPassed.ToString();            
             progressBarRngTesting.Style =  ProgressBarStyle.Blocks;
             textBoxDescriptionRngTesting.Text = simulation.GetFailedTestsDescription();
         }

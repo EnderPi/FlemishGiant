@@ -331,5 +331,9 @@ namespace EnderPi.Genetics
             }
         }
 
+        public override void PruneRandom(RandomNumberGenerator rng)
+        {
+            DeleteANode(_outputRoot, rng);
+        }
     }
 }

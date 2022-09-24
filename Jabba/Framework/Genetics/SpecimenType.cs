@@ -8,6 +8,8 @@
         TreeUnconstrained64 = 0,
         TreeStateConstrained64 = 1,        
         LinearUnconstrained = 2,
-        Feistel
+        Feistel=3,
+        LinearPseudoRandomFunction=4,
+        LinearPrfThreeFunction = 5
     }
 }
