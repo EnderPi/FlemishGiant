@@ -67,6 +67,8 @@ namespace EnderPi.Genetics.Linear8099
                     return ParseOr(parsedLine);
                 case Machine8099Grammar.Xor:
                     return ParseXor(parsedLine);
+                case Machine8099Grammar.XorShiftRight:
+                    return ParseXorShiftRight(parsedLine);
                 case Machine8099Grammar.Not:
                     return ParseNot(parsedLine);
                 case Machine8099Grammar.ShiftRight:
@@ -81,217 +83,249 @@ namespace EnderPi.Genetics.Linear8099
                     return ParseMov(parsedLine);
                 case Machine8099Grammar.Nope:
                     return ParseNop(parsedLine);
+                case Machine8099Grammar.RotateMultiply:
+                    return ParseRmu(parsedLine);
+                case Machine8099Grammar.Loop:
+                    return ParseLop(parsedLine);
                 default:
                     throw new Exception($"Couldn't parse line, invalid command! - {parsedLine.Command}");
             }
 
         }
 
+        private static Command8099 ParseLop(TokenizedCommand8099Line line)
+        {
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsInt && parameters[1].IsInt)
+            {
+                return new Loop(parameters[0].IntConstant, parameters[1].IntConstant);
+            }
+            throw new Exception("Parsing error");
+        }
+
+        private static Command8099 ParseRmu(TokenizedCommand8099Line line)
+        {
+            var parameters = line.Parameters;
+            if (parameters.Count == 3 && parameters[0].IsRegister && parameters[1].IsInt && parameters[2].IsUlong)
+            {
+                return new RomuConstantConstant((int)parameters[0].Register, parameters[1].IntConstant, parameters[2].UlongConstant);
+            }            
+            throw new NotImplementedException();
+        }
+
+        private static Command8099 ParseXorShiftRight(TokenizedCommand8099Line line)
+        {
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
+            {
+                return new XorShiftRightRegister((int)parameters[0].Register, (int)parameters[1].Register);
+            }
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsInt)
+            {
+                return new XorShiftRightConstant((int)parameters[0].Register, parameters[1].IntConstant);
+            }
+            throw new NotImplementedException();
+        }
+
         private static Command8099 ParseNop(TokenizedCommand8099Line parsedLine)
         {
-            AssertNonary(parsedLine);
-            return new IntronCommand();
+            if (parsedLine.Parameters.Count == 0)
+            {
+                return new IntronCommand();
+            }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseMov(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new MoveRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new MoveRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
             {
-                return new MoveConstant((int)line.FirstArgument, line.SecondArgumentConstant);
+                return new MoveConstant((int)parameters[0].Register, parameters[1].UlongConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseRol(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new RotateLeftRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new RotateLeftRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsInt)
             {
-                return new RotateLeftConstant((int)line.FirstArgument, Convert.ToInt32(line.SecondArgumentConstant));
+                return new RotateLeftConstant((int)parameters[0].Register, parameters[1].IntConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseRor(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new RotateRightRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new RotateRightRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsInt)
             {
-                return new RotateRightConstant((int)line.FirstArgument, Convert.ToInt32(line.SecondArgumentConstant));
+                return new RotateRightConstant((int)parameters[0].Register, parameters[1].IntConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseShl(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new LeftShiftRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new LeftShiftRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsInt)
             {
-                return new LeftShiftConstant((int)line.FirstArgument, Convert.ToInt32(line.SecondArgumentConstant));
+                return new LeftShiftConstant((int)parameters[0].Register, parameters[1].IntConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseShr(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new RightShiftRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new RightShiftRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsInt)
             {
-                return new RightShiftConstant((int)line.FirstArgument, Convert.ToInt32(line.SecondArgumentConstant));
+                return new RightShiftConstant((int)parameters[0].Register, parameters[1].IntConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseNot(TokenizedCommand8099Line parsedLine)
         {
-            AssertUnary(parsedLine);
-            return new Not((int)parsedLine.FirstArgument);
+            if (parsedLine.Parameters.Count==1 && parsedLine.Parameters[0].IsRegister)
+            {
+                return new Not((int)parsedLine.Parameters[0].Register);
+            }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseXor(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new XorRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new XorRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
             {
-                return new XorConstant((int)line.FirstArgument, line.SecondArgumentConstant);
+                return new XorConstant((int)parameters[0].Register, parameters[1].UlongConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseOr(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new OrRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new OrRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
             {
-                return new OrConstant((int)line.FirstArgument, line.SecondArgumentConstant);
+                return new OrConstant((int)parameters[0].Register, parameters[1].UlongConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseAnd(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new AndRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new AndRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
             {
-                return new AndConstant((int)line.FirstArgument, line.SecondArgumentConstant);
+                return new AndConstant((int)parameters[0].Register, parameters[1].UlongConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseMod(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new RemainderRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new RemainderRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
             {
-                return new RemainderConstant((int)line.FirstArgument, line.SecondArgumentConstant);
+                return new RemainderConstant((int)parameters[0].Register, parameters[1].UlongConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseDiv(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new DivideRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new DivideRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
             {
-                return new DivideConstant((int)line.FirstArgument, line.SecondArgumentConstant);
+                return new DivideConstant((int)parameters[0].Register, parameters[1].UlongConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseMul(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new MultiplyRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new MultiplyRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
             {
-                return new MultiplyConstant((int)line.FirstArgument, line.SecondArgumentConstant);
+                return new MultiplyConstant((int)parameters[0].Register, parameters[1].UlongConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseSub(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new SubtractRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new SubtractRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
             {
-                return new SubtractConstant((int)line.FirstArgument, line.SecondArgumentConstant);
+                return new SubtractConstant((int)parameters[0].Register, parameters[1].UlongConstant);
             }
+            throw new NotImplementedException();
         }
 
         private static Command8099 ParseAdd(TokenizedCommand8099Line line)
         {
-            AssertBinary(line);
-            if (line.SecondArgumentIsRegister)
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
             {
-                return new AddRegister((int)line.FirstArgument, (int)line.SecondArgumentRegister);
+                return new AddRegister((int)parameters[0].Register, (int)parameters[1].Register);
             }
-            else
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
             {
-                return new AddConstant((int)line.FirstArgument, line.SecondArgumentConstant);
+                return new AddConstant((int)parameters[0].Register, parameters[1].UlongConstant);
             }
-        }
-
-        private static void AssertBinary(TokenizedCommand8099Line line)
-        {
-            if (!line.HasFirstArgument || !line.HasSecondArgument)
-            {
-                throw new Exception($"command lacks two arguments! - {line.Command}");
-            }
-        }
-
-        private static void AssertUnary(TokenizedCommand8099Line line)
-        {
-            if (!line.HasFirstArgument || line.HasSecondArgument)
-            {
-                throw new Exception($"command has second argument! - {line.Command}");
-            }
-        }
-
-        private static void AssertNonary(TokenizedCommand8099Line line)
-        {
-            if (line.HasFirstArgument || line.HasSecondArgument)
-            {
-                throw new Exception($"command has arguments! - {line.Command}");
-            }
-        }
-
+            throw new NotImplementedException();
+        }               
 
         public static string PrintProgram(IEnumerable<Command8099> program)
         {

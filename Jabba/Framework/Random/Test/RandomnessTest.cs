@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using EnderPi.SystemE;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -62,7 +64,7 @@ namespace EnderPi.Random.Test
 
         public void OnCheckpointPassed()
         {
-            CheckpointPassed?.Invoke(this, new RandomnessTestEventArgs() {  Iterations = _currentNumberOfIterations, Result = _overallResult });
+            CheckpointPassed?.Invoke(this, new RandomnessTestEventArgs() {  Iterations = _currentNumberOfIterations, Result = _overallResult, Engine = _randomEngine.DeepCopy() });
         }
 
         /// <summary>
@@ -75,42 +77,32 @@ namespace EnderPi.Random.Test
                 return _tests.Sum(x => x.TestsPassed);
             }
         }
-        
-        /// <summary>
-        /// Constructor.  Takes an engine and a seed.  Default Test list.
-        /// </summary>
-        /// <param name="engine"></param>
-        /// <param name="seed"></param>
-        public RandomnessTest(IRandomEngine engine, CancellationToken token, RandomTestParameters parameters)
+               
+
+        public RandomnessTest(IEnumerable<IIncrementalRandomTest> tests, IRandomEngine engine, CancellationToken token, RandomTestParameters parameters)
         {
             _seed = parameters.Seed;
             _tests = new List<IIncrementalRandomTest>();
+            foreach (var t in tests)
+            {
+                _tests.Add(t.DeepCopy());
+            }
             if (parameters.TestAsHash)
             {
-                _randomEngine = new HashWrapper(engine);
-                _tests.Add(new LinearHashTest(engine));
-                _tests.Add(new DifferentialTest(engine, parameters.MaxFitness));
+                _randomEngine = new HashWrapper(engine);                
             }
             else
             {
-                _randomEngine = engine;                
+                _randomEngine = engine;
             }
-            
-            _tests.Add(new ZeroTest());
-            _tests.Add(new GcdTest());
-            _tests.Add(new GorillaTest(7));
-            _tests.Add(new LinearSerialTest());
 
-            if (parameters.MaxFitness > 12000000)
-            {
-                _tests.Add(new GorillaTest(17));
-            }
-            
-            
             _token = token;
             _targetNumberOfIterations = parameters.MaxFitness;
         }
-        
+
+
+
+
         /// <summary>
         /// Starts the simulation.  Blocking call.  Always stops on failure.
         /// </summary>
@@ -121,7 +113,7 @@ namespace EnderPi.Random.Test
             _nextIterationCheck = 50;
             foreach (var test in _tests)
             {
-                test.Initialize();
+                test.Initialize(_randomEngine);
             }
             
             while (_currentNumberOfIterations < _targetNumberOfIterations && _overallResult != TestResult.Fail && !_token.IsCancellationRequested)
@@ -129,12 +121,20 @@ namespace EnderPi.Random.Test
                 DoOneIteration();
                 if (_currentNumberOfIterations == _nextIterationCheck)
                 {
-                    _nextIterationCheck += _nextIterationCheck / 10;
+                    //_nextIterationCheck += _nextIterationCheck / 10;
+                    GetNextIncrement();
                     CalculateResults(false);
                     OnCheckpointPassed();
                 }
             }
             CalculateResults(true);
+        }
+
+        private void GetNextIncrement()
+        {
+            var log = Math.Floor(Math.Log10(_nextIterationCheck));
+            log = Math.Min(log, 6);
+            _nextIterationCheck += Convert.ToInt64(Math.Pow(10,Convert.ToInt64(log)));
         }
 
         /// <summary>

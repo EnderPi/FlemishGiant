@@ -21,6 +21,6 @@ namespace EnderPi.Genetics
         public void Fold();
         void AddInitialGenes(RandomNumberGenerator rng, GeneticParameters geneticParameters);        
         public string GetDescription();
-
+        void PruneRandom(RandomNumberGenerator rng);
     }
 }

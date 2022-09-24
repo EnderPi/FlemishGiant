@@ -8,5 +8,6 @@ namespace EnderPi.Random.Test
     {
         public long Iterations { set; get; }
         public TestResult Result { set; get; }
+        public IRandomEngine Engine { set; get; }
     }
 }

@@ -93,7 +93,7 @@ namespace EnderPi.Genetics.Tree64Rng
         /// Gets a random number engine for this species.
         /// </summary>
         /// <returns></returns>
-        public abstract IRandomEngine GetEngine();        
-        
+        public abstract IRandomEngine GetEngine();
+        public abstract void PruneRandom(RandomNumberGenerator rng);
     }
 }

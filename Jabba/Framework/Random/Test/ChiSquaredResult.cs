@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EnderPi.Random.Test
 {
     /// <summary>
     /// POCO for Chi-squared result.
     /// </summary>
+    [Serializable]
     public class ChiSquaredResult
     {
         public double PValue { set; get; }

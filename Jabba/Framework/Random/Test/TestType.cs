@@ -11,6 +11,9 @@ namespace EnderPi.Random.Test
         LinearCorrelation = 2,
         Gorilla = 3,
         LinearHash = 4,
-        DifferentialHash = 5
+        DifferentialHash = 5,
+        LawOfIteratedLogarithm = 6,
+        LinearDifferentialHash = 7,
+        DifferentialPrfHash = 8
     }
 }

@@ -18,7 +18,7 @@ namespace EnderPi.Genetics.Linear8099
         /// <summary>
         /// An 8099 program is just a list of commands.
         /// </summary>
-        private List<Command8099> _generationProgram;
+        protected List<Command8099> _generationProgram;
         /// <summary>
         /// This abstraction is leaking a little, but this still makes sense.
         /// </summary>
@@ -48,10 +48,10 @@ namespace EnderPi.Genetics.Linear8099
         private Command8099 GetRandomCommand(RandomNumberGenerator _randomEngine, GeneticParameters geneticParameters)
         {
             List<Command8099> potentialCommmands = new List<Command8099>();
-            int targetRegister = _randomEngine.NextInt(0, 3);
-            int sourceRegister = _randomEngine.NextInt(0, 3);
-            if (targetRegister == 3) targetRegister = 7;    //Kind of pulling the other register out of the picture.
-            if (sourceRegister == 3) sourceRegister = 7;
+            int targetRegister = _randomEngine.NextInt(0, 4);
+            int sourceRegister = _randomEngine.NextInt(0, 4);
+            if (targetRegister == 4) targetRegister = 7;    //Kind of pulling the other register out of the picture.
+            if (sourceRegister == 4) sourceRegister = 7;
             ulong randomUlong = _randomEngine.Nextulong();
             int randomInt = _randomEngine.NextInt(1, 63);
 
@@ -105,7 +105,7 @@ namespace EnderPi.Genetics.Linear8099
             if (geneticParameters.AllowRightShiftNodes)
             {
                 potentialCommmands.Add(new RightShiftRegister(targetRegister, sourceRegister));
-                potentialCommmands.Add(new RightShiftConstant(targetRegister, randomInt));
+                potentialCommmands.Add(new RightShiftConstant(targetRegister, randomInt));                
             }
             if (geneticParameters.AllowLeftShiftNodes)
             {
@@ -121,6 +121,19 @@ namespace EnderPi.Genetics.Linear8099
             {
                 potentialCommmands.Add(new RotateLeftRegister(targetRegister, sourceRegister));
                 potentialCommmands.Add(new RotateLeftConstant(targetRegister, randomInt));
+            }
+            if (geneticParameters.AllowXorShiftRightNodes)
+            {
+                potentialCommmands.Add(new XorShiftRightRegister(targetRegister, sourceRegister));
+                potentialCommmands.Add(new XorShiftRightConstant(targetRegister, randomInt));
+            }
+            if (geneticParameters.AllowRotateMultiplyNodes)
+            {
+                potentialCommmands.Add(new RomuConstantConstant(targetRegister, randomInt, randomUlong));
+            }
+            if (geneticParameters.AllowLoopNodes)
+            {
+                potentialCommmands.Add(new Loop(_randomEngine.NextInt(1, 10), _randomEngine.NextInt(1,6)));
             }
             return _randomEngine.GetRandomElement(potentialCommmands);
         }
@@ -223,6 +236,7 @@ namespace EnderPi.Genetics.Linear8099
             var stateAffectingCommand = _generationProgram.FirstOrDefault(x => x.AffectsState());
             var outputAffectingCommand = _generationProgram.FirstOrDefault(x => x.AffectsOutput());
             var programShortEnough = _generationProgram.Count < 100;
+            var loopCOunt = _generationProgram.Count(x => x is Loop);
             if (stateAffectingCommand == null)
             {
                 sb.AppendLine("No command affects state!");
@@ -238,6 +252,10 @@ namespace EnderPi.Genetics.Linear8099
             if (parameters.ForceBijection)
             {
                 ValidateBijection(sb);
+            }
+            if (loopCOunt > 1)
+            {
+                sb.AppendLine($"Program contains too many loops - {loopCOunt}");
             }
             //verify one command targets one state, and one command targets output.
             errors = sb.ToString();
@@ -293,6 +311,12 @@ namespace EnderPi.Genetics.Linear8099
         public IEnumerable<Command8099> GetGenerationProgram()
         {
             return _generationProgram;
+        }
+
+        public override void PruneRandom(RandomNumberGenerator rng)
+        {
+            int randomIndex = rng.NextInt(0, _generationProgram.Count - 1);
+            _generationProgram.RemoveAt(randomIndex);
         }
     }
 }

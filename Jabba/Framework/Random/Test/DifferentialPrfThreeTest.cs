@@ -1,4 +1,5 @@
-﻿using EnderPi.SystemE;
+﻿using EnderPi.Genetics.Linear8099;
+using EnderPi.SystemE;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,26 +7,13 @@ using System.Text;
 
 namespace EnderPi.Random.Test
 {
-    /// <summary>
-    /// Test for differential randomness.  Slightly oddball test, as this discards the deviate that 
-    /// it gets in the (process) method.  Instead, it tests the generator as a hash.
-    /// </summary>
-    /// <remarks>
-    /// At each step, it hashs a number x => F(x), then compares that to F(x ^ 1) by calculating
-    /// y1 = F(x) ^ F(x^1), y2 = F(x) ^ F(x^2), y3 = F(x) ^ F(x^4), y4 = F(x) ^ F(x^8), etc.
-    /// The stream of y1's is treated as a stream of random numbers, as is the stream of y2's, etc.
-    /// Applies a test suite to each of these, consisting of the zero test, GCD Test, and gorilla test.
-    /// Extremely hard test to pass.  In all simulations where
-    /// this test was included, it was the most discriminatory, followed by the serial correlation 
-    /// test.
-    /// </remarks>
     [Serializable]
-    public class DifferentialTest : IIncrementalRandomTest
+    public class DifferentialPrfThreeTest : IIncrementalRandomTest
     {
         /// <summary>
         /// The engine being tested.
         /// </summary>
-        private IRandomEngine _engine;
+        private LinearPrfThreeFunctionEngine _engine;
 
         /// <summary>
         /// Current number of iterations.
@@ -36,6 +24,8 @@ namespace EnderPi.Random.Test
         /// Sub-tests being run on the differentials.
         /// </summary>
         protected List<IIncrementalRandomTest>[] _tests;
+
+        protected List<IIncrementalRandomTest>[] _testsTwo;
 
         /// <summary>
         /// Just an array of bit masks for bit flipping.
@@ -54,7 +44,7 @@ namespace EnderPi.Random.Test
         {
             get
             {
-                return _tests.Sum(x => x.Sum(y => y.TestsPassed));
+                return _tests.Sum(x => x.Sum(y => y.TestsPassed)) + _testsTwo.Sum(x => x.Sum(y => y.TestsPassed));
             }
 
         }
@@ -74,6 +64,14 @@ namespace EnderPi.Random.Test
                     testResults.Add(test.Result);
                 }
             }
+            foreach (var bitTest in _testsTwo)
+            {
+                foreach (var test in bitTest)
+                {
+                    test.CalculateResult(detailed);
+                    testResults.Add(test.Result);
+                }
+            }
             Result = TestHelper.ReturnLowestConclusiveResultEnumerable(testResults);
         }
 
@@ -82,9 +80,10 @@ namespace EnderPi.Random.Test
         /// </summary>
         /// <param name="function"></param>
         /// <param name="maxFitness"></param>
-        public DifferentialTest(long maxFitness = 0)
-        {            
+        public DifferentialPrfThreeTest(long maxFitness = 0)
+        {
             _tests = new List<IIncrementalRandomTest>[64];
+            _testsTwo = new List<IIncrementalRandomTest>[64];
             _masks = new ulong[64];
             for (int i = 0; i < 64; i++)
             {
@@ -96,18 +95,35 @@ namespace EnderPi.Random.Test
                 {
                     _tests[i].Add(new GorillaTest(17));
                 }
-                _tests[i].Add(new ZeroTest());                
+                _tests[i].Add(new ZeroTest());
+
+                _testsTwo[i] = new List<IIncrementalRandomTest>();
+                _testsTwo[i].Add(new GcdTest());
+                _testsTwo[i].Add(new GorillaTest(7));
+                if (maxFitness > 12000000)
+                {
+                    _testsTwo[i].Add(new GorillaTest(17));
+                }
+                _testsTwo[i].Add(new ZeroTest());
             }
-        }               
+        }
 
         /// <summary>
         /// INitializes each test.
         /// </summary>
         public void Initialize(IRandomEngine engine)
         {
-            _engine = engine.DeepCopy();
+            var hashEngine = engine as HashWrapper;
+            _engine = hashEngine.Engine.DeepCopy() as LinearPrfThreeFunctionEngine;
             Result = TestResult.Inconclusive;
             foreach (var bitTest in _tests)
+            {
+                foreach (var test in bitTest)
+                {
+                    test.Initialize(engine);
+                }
+            }
+            foreach (var bitTest in _testsTwo)
             {
                 foreach (var test in bitTest)
                 {
@@ -122,30 +138,42 @@ namespace EnderPi.Random.Test
         /// <param name="randomNumber"></param>
         public void Process(ulong randomNumber)
         {
-            //ignore the random number, not relevant.
-            //var nextSeed = AvalancheCalculator.GetDifferentialSeed(_currentNumberOfIterations);
-            var nextSeed = randomNumber;
-            var initialHash = Hash(nextSeed);
+            //same dumb key for every generator since it doesn't matter.
+            ulong key = AvalancheCalculator.GetDifferentialSeed(0);
+            ulong keytwo = AvalancheCalculator.GetDifferentialSeed(1);
+            var initialHash = Hash(randomNumber, key, keytwo);
             for (int i = 0; i < 64; i++)
             {
-                var flipped = nextSeed ^ _masks[i];
-                var HashedFlip = Hash(flipped);
+                var flipped = key ^ _masks[i];
+                var HashedFlip = Hash(randomNumber, flipped, keytwo);
                 var difference = initialHash ^ HashedFlip;
                 foreach (var test in _tests[i])
                 {
                     test.Process(difference);
                 }
             }
+            for (int i = 0; i < 64; i++)
+            {
+                var flipped = keytwo ^ _masks[i];
+                var HashedFlip = Hash(randomNumber, key, flipped);
+                var difference = initialHash ^ HashedFlip;
+                foreach (var test in _testsTwo[i])
+                {
+                    test.Process(difference);
+                }
+            }
             _currentNumberOfIterations++;
         }
-           
+
         /// <summary>
         /// Treats the random engine like a hash by directly seeding it, then asking for the output.
         /// </summary>
         /// <param name="x"></param>
         /// <returns></returns>
-        private ulong Hash(ulong x)
+        private ulong Hash(ulong x, ulong Key, ulong key2)
         {
+            _engine.Key = Key;
+            _engine.KeyTwo = key2;
             _engine.Seed(x);
             return _engine.Nextulong();
         }
@@ -157,14 +185,24 @@ namespace EnderPi.Random.Test
         public string GetFailureDescriptions()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Differential Test");
-            for (int i=0; i < 64; i++)
+            sb.AppendLine("PRF THREE Test");
+            for (int i = 0; i < 64; i++)
             {
                 foreach (var test in _tests[i])
                 {
                     if (test.Result == TestResult.Fail)
                     {
-                        sb.AppendLine($"Bit {i}, {test.GetFailureDescriptions()}");
+                        sb.AppendLine($"Key One, Bit {i}, {test.GetFailureDescriptions()}");
+                    }
+                }
+            }
+            for (int i = 0; i < 64; i++)
+            {
+                foreach (var test in _testsTwo[i])
+                {
+                    if (test.Result == TestResult.Fail)
+                    {
+                        sb.AppendLine($"Key Two, Bit {i}, {test.GetFailureDescriptions()}");
                     }
                 }
             }
@@ -177,12 +215,12 @@ namespace EnderPi.Random.Test
         /// <returns>The test type.</returns>
         public TestType GetTestType()
         {
-            return TestType.DifferentialHash;
+            return TestType.DifferentialPrfHash;
         }
 
         public override string ToString()
         {
-            return "Differential Cryptanalysis Test";
+            return "Differential PRF THREE Test";
         }
     }
 }

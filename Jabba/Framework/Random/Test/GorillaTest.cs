@@ -113,7 +113,7 @@ namespace EnderPi.Random.Test
             return;
         }
 
-        public void Initialize()
+        public void Initialize(IRandomEngine engine)
         {
             _counts = new uint[64][];
             _pValues = new double[64];

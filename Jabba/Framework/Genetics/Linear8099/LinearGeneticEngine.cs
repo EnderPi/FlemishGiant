@@ -15,12 +15,12 @@ namespace EnderPi.Genetics.Linear8099
         /// <summary>
         /// The generation program.
         /// </summary>
-        private Command8099[] _generatorProgram;
+        protected Command8099[] _generatorProgram;
         
         //State is in the first two, output is in the last.
-        private ulong[] _registers;
+        protected ulong[] _registers;
 
-        private const int _registerSize = 8;
+        private const int _registerSize = 10;
 
         /// <summary>
         /// Builds the generator from a program.
@@ -53,14 +53,14 @@ namespace EnderPi.Genetics.Linear8099
         /// Gets the next random number by clearing non-state ragisters, running the program, and returning the output.
         /// </summary>
         /// <returns></returns>
-        public ulong Nextulong()
+        public virtual ulong Nextulong()
         {
             ClearNonStateRegisters();
             ExecuteProgram(_generatorProgram);
-            return _registers[_registerSize - 1];
+            return _registers[(int)Machine8099Registers.OP];
         }
 
-        private void ClearNonStateRegisters()
+        protected virtual void ClearNonStateRegisters()
         {
             for (int i = 2; i < _registerSize; i++)
             {
@@ -68,19 +68,24 @@ namespace EnderPi.Genetics.Linear8099
             }
         }
 
-        private void ExecuteProgram(Command8099[] program)
+        protected void ExecuteProgram(Command8099[] program)
         {
-            for (int i = 0; i < program.Length; i++)
+            _registers[(int)Machine8099Registers.IP] = ulong.MaxValue;
+            while (++_registers[(int)Machine8099Registers.IP] < Convert.ToUInt64(program.Length))
             {
-                program[i].Execute(_registers);
+                program[_registers[(int)Machine8099Registers.IP]].Execute(_registers);
             }
+            //for (int i = 0; i < program.Length; i++)
+            //{
+            //    program[i].Execute(_registers);
+            //}
         }
 
         /// <summary>
         /// Seeding sets S1 and S2 to the seed.
         /// </summary>
         /// <param name="seed"></param>
-        public void Seed(ulong seed)
+        public virtual void Seed(ulong seed)
         {
             _registers[0] = seed;
             _registers[1] = seed;

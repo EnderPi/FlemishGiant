@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Linq;
 
 namespace EnderPi.SystemE
 {
@@ -8,6 +9,31 @@ namespace EnderPi.SystemE
     /// </summary>
     public static class BitHelper
     {
+        private static int[] _bitCounts;
+
+        static BitHelper()
+        {
+            _bitCounts = new int[256];
+            for (int i=0; i <256; i++)
+            {
+                _bitCounts[i] = CountOfOnesInByte(i);
+            }
+        }
+
+        private static int CountOfOnesInByte(int i)
+        {
+            int x = i;
+            int count = 0;
+            for (int j=0; j < 8; j++)
+            {
+                count += x & 1;
+                x >>= 1;
+            }
+            return count;
+        }
+
+
+
         /// <summary>
         /// Determine whether two arrays of bytes are equal byte-by-byte.  
         /// </summary>
@@ -137,6 +163,11 @@ namespace EnderPi.SystemE
             return BitConverter.ToUInt64(y);
         }
 
+        public static int CountOfOnes(ulong x)
+        {
+            var bytes = BitConverter.GetBytes(x);
+            return bytes.Sum(y => _bitCounts[y]);
+        }
 
     }
 }

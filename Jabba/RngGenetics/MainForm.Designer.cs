@@ -128,6 +128,7 @@
             this.label23 = new System.Windows.Forms.Label();
             this.buttonPushToTesting = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.checkedListBoxRngTestingTests = new System.Windows.Forms.CheckedListBox();
             this.labelFeistelRounds = new System.Windows.Forms.Label();
             this.numericUpDownFeistelRounds = new System.Windows.Forms.NumericUpDown();
             this.comboBoxKeyType = new System.Windows.Forms.ComboBox();
@@ -160,6 +161,7 @@
             this.ColumnTimeStamp = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.buttonRefreshLogs = new System.Windows.Forms.Button();
+            this.checkedListBoxGeneticTests = new System.Windows.Forms.CheckedListBox();
             this.menuStripMain.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -607,7 +609,7 @@
             this.numericUpDownSpecimensPerGeneration.TabIndex = 11;
             this.numericUpDownSpecimensPerGeneration.ThousandsSeparator = true;
             this.numericUpDownSpecimensPerGeneration.Value = new decimal(new int[] {
-            512,
+            256,
             0,
             0,
             0});
@@ -912,7 +914,7 @@
             this.numericUpDownMaxFitness.TabIndex = 34;
             this.numericUpDownMaxFitness.ThousandsSeparator = true;
             this.numericUpDownMaxFitness.Value = new decimal(new int[] {
-            10000000,
+            100000,
             0,
             0,
             0});
@@ -985,6 +987,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.checkedListBoxGeneticTests);
             this.tabPage1.Controls.Add(this.comboBoxGeneticFeistelType);
             this.tabPage1.Controls.Add(this.label26);
             this.tabPage1.Controls.Add(this.numericUpDownGeneticFeistelRounds);
@@ -1103,6 +1106,8 @@
             // checkBoxTestAsHash
             // 
             this.checkBoxTestAsHash.AutoSize = true;
+            this.checkBoxTestAsHash.Checked = true;
+            this.checkBoxTestAsHash.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBoxTestAsHash.Location = new System.Drawing.Point(39, 334);
             this.checkBoxTestAsHash.Name = "checkBoxTestAsHash";
             this.checkBoxTestAsHash.Size = new System.Drawing.Size(92, 19);
@@ -1126,7 +1131,10 @@
             "And",
             "Or",
             "Xor",
-            "Not"});
+            "Not",
+            "Xor Shift Right",
+            "Rotate-Multiply",
+            "Loop"});
             this.checkedListBoxOperations.Location = new System.Drawing.Point(48, 369);
             this.checkedListBoxOperations.MultiColumn = true;
             this.checkedListBoxOperations.Name = "checkedListBoxOperations";
@@ -1155,7 +1163,7 @@
             this.numericUpDownSelectionPressure.Size = new System.Drawing.Size(75, 23);
             this.numericUpDownSelectionPressure.TabIndex = 45;
             this.numericUpDownSelectionPressure.Value = new decimal(new int[] {
-            7,
+            6,
             0,
             0,
             65536});
@@ -1181,6 +1189,7 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.checkedListBoxRngTestingTests);
             this.tabPage3.Controls.Add(this.labelFeistelRounds);
             this.tabPage3.Controls.Add(this.numericUpDownFeistelRounds);
             this.tabPage3.Controls.Add(this.comboBoxKeyType);
@@ -1213,6 +1222,14 @@
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "RNG Testing";
             this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // checkedListBoxRngTestingTests
+            // 
+            this.checkedListBoxRngTestingTests.FormattingEnabled = true;
+            this.checkedListBoxRngTestingTests.Location = new System.Drawing.Point(142, 440);
+            this.checkedListBoxRngTestingTests.Name = "checkedListBoxRngTestingTests";
+            this.checkedListBoxRngTestingTests.Size = new System.Drawing.Size(366, 112);
+            this.checkedListBoxRngTestingTests.TabIndex = 64;
             // 
             // labelFeistelRounds
             // 
@@ -1541,6 +1558,14 @@
             this.buttonRefreshLogs.UseVisualStyleBackColor = true;
             this.buttonRefreshLogs.Click += new System.EventHandler(this.buttonRefreshLogs_Click);
             // 
+            // checkedListBoxGeneticTests
+            // 
+            this.checkedListBoxGeneticTests.FormattingEnabled = true;
+            this.checkedListBoxGeneticTests.Location = new System.Drawing.Point(350, 369);
+            this.checkedListBoxGeneticTests.Name = "checkedListBoxGeneticTests";
+            this.checkedListBoxGeneticTests.Size = new System.Drawing.Size(206, 148);
+            this.checkedListBoxGeneticTests.TabIndex = 57;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -1719,6 +1744,8 @@
         private System.Windows.Forms.Label label26;
         private System.Windows.Forms.NumericUpDown numericUpDownGeneticFeistelRounds;
         private System.Windows.Forms.ComboBox comboBoxGeneticFeistelType;
+        private System.Windows.Forms.CheckedListBox checkedListBoxRngTestingTests;
+        private System.Windows.Forms.CheckedListBox checkedListBoxGeneticTests;
     }
 }
 
