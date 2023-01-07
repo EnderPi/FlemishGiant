@@ -47,6 +47,8 @@ namespace EnderPi.Random.Test
         /// </summary>
         public TestResult Result { set; get; }
 
+        public bool MasksGiven { set; get; }
+
         /// <summary>
         /// How many tests have passed.
         /// </summary>
@@ -98,7 +100,31 @@ namespace EnderPi.Random.Test
                 }
                 _tests[i].Add(new ZeroTest());                
             }
-        }               
+        }
+
+        /// <summary>
+        /// Basic constructor.  Needs the raw engine and max fitness so it can design a sub-suite.
+        /// </summary>
+        /// <param name="function"></param>
+        /// <param name="maxFitness"></param>
+        public DifferentialTest(ulong[] masks, long maxFitness=0)
+        {
+            MasksGiven = true;
+            _tests = new List<IIncrementalRandomTest>[64];
+            _masks = masks;
+            for (int i = 0; i < 64; i++)
+            {                
+                _tests[i] = new List<IIncrementalRandomTest>();
+                _tests[i].Add(new GcdTest());
+                _tests[i].Add(new GorillaTest(7));
+                if (maxFitness > 12000000)
+                {
+                    _tests[i].Add(new GorillaTest(17));
+                }
+                _tests[i].Add(new ZeroTest());
+            }
+        }
+
 
         /// <summary>
         /// INitializes each test.
@@ -157,14 +183,28 @@ namespace EnderPi.Random.Test
         public string GetFailureDescriptions()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Differential Test");
+            if (MasksGiven)
+            {
+                sb.AppendLine("Differential Complex Test");
+            }
+            else
+            {
+                sb.AppendLine("Differential Test");
+            }
             for (int i=0; i < 64; i++)
             {
                 foreach (var test in _tests[i])
                 {
                     if (test.Result == TestResult.Fail)
                     {
-                        sb.AppendLine($"Bit {i}, {test.GetFailureDescriptions()}");
+                        if (MasksGiven)
+                        {
+                            sb.AppendLine($"Mask {_masks[i]}, {test.GetFailureDescriptions()}");
+                        }
+                        else
+                        {
+                            sb.AppendLine($"Bit {i}, {test.GetFailureDescriptions()}");
+                        }                        
                     }
                 }
             }
@@ -177,12 +217,26 @@ namespace EnderPi.Random.Test
         /// <returns>The test type.</returns>
         public TestType GetTestType()
         {
-            return TestType.DifferentialHash;
+            if (MasksGiven)
+            {
+                return TestType.DifferentialHashComplex;
+            }
+            else
+            {
+                return TestType.DifferentialHash;
+            }
         }
 
         public override string ToString()
         {
-            return "Differential Cryptanalysis Test";
+            if (MasksGiven)
+            {
+                return "Differential-Complex Cryptanalysis Test";
+            }
+            else
+            {
+                return "Differential Cryptanalysis Test";
+            }
         }
     }
 }

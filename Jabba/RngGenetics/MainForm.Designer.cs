@@ -116,6 +116,7 @@
             this.label17 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.checkedListBoxGeneticTests = new System.Windows.Forms.CheckedListBox();
             this.comboBoxGeneticFeistelType = new System.Windows.Forms.ComboBox();
             this.label26 = new System.Windows.Forms.Label();
             this.numericUpDownGeneticFeistelRounds = new System.Windows.Forms.NumericUpDown();
@@ -161,7 +162,7 @@
             this.ColumnTimeStamp = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.buttonRefreshLogs = new System.Windows.Forms.Button();
-            this.checkedListBoxGeneticTests = new System.Windows.Forms.CheckedListBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.menuStripMain.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -1042,6 +1043,14 @@
             this.tabPage1.Text = "RNG Genetics";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // checkedListBoxGeneticTests
+            // 
+            this.checkedListBoxGeneticTests.FormattingEnabled = true;
+            this.checkedListBoxGeneticTests.Location = new System.Drawing.Point(350, 369);
+            this.checkedListBoxGeneticTests.Name = "checkedListBoxGeneticTests";
+            this.checkedListBoxGeneticTests.Size = new System.Drawing.Size(206, 148);
+            this.checkedListBoxGeneticTests.TabIndex = 57;
+            // 
             // comboBoxGeneticFeistelType
             // 
             this.comboBoxGeneticFeistelType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -1189,6 +1198,7 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.button1);
             this.tabPage3.Controls.Add(this.checkedListBoxRngTestingTests);
             this.tabPage3.Controls.Add(this.labelFeistelRounds);
             this.tabPage3.Controls.Add(this.numericUpDownFeistelRounds);
@@ -1558,13 +1568,15 @@
             this.buttonRefreshLogs.UseVisualStyleBackColor = true;
             this.buttonRefreshLogs.Click += new System.EventHandler(this.buttonRefreshLogs_Click);
             // 
-            // checkedListBoxGeneticTests
+            // button1
             // 
-            this.checkedListBoxGeneticTests.FormattingEnabled = true;
-            this.checkedListBoxGeneticTests.Location = new System.Drawing.Point(350, 369);
-            this.checkedListBoxGeneticTests.Name = "checkedListBoxGeneticTests";
-            this.checkedListBoxGeneticTests.Size = new System.Drawing.Size(206, 148);
-            this.checkedListBoxGeneticTests.TabIndex = 57;
+            this.button1.Location = new System.Drawing.Point(992, 368);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 65;
+            this.button1.Text = "Iterate";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // MainForm
             // 
@@ -1746,6 +1758,7 @@
         private System.Windows.Forms.ComboBox comboBoxGeneticFeistelType;
         private System.Windows.Forms.CheckedListBox checkedListBoxRngTestingTests;
         private System.Windows.Forms.CheckedListBox checkedListBoxGeneticTests;
+        private System.Windows.Forms.Button button1;
     }
 }
 

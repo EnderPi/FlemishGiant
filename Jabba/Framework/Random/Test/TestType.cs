@@ -14,6 +14,9 @@ namespace EnderPi.Random.Test
         DifferentialHash = 5,
         LawOfIteratedLogarithm = 6,
         LinearDifferentialHash = 7,
-        DifferentialPrfHash = 8
+        DifferentialPrfHash = 8,
+        ZeroHash = 9,
+        DifferentialHashComplex = 10,
+        DifferentialPrfComplex = 11,
     }
 }

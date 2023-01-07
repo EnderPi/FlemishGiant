@@ -8,6 +8,7 @@ using EnderPi.SystemE;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -88,6 +89,15 @@ namespace RngGenetics
             box.Items.Add(new LinearDifferentialTest(), false);
             box.Items.Add(new DifferentialPseudoRandomFunctionTest(), true);
             box.Items.Add(new DifferentialPrfThreeTest(), true);
+            box.Items.Add(new ZeroHashTest(), true);
+            ulong[] masks = new ulong[64];
+            PseudoRandomFunction p = new PseudoRandomFunction();
+            for (int i=0; i < masks.Length; i++)
+            {
+                masks[i] = p.F((ulong)i);
+            }
+            box.Items.Add(new DifferentialTest(masks), true);
+            box.Items.Add(new DifferentialPseudoRandomFunctionTest(masks), true);
         }
 
         /// <summary>
@@ -551,6 +561,81 @@ namespace RngGenetics
         private void buttonRefreshLogs_Click(object sender, EventArgs e)
         {
             PopulateLogs();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            _sourceRngTesting = new CancellationTokenSource();
+            
+            //EnableControls(true);
+
+            textBoxFitnessRngTesting.Text = null;
+            textBoxTestsPassedRngTesting.Text = null;
+            pictureBoxRngTesting.Image = null;
+            textBoxDescriptionRngTesting.Text = null;
+
+            progressBarRngTesting.Style = ProgressBarStyle.Marquee;
+            //toolStripStatusLabel1.Text = "Running...";
+
+            
+            var thread = new Thread(() => RunLoopTest());
+            thread.IsBackground = true;
+            thread.Start();
+
+        }
+
+        private void RunLoopTest()
+        {
+            string program = textBoxStateExpressionRngTesting.Text;
+            long maxFitness = (long)numericUpDownMaxFitnessRngTesting.Value;
+            var parameters = new RandomTestParameters() { MaxFitness = maxFitness, Seed = (ulong)numericUpDownSeed.Value };
+            parameters.TestAsHash = checkBoxRngTestAsHash.Checked;
+            var sb = new StringBuilder();
+            try
+            {
+                for (int i = 1; i < 64; i++)
+                {
+                    var stringthisProgram = program.Replace("qqq", i.ToString());
+                    var commands = LinearGeneticHelper.Parse(stringthisProgram);
+                    var engine = new LinearRandomFunctionEngine(commands);
+                    RandomnessTest simulation = null;
+                    var tests = new List<IIncrementalRandomTest>();
+                    foreach (var t in checkedListBoxRngTestingTests.CheckedItems)
+                    {
+                        var test = t as IIncrementalRandomTest;
+                        tests.Add(test);
+                    }
+
+                    simulation = new RandomnessTest(tests, engine, _sourceRngTesting.Token, parameters);
+                    //Invoke(new FormDelegate(() => pictureBoxRngTesting.Image = GeneticHelper.GetImage(engine.DeepCopy(), 1)));
+                    simulation.CheckpointPassed += RngCheckpointPassed;
+                    simulation.Start();
+                    sb.AppendLine($"Rotate {i}, Fitness {simulation.Iterations}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError(ex.ToString());
+            }
+            finally
+            {
+                try
+                {
+                    Invoke(new FormDelegate(() => RngLoopTestingFinished(sb)));
+                }
+                catch (Exception ex)
+                {
+                    Logging.LogError(ex.ToString());
+                }
+            }
+        }
+
+        private void RngLoopTestingFinished(StringBuilder sb)
+        {
+            textBoxFitnessRngTesting.Text = "";
+            textBoxTestsPassedRngTesting.Text = "";
+            progressBarRngTesting.Style = ProgressBarStyle.Blocks;
+            textBoxDescriptionRngTesting.Text = sb.ToString();
         }
     }
 }
