@@ -151,7 +151,7 @@ namespace RngGenetics
 
         private void CalculateFailureModes()
         {
-            _failureModes = new int[9];
+            _failureModes = new int[Enum.GetValues(typeof(TestType)).Length];
             foreach (var gen in _allSpecimens)
             {
                 foreach (var specimen in gen)

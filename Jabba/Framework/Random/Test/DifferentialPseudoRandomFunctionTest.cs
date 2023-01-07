@@ -30,6 +30,8 @@ namespace EnderPi.Random.Test
         /// </summary>
         private ulong[] _masks;
 
+        public bool MasksGiven { set; get; }
+
         /// <summary>
         /// The overall result.
         /// </summary>
@@ -77,6 +79,29 @@ namespace EnderPi.Random.Test
             for (int i = 0; i < 64; i++)
             {
                 _masks[i] = 1UL << i;
+                _tests[i] = new List<IIncrementalRandomTest>();
+                _tests[i].Add(new GcdTest());
+                _tests[i].Add(new GorillaTest(7));
+                if (maxFitness > 12000000)
+                {
+                    _tests[i].Add(new GorillaTest(17));
+                }
+                _tests[i].Add(new ZeroTest());
+            }
+        }
+
+        /// <summary>
+        /// Basic constructor.  Needs the raw engine and max fitness so it can design a sub-suite.
+        /// </summary>
+        /// <param name="function"></param>
+        /// <param name="maxFitness"></param>
+        public DifferentialPseudoRandomFunctionTest(ulong[] masks, long maxFitness = 0)
+        {
+            MasksGiven = true;
+            _tests = new List<IIncrementalRandomTest>[64];
+            _masks = masks;
+            for (int i = 0; i < 64; i++)
+            {                
                 _tests[i] = new List<IIncrementalRandomTest>();
                 _tests[i].Add(new GcdTest());
                 _tests[i].Add(new GorillaTest(7));
@@ -146,14 +171,28 @@ namespace EnderPi.Random.Test
         public string GetFailureDescriptions()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Pseudo Random Function Differential Test");
+            if (MasksGiven)
+            {
+                sb.AppendLine("Pseudo Random Function Complex Differential Test");
+            }
+            else
+            {
+                sb.AppendLine("Pseudo Random Function Differential Test");
+            }            
             for (int i = 0; i < 64; i++)
             {
                 foreach (var test in _tests[i])
                 {
                     if (test.Result == TestResult.Fail)
                     {
-                        sb.AppendLine($"Bit {i}, {test.GetFailureDescriptions()}");
+                        if (MasksGiven)
+                        {
+                            sb.AppendLine($"Mask {_masks[i]}, {test.GetFailureDescriptions()}");
+                        }
+                        else
+                        {
+                            sb.AppendLine($"Bit {i}, {test.GetFailureDescriptions()}");
+                        }                        
                     }
                 }
             }
@@ -166,12 +205,26 @@ namespace EnderPi.Random.Test
         /// <returns>The test type.</returns>
         public TestType GetTestType()
         {
-            return TestType.DifferentialPrfHash;
+            if (MasksGiven)
+            {
+                return TestType.DifferentialHashComplex;
+            }
+            else
+            {
+                return TestType.DifferentialPrfHash;
+            }
         }
 
         public override string ToString()
         {
-            return "Differential PRF Test";
+            if (MasksGiven)
+            {
+                return "Differential Complex PRF Test";
+            }
+            else
+            {
+                return "Differential PRF Test";
+            }            
         }
     }
 }
