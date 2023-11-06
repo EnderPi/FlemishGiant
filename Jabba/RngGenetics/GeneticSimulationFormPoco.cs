@@ -206,6 +206,8 @@ namespace RngGenetics
                     return new LinearPseudoRandomSpecimenFactory();
                 case SpecimenType.LinearPrfThreeFunction:
                     return new LinearPrfThreeSpecimenFactory();
+                case SpecimenType.Feistel128:
+                    return new Feistel128Factory() { Rounds = SimulationParameters.FeistelRounds }; ;
             }
             throw new NotImplementedException();
         }                

@@ -129,6 +129,7 @@
             this.label23 = new System.Windows.Forms.Label();
             this.buttonPushToTesting = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.button1 = new System.Windows.Forms.Button();
             this.checkedListBoxRngTestingTests = new System.Windows.Forms.CheckedListBox();
             this.labelFeistelRounds = new System.Windows.Forms.Label();
             this.numericUpDownFeistelRounds = new System.Windows.Forms.NumericUpDown();
@@ -162,7 +163,10 @@
             this.ColumnTimeStamp = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.buttonRefreshLogs = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.buttonSmallGeneratorPeriod = new System.Windows.Forms.Button();
+            this.buttonAnalyzeDifferentialUniformity = new System.Windows.Forms.Button();
+            this.numericUpDownAdditiveConstant = new System.Windows.Forms.NumericUpDown();
             this.menuStripMain.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -187,6 +191,8 @@
             this.tabPage2.SuspendLayout();
             this.tableLayoutPanelLogs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLog)).BeginInit();
+            this.tabPage4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAdditiveConstant)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStripMain
@@ -978,6 +984,7 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 49);
             this.tabControl1.Name = "tabControl1";
@@ -1232,6 +1239,16 @@
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "RNG Testing";
             this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(992, 368);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 65;
+            this.button1.Text = "Iterate";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // checkedListBoxRngTestingTests
             // 
@@ -1568,15 +1585,59 @@
             this.buttonRefreshLogs.UseVisualStyleBackColor = true;
             this.buttonRefreshLogs.Click += new System.EventHandler(this.buttonRefreshLogs_Click);
             // 
-            // button1
+            // tabPage4
             // 
-            this.button1.Location = new System.Drawing.Point(992, 368);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 65;
-            this.button1.Text = "Iterate";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.tabPage4.Controls.Add(this.numericUpDownAdditiveConstant);
+            this.tabPage4.Controls.Add(this.buttonSmallGeneratorPeriod);
+            this.tabPage4.Controls.Add(this.buttonAnalyzeDifferentialUniformity);
+            this.tabPage4.Location = new System.Drawing.Point(4, 24);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Size = new System.Drawing.Size(1256, 582);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "S-Boxes";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // buttonSmallGeneratorPeriod
+            // 
+            this.buttonSmallGeneratorPeriod.Location = new System.Drawing.Point(514, 179);
+            this.buttonSmallGeneratorPeriod.Name = "buttonSmallGeneratorPeriod";
+            this.buttonSmallGeneratorPeriod.Size = new System.Drawing.Size(134, 25);
+            this.buttonSmallGeneratorPeriod.TabIndex = 1;
+            this.buttonSmallGeneratorPeriod.Text = "SmallGeneratorPeriod";
+            this.buttonSmallGeneratorPeriod.UseVisualStyleBackColor = true;
+            this.buttonSmallGeneratorPeriod.Click += new System.EventHandler(this.buttonSmallGenerator_Click);
+            // 
+            // buttonAnalyzeDifferentialUniformity
+            // 
+            this.buttonAnalyzeDifferentialUniformity.Location = new System.Drawing.Point(488, 36);
+            this.buttonAnalyzeDifferentialUniformity.Name = "buttonAnalyzeDifferentialUniformity";
+            this.buttonAnalyzeDifferentialUniformity.Size = new System.Drawing.Size(192, 31);
+            this.buttonAnalyzeDifferentialUniformity.TabIndex = 0;
+            this.buttonAnalyzeDifferentialUniformity.Text = "Differential Uniformity";
+            this.buttonAnalyzeDifferentialUniformity.UseVisualStyleBackColor = true;
+            this.buttonAnalyzeDifferentialUniformity.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // numericUpDownAdditiveConstant
+            // 
+            this.numericUpDownAdditiveConstant.Location = new System.Drawing.Point(367, 181);
+            this.numericUpDownAdditiveConstant.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            this.numericUpDownAdditiveConstant.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownAdditiveConstant.Name = "numericUpDownAdditiveConstant";
+            this.numericUpDownAdditiveConstant.Size = new System.Drawing.Size(120, 23);
+            this.numericUpDownAdditiveConstant.TabIndex = 2;
+            this.numericUpDownAdditiveConstant.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // MainForm
             // 
@@ -1620,6 +1681,8 @@
             this.tabPage2.ResumeLayout(false);
             this.tableLayoutPanelLogs.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLog)).EndInit();
+            this.tabPage4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAdditiveConstant)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1759,6 +1822,10 @@
         private System.Windows.Forms.CheckedListBox checkedListBoxRngTestingTests;
         private System.Windows.Forms.CheckedListBox checkedListBoxGeneticTests;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.Button buttonAnalyzeDifferentialUniformity;
+        private System.Windows.Forms.Button buttonSmallGeneratorPeriod;
+        private System.Windows.Forms.NumericUpDown numericUpDownAdditiveConstant;
     }
 }
 

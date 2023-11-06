@@ -27,6 +27,10 @@
 - add seed control to rng testing
 - Make folding expressions recogniz (A-A = C(0))
 - feistel rngs
+- Deal with cryptographicHash2
+- Make pseudo random function code (keyed hash, diff strong on key changes)
+- add xorshiftright, xorshiftleft command
+
 
 
 

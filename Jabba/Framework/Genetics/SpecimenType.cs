@@ -10,6 +10,7 @@
         LinearUnconstrained = 2,
         Feistel=3,
         LinearPseudoRandomFunction=4,
-        LinearPrfThreeFunction = 5
+        LinearPrfThreeFunction = 5,
+        Feistel128 = 6,
     }
 }

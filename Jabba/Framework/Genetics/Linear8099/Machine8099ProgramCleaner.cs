@@ -23,7 +23,7 @@ namespace EnderPi.Genetics.Linear8099
         public static List<Command8099> CleanProgram(Command8099[] program)
         {
             List<Command8099> reducedProgram = new List<Command8099>(program.Length);
-            bool[] IsNonZero = new bool[8] { true, true, false, false, false, false, false, false };
+            bool[] IsNonZero = new bool[8] { true, true, true, false, false, false, false, false };
             for (int i = 0; i < program.Length; i++)
             {
                 if (program[i].IsForwardConsistent(ref IsNonZero))

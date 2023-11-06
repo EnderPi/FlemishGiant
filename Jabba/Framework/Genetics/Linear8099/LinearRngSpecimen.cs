@@ -24,6 +24,16 @@ namespace EnderPi.Genetics.Linear8099
         /// </summary>
         public override int Operations => _generationProgram.Count(x => !(x is IntronCommand));
 
+        public LinearRngSpecimen(List<Command8099> generationProgram)
+        {
+            _generationProgram = generationProgram;
+        }
+
+        public LinearRngSpecimen()
+        {
+            
+        }
+
         /// <summary>
         /// So this probably needs a context passed in.
         /// </summary>
@@ -57,7 +67,7 @@ namespace EnderPi.Genetics.Linear8099
 
             potentialCommmands.Add(new MoveRegister(targetRegister, sourceRegister));
             potentialCommmands.Add(new MoveConstant(targetRegister, randomUlong));
-            potentialCommmands.Add(new IntronCommand());
+            //potentialCommmands.Add(new IntronCommand());
             if (geneticParameters.AllowAdditionNodes)
             {
                 potentialCommmands.Add(new AddRegister(targetRegister, sourceRegister));
@@ -130,6 +140,7 @@ namespace EnderPi.Genetics.Linear8099
             if (geneticParameters.AllowRotateMultiplyNodes)
             {
                 potentialCommmands.Add(new RomuConstantConstant(targetRegister, randomInt, randomUlong));
+                potentialCommmands.Add(new RomuRegisterConstant(targetRegister, sourceRegister, randomUlong));
             }
             if (geneticParameters.AllowLoopNodes)
             {
@@ -236,7 +247,10 @@ namespace EnderPi.Genetics.Linear8099
             var stateAffectingCommand = _generationProgram.FirstOrDefault(x => x.AffectsState());
             var outputAffectingCommand = _generationProgram.FirstOrDefault(x => x.AffectsOutput());
             var programShortEnough = _generationProgram.Count < 100;
-            var loopCOunt = _generationProgram.Count(x => x is Loop);
+            if (ProgramLoopsInvalid())
+            {
+                sb.AppendLine("Program Loop Structure invalid!");
+            }
             if (stateAffectingCommand == null)
             {
                 sb.AppendLine("No command affects state!");
@@ -252,14 +266,40 @@ namespace EnderPi.Genetics.Linear8099
             if (parameters.ForceBijection)
             {
                 ValidateBijection(sb);
-            }
-            if (loopCOunt > 1)
-            {
-                sb.AppendLine($"Program contains too many loops - {loopCOunt}");
-            }
+            }            
             //verify one command targets one state, and one command targets output.
             errors = sb.ToString();
             return string.IsNullOrWhiteSpace(errors);
+        }
+
+        private bool ProgramLoopsInvalid()
+        {
+            int lastLoopIndex = -1;
+            var program = _generationProgram.Where(x=> !(x is IntronCommand)).ToList();
+            for (int i=0; i < program.Count; i++)
+            {
+                if (program[i] is Loop loopCommand)
+                {
+                    if (lastLoopIndex == -1)
+                    {
+                        lastLoopIndex = i;
+                    }
+                    else
+                    {
+                        if (loopCommand.Offset < (i - lastLoopIndex))
+                        {
+                            //Things are OK
+                            lastLoopIndex = i;
+                        }
+                        else
+                        {
+                            //These loops overlap!
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         private void ValidateBijection(StringBuilder sb)

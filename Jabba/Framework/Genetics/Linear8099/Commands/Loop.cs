@@ -13,6 +13,8 @@ namespace EnderPi.Genetics.Linear8099.Commands
         private int _offset;
         private int _iterationCount;
 
+        public int Offset => _offset;
+
         public Loop(int offset, int count)
         {
             _offset = offset;
@@ -34,6 +36,8 @@ namespace EnderPi.Genetics.Linear8099.Commands
             if (registers[(int)Machine8099Registers.LC] < Convert.ToUInt64( _iterationCount))
             {
                 registers[(int)Machine8099Registers.LC]++;
+                //grab the next loop constant
+                registers[(int)Machine8099Registers.AX] = LinearGeneticEngine._loopConstants[(int)registers[(int)Machine8099Registers.LC]];
                 registers[(int)Machine8099Registers.IP] -= (Convert.ToUInt64(_offset) + 1);
                 if (registers[(int)Machine8099Registers.IP] > 10000000000)
                 {
@@ -44,6 +48,7 @@ namespace EnderPi.Genetics.Linear8099.Commands
             {
                 //we're done looping, so do nothing
                 registers[(int)Machine8099Registers.LC] = 0;
+                registers[(int)Machine8099Registers.AX] = LinearGeneticEngine._loopConstants[0];
             }
         }
 

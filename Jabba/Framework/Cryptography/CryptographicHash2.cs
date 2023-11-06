@@ -3,7 +3,7 @@
 namespace EnderPi.Cryptography
 {
     /// <summary>
-    /// A cryptographic hash that uses very strong S-boxes internally.
+    /// A cryptographic hash that uses very strong S-boxes (PRFs) internally.
     /// </summary>
     public class CryptographicHash2
     {

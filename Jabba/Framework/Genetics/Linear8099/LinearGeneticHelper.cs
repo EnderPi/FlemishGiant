@@ -109,7 +109,11 @@ namespace EnderPi.Genetics.Linear8099
             if (parameters.Count == 3 && parameters[0].IsRegister && parameters[1].IsInt && parameters[2].IsUlong)
             {
                 return new RomuConstantConstant((int)parameters[0].Register, parameters[1].IntConstant, parameters[2].UlongConstant);
-            }            
+            }
+            if (parameters.Count == 3 && parameters[0].IsRegister && parameters[1].IsRegister && parameters[2].IsUlong)
+            {
+                return new RomuRegisterConstant((int)parameters[0].Register, (int)parameters[1].Register, parameters[2].UlongConstant);
+            }
             throw new NotImplementedException();
         }
 

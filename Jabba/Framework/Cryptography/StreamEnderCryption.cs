@@ -4,6 +4,9 @@ using EnderPi.Random;
 
 namespace EnderPi.Cryptography
 {
+    /// <summary>
+    /// A stream encryption class that uses pseudo-random permutations from U64 to generate the keystream.
+    /// </summary>
     public class StreamEnderCryption
     {        
         

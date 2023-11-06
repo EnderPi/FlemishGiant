@@ -1,64 +1,56 @@
 ﻿using EnderPi.Random;
+using System;
+using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
 
 namespace EnderPi.Cryptography
 {
-    /// <summary>
-    /// If you happen to want a pseudo-random function from U64 to U64.  Probably a fun experiment to show it builds a good avalanching hash in not so many rounds.
-    /// </summary>
-    public class PseudoRandomFunction
+    public class ActualPrf
     {
         /// <summary>
         /// Number of rounds the function is run with.  Also used to populate the _keys array.
         /// </summary>
-        private const int NumRounds = 24;
+        private const int NumRounds = 32;
 
         /// <summary>
         /// Array that holds the keys for the pseudo-random function.  The length of the array should be equal to NumRounds.
         /// </summary>
-        private uint[] _keys;
+        private ulong[] _keys;
+
+        private ulong _key;
 
         /// <summary>
         /// Basic constructor.  Pulls a random one from the family.  ~10^18 such functions available.
         /// </summary>
-        public PseudoRandomFunction()
+        public ActualPrf()
         {
             var x = new RandomNumberGenerator(new RandomHash());
             x.SeedRandom();
-            _keys = new uint[NumRounds];
+            _key = x.Nextulong();
+            InitializeKeys();
+        }
+
+        private void InitializeKeys()
+        {
+            EnderLcg lcg = new EnderLcg();
+            lcg.Seed(0);
+            _keys = new ulong[NumRounds];
             for (int i = 0; i < NumRounds; i++)
             {
-                _keys[i] = x.Nextuint();
-            }           
+                _keys[i] = (uint)(lcg.Nextulong());
+            }
         }
-                        
+
         /// <summary>
         /// Basic constructor.  Pulls a specific one from the family.  ~10^18 such functions available.
         /// </summary>
-        public PseudoRandomFunction(ulong y)
+        public ActualPrf(ulong y)
         {
-            EnderLcg lcg = new EnderLcg();
-            lcg.Seed(y);
-            _keys = new uint[NumRounds];
-            for (int i = 0; i < NumRounds; i++)
-            {
-                _keys[i] = (uint)(lcg.Nextulong() >> 32);
-            }
+            _key = y;
+            InitializeKeys();
         }
                 
-        /// <summary>
-        /// Basic constructor.  Pulls a specific one from the family.  quite a few available.
-        /// </summary>
-        public PseudoRandomFunction(uint[] y)
-        {
-            /* Potentially unsafe if y.Length is not NumRounds.  This should probably be checked for and an error should be thrown.
-             * Also, does this need to be a deep copy? */
-            _keys = new uint[y.Length];
-            for (int i = 0; i < y.Length; i++)
-            {
-                _keys[i] = y[i];
-            }
-        }
 
         /// <summary>
         /// Random function.
@@ -66,16 +58,16 @@ namespace EnderPi.Cryptography
         /// <returns>A random ulong.</returns>
         public ulong F(ulong x)
         {
-            uint right = (uint)(x & uint.MaxValue);
-            uint left = (uint)(x >> 32);
-            uint temp;
+            ulong right = x;
+            ulong left = _key;
+            ulong temp;
             for (int i = 0; i < NumRounds; i++)
             {
                 temp = right;
                 right = left ^ RoundFunction(right, _keys[i]);
                 left = temp;
-            }            
-            return (((ulong)left) << 32) | right; ;
+            }
+            return right;
         }
 
         /// <summary>
@@ -89,10 +81,23 @@ namespace EnderPi.Cryptography
         /// <param name="x">The input</param>
         /// <param name="key">The round key</param>
         /// <returns>The output</returns>
-        private uint RoundFunction(uint x, uint key)
+        private ulong RoundFunction(ulong x, ulong key)
         {
-            return key + x + BitOperations.RotateLeft(x, (int)(x & 31));
-        }                
+            return key + x + BitOperations.RotateLeft(x, (int)(x & 63));
+        }
+
+
+        public static ulong MyOneWayCOmpressionFunction(ulong x, ulong y)
+        {
+            ulong result = x ^ y;
+            ulong[] constants = new ulong[] { 15794028255413092319, 18442280127147387751, 12729309401716732454, 7115307147812511645, 5302139897775218427, 14101262115410449445, 12208502135646234746};            
+            for (int i = 0; i < 7; i++)
+            {
+                y ^= constants[i];
+                x ^= y;
+                x = 4236690171739396961 * BitOperations.RotateLeft(x, 11);
+            }
+            return x ^ result;
+        }
     }
 }
-

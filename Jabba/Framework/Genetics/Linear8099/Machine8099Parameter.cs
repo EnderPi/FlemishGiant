@@ -25,13 +25,13 @@ namespace EnderPi.Genetics.Linear8099
         public Machine8099Parameter(string s)
         {
             _text = s;
-             
-            if (Enum.TryParse(typeof(Machine8099Registers), _text, true, out object reg) && Enum.IsDefined(typeof(Machine8099Registers), reg))
+
+            _isUlong = ulong.TryParse(_text, out _ulongConstant);
+            if (!_isUlong && Enum.TryParse(typeof(Machine8099Registers), _text, true, out object reg) && Enum.IsDefined(typeof(Machine8099Registers), reg))
             {
                 _isRegister = true;
                 _register = (Machine8099Registers)reg;
-            }
-            _isUlong = ulong.TryParse(_text, out _ulongConstant);
+            }            
             if (_isUlong && _ulongConstant < int.MaxValue)
             {
                 _isInt = true;
