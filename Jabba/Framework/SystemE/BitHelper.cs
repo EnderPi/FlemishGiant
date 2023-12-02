@@ -5,6 +5,7 @@ using EnderPi.Genetics.Tree32Rng;
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.CompilerServices;
+using EnderPi.Random;
 
 namespace EnderPi.SystemE
 {
@@ -13,6 +14,12 @@ namespace EnderPi.SystemE
     /// </summary>
     public static class BitHelper
     {
+        private static ulong[] _sBoxInputs;
+        private static byte[][] _sBoxesFourbit;
+
+
+
+
         private static int[] _bitCounts;
         private static int[] _bitCounts10;
 
@@ -28,6 +35,31 @@ namespace EnderPi.SystemE
             {
                 _bitCounts10[i] = CountOfOnesInInt(i);
             }
+            _sBoxInputs = new ulong[64];
+            var rng = new EnderLcg();
+            rng.Seed(0);
+            var generator = new RandomNumberGenerator(rng);
+            for (int i=0; i <_sBoxInputs.Length; i++)
+            {
+                _sBoxInputs[i] = generator.Nextulong();
+            }
+            _sBoxesFourbit = new byte[16][];
+            _sBoxesFourbit[0] = new byte[16] { 10, 4, 5, 3, 1, 14, 6, 15, 11, 7, 8, 2, 12, 13, 9, 0 };
+            _sBoxesFourbit[1] = new byte[16] { 7, 3, 1, 8, 10, 11, 15, 13, 2, 5, 14, 4, 0, 12, 9, 6 };
+            _sBoxesFourbit[2] = new byte[16] { 5, 6, 2, 9, 14, 10, 12, 3, 15, 1, 13, 11, 7, 8, 0, 4 };
+            _sBoxesFourbit[3] = new byte[16] { 14, 13, 12, 6, 15, 3, 8, 4, 11, 0, 2, 10, 1, 5, 7, 9 };
+            _sBoxesFourbit[4] = new byte[16] { 5, 14, 15, 3, 13, 8, 9, 11, 7, 10, 1, 4, 12, 0, 2, 6 };
+            _sBoxesFourbit[5] = new byte[16] { 11, 4, 15, 7, 6, 2, 13, 3, 8, 14, 1, 0, 10, 5, 12, 9 };
+            _sBoxesFourbit[6] = new byte[16] { 5, 1, 7, 0, 2, 6, 12, 9, 15, 14, 3, 4, 10, 11, 13, 8 };
+            _sBoxesFourbit[7] = new byte[16] { 3, 10, 12, 8, 4, 2, 0, 11, 1, 15, 7, 6, 13, 14, 5, 9 };
+            _sBoxesFourbit[8] = new byte[16] { 13, 4, 5, 12, 11, 9, 15, 2, 14, 10, 3, 0, 7, 8, 6, 1 };
+            _sBoxesFourbit[9] = new byte[16] { 1, 2, 9, 5, 7, 14, 11, 4, 10, 0, 3, 6, 15, 8, 12, 13 };
+            _sBoxesFourbit[10] = new byte[16] { 6, 0, 7, 1, 13, 9, 3, 14, 5, 15, 11, 8, 10, 2, 12, 4 };
+            _sBoxesFourbit[11] = new byte[16] { 2, 12, 5, 6, 11, 15, 7, 3, 14, 4, 1, 10, 13, 0, 9, 8 };
+            _sBoxesFourbit[12] = new byte[16] { 7, 15, 12, 6, 2, 14, 5, 11, 4, 8, 10, 1, 13, 0, 9, 3 };
+            _sBoxesFourbit[13] = new byte[16] { 15, 2, 14, 10, 4, 8, 9, 13, 3, 12, 6, 5, 11, 1, 7, 0 };
+            _sBoxesFourbit[14] = new byte[16] { 9, 7, 10, 0, 8, 3, 14, 1, 11, 13, 12, 15, 5, 2, 6, 4 };
+            _sBoxesFourbit[15] = new byte[16] { 4, 0, 7, 9, 5, 10, 2, 12, 14, 6, 3, 1, 8, 11, 13, 15 };
         }
 
         private static int CountOfOnesInByte(int i)
@@ -203,9 +235,9 @@ namespace EnderPi.SystemE
             int counter = 0;
             for (int i=0; i < 256;  i++)
             {
-                for (int j = 0; j < 256; j++)
+                for (int j = 1; j < 256; j++)
                 {
-                    if (i == j) continue;
+                    //if (i == j) continue;
                     counter++;
                     int count = 0;
                     for (int k = 0; k < 256; k++)
@@ -216,6 +248,74 @@ namespace EnderPi.SystemE
                             count++;
                         }
                         
+                    }
+                    ave += count;
+                    max = Math.Max(max, count);
+                }
+            }
+            ave /= counter;
+            return max;
+        }
+
+        public static int GetDifferentialUniformityFourBit(byte[] shiftedSbox, out double ave)
+        {
+            ave = 0;
+            int max = 0;
+            int counter = 0;
+            for (int i = 0; i < 16; i++)
+            {
+                for (int j = 1; j < 16; j++)
+                {                    
+                    counter++;
+                    int count = 0;
+                    for (int k = 0; k < 16; k++)
+                    {
+                        var dif = shiftedSbox[j ^ k] ^ shiftedSbox[k];
+                        if (dif == i)
+                        {
+                            count++;
+                        }
+
+                    }
+                    ave += count;
+                    max = Math.Max(max, count);
+                }
+            }
+            ave /= counter;
+            return max;
+        }
+
+        /// <summary>
+        /// Approximation for 64x64 s boxes
+        /// </summary>
+        /// <param name="sBox"></param>
+        /// <param name="ave"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// So we can use input deltas of hamming weight 1, input values that are just random ulongs, then 
+        /// output deltas of what?
+        /// </remarks>
+        public static int GetDifferentialUniformity(ulong[] sBox, out double ave)
+        {
+            ave = 0;
+            int max = 0;
+            int counter = 0;
+            for (ulong outputDelta = 0; outputDelta < 256; outputDelta++)
+            {
+                for (int inputIndex = 1; inputIndex < 64; inputIndex++)
+                {
+                    ulong inputDelta = 1ul << inputIndex;                    
+                    counter++;
+                    int count = 0;
+                    for (int k = 0; k < _sBoxInputs.Length; k++)
+                    {
+                        ulong input = _sBoxInputs[k];
+                        var dif = sBox[inputDelta ^ input] ^ sBox[input];
+                        if (dif == outputDelta)
+                        {
+                            count++;
+                        }
+
                     }
                     ave += count;
                     max = Math.Max(max, count);
@@ -280,6 +380,33 @@ namespace EnderPi.SystemE
                 }
             }
             average /= (255.0 * 255.0);
+            return max;
+        }
+
+        public static int GetLinearityFourBit(byte[] sBox, out double average)
+        {
+            int max = 0;
+            average = 0;
+            for (int i = 1; i < 16; i++)
+            {
+                for (int j = 1; j < 16; j++)
+                {
+                    //if (i == j) continue;
+                    int count = 0;
+                    for (int k = 0; k < 16; k++)
+                    {                        
+                        if ((CountOfOnesInByte(k & i) & 1) == (CountOfOnesInByte(sBox[k] & j) & 1))
+                        {
+                            count++;
+                        }
+
+                    }
+                    count = Math.Abs(8 - count);
+                    average += count;
+                    max = Math.Max(max, count);
+                }
+            }
+            average /= (15.0 * 15.0);
             return max;
         }
 
@@ -412,6 +539,7 @@ namespace EnderPi.SystemE
             return max / 65536;
         }
 
+        //Characterizing a 64x64 bit s-box as 64 8x8 s-boxes?  That is, each output byte and each input byte.  Not very useful imho.
         public static string CharacterizeSbox(Func<ulong, ulong> f)
         {
             var sb = new StringBuilder();
@@ -442,7 +570,30 @@ namespace EnderPi.SystemE
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Does with a feistel construction.
+        /// </summary>
+        /// <param name="rounds"></param>
+        /// <returns></returns>
+        public static byte[] Get8BitSBoxFrom4Bit(int rounds)
+        {
+            byte[] result = new byte[256];
+            for (int i=0; i < 256; i++)
+            {
+                byte left = (byte)((i >> 4) & 15);
+                byte right = (byte)(i & 15);
+                byte temp;
+                for (int j = 0; j < rounds; j++)
+                {
+                    temp = right;
+                    right = (byte)(left ^ _sBoxesFourbit[j][right ^ ((j+1) & 15)]);//Hash(right, _constants[i]);
+                    left = temp;
+                }
+                result[i] = (byte)(left << 4 | right);
 
+            }
+            return result;
+        }
 
 
         public static UInt16 RotateLeft(UInt16 x, int y)

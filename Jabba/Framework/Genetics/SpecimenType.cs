@@ -12,5 +12,6 @@
         LinearPseudoRandomFunction=4,
         LinearPrfThreeFunction = 5,
         Feistel128 = 6,
+        Feistel128Explicit = 7
     }
 }

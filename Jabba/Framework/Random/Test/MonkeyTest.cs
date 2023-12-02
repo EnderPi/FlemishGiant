@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 
 namespace EnderPi.Random.Test
 {
-    /*
+    
     /// <summary>
     /// The monkey Test (8 bits)
     /// </summary>
     [Serializable]
     public class MonkeyTest : IIncrementalRandomTest
     {
-        private UInt32[] _counts;
+        private UInt64[] _counts;
         private int _wordSize;        
         private int _counter;
         private UInt64 _iterationsPerformed;
@@ -23,10 +24,11 @@ namespace EnderPi.Random.Test
 
         public TestResult Result => _testResult;
 
-        public int TestsPassed { get { return _testResults.Where(x => x != TestResult.Fail).Count(); } }
+        public int TestsPassed { get { return _testResult == TestResult.Fail ? 0 : 1; } }
 
         public MonkeyTest(int wordSize)
         {
+            //word size should be 8 or 16
             _wordSize = wordSize;
             _cellCount = Convert.ToInt32(Math.Pow(2, _wordSize));
             _minimumIterationsForResult = Convert.ToUInt64(5 * _cellCount);
@@ -35,61 +37,59 @@ namespace EnderPi.Random.Test
         public string GetDetailedResult()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Gorilla Test with word size = {_wordSize}");
-            for (int i = 0; i < 64; i++)
-            {
-                sb.AppendLine($"p-value for bit {i} = {_pValues[i]} with test result {_testResults[i]}");
-            }
-            sb.AppendLine($"aggregate p-value {_aggregatePValue}");
-            sb.AppendLine($"Result of {_overallTestResult}");
+            sb.AppendLine($"Monkey Test with word size = {_wordSize}");
+            sb.AppendLine($"p-value of {_pValue} with test result {_testResult}");
             return sb.ToString();
         }
 
         private void GetTestResults()
         {
-            for (int i = 0; i < _pValues.Length; i++)
-            {
-                _testResults[i] = TestHelper.GetTestResultFromPValue(_pValues[i]);
-            }
+            _testResult = TestHelper.GetTestResultFromPValue(_pValue);            
         }
 
         private void GetChiSquaredPValues()
         {
             double expectedValue = _iterationsPerformed / (double)_cellCount;
-            double[] chiSquaredValues = new double[64];
-            //need an array of worst
+            double chiSquaredValues = 0;
 
-            for (int i = 0; i < 64; i++)
+
+            for (int j = 0; j < _counts.Length; j++)
             {
-                for (int j = 0; j < _counts[i].Length; j++)
-                {
-                    var difference = _counts[i][j] - expectedValue;
-                    chiSquaredValues[i] += difference * difference;
-                }
-                _pValues[i] = TestHelper.ChiSquaredPValue(_cellCount - 1, chiSquaredValues[i] / expectedValue);
+                var difference = _counts[j] - expectedValue;
+                chiSquaredValues += difference * difference;
             }
+            _pValue = TestHelper.ChiSquaredPValue(_cellCount - 1, chiSquaredValues / expectedValue);
             return;
         }
 
         public void Process(UInt64 randomNumber)
         {
-            _words.IncrementState(randomNumber);
             _counter++;
-            if (_counter >= _wordSize)
-            {
-                RunOneIteration();
-                _counter = 0;
-                _words.Reset();
-            }
+            RunOneIteration(randomNumber);            
         }
 
-        private void RunOneIteration()
+        private void RunOneIteration(ulong randomNumber)
         {
-            for (int j = 0; j < 64; j++)
+            if (_wordSize == 8)
             {
-                _counts[j][_words[j]]++;
+                var bytes = BitConverter.GetBytes(randomNumber);
+                for (int j = 0; j < 8; j++)
+                {
+                    _counts[bytes[j]]++;
+                }
+                _iterationsPerformed+=8;
             }
-            _iterationsPerformed++;
+            else if (_wordSize == 16)
+            {
+                var bytes = BitConverter.GetBytes(randomNumber);
+                for (int j = 0; j < 4; j++)
+                {
+                    UInt16 x = BitConverter.ToUInt16(bytes, j*2);
+                    _counts[x]++;
+                }
+                _iterationsPerformed += 4;
+            }
+
         }
 
         public void CalculateResult(bool detailed)
@@ -98,34 +98,21 @@ namespace EnderPi.Random.Test
             {
                 return;
             }
-
             GetChiSquaredPValues();
-            _aggregatePValue = ChiSquaredTest.ChiSquaredForPValues(_pValues);
-            GetTestResults();
-            _aggregateTestResult = TestHelper.GetTestResultFromPValue(_aggregatePValue);
-
-            TestResult minimumTestResult = TestHelper.ReturnLowestConclusiveResult(_testResults);
-            _overallTestResult = TestHelper.ReturnLowestConclusiveResult(minimumTestResult, _aggregateTestResult);
-
+            GetTestResults();                        
             return;
         }
 
         public void Initialize(IRandomEngine engine)
         {
-            _counts = new uint[64][];
-            _pValues = new double[64];
-            _testResults = new TestResult[64];
-            for (int i = 0; i < 64; i++)
-            {
-                _counts[i] = new uint[_cellCount];
-            }
-            _overallTestResult = TestResult.Inconclusive;
-            _words = new BitByBitWords(_wordSize);
+            _counts = new ulong[_cellCount];
+            _pValue = 0;
+            _testResult = TestResult.Inconclusive;            
         }
 
         public override string ToString()
         {
-            return $"Gorilla Test, Word length {_wordSize} bits";
+            return $"Monkey Test, Word length {_wordSize} bits";
         }
 
         public string GetFailureDescriptions()
@@ -133,19 +120,9 @@ namespace EnderPi.Random.Test
             StringBuilder sb = new StringBuilder();
             if (Result == TestResult.Fail)
             {
-                sb.AppendLine($"Gorilla Test with word size = {_wordSize}");
-                for (int i = 0; i < 64; i++)
-                {
-                    if (_testResults[i] == TestResult.Fail)
-                    {
-                        sb.AppendLine($"p-value for bit {i} = {_pValues[i]} with test result {_testResults[i]}");
-                    }
-                }
-                if (_overallTestResult == TestResult.Fail)
-                {
-                    sb.AppendLine($"Aggregate p-value {_aggregatePValue}");
-                    sb.AppendLine($"Result of {_overallTestResult}");
-                }
+                sb.AppendLine($"Monkey Test with word size = {_wordSize}");
+                sb.AppendLine($"p-value of {_pValue} with test result {_testResult}");
+                sb.AppendLine($"Result of {_testResult}");                
             }
             return sb.ToString();
         }
@@ -156,5 +133,5 @@ namespace EnderPi.Random.Test
         }
 
     }
-    */
+    
 }

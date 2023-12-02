@@ -5,6 +5,10 @@ using EnderPi.Genetics.Tree64Rng;
 using EnderPi.Random;
 using EnderPi.Random.Test;
 using EnderPi.SystemE;
+using EnderPi.Task;
+using RngGenetics.Data;
+using RngGenetics.Helper;
+using RngGenetics.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +18,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using static System.Windows.Forms.AxHost;
 
 namespace RngGenetics
 {
@@ -30,7 +33,7 @@ namespace RngGenetics
         /// </summary>
         private CancellationTokenSource _source;
 
-        private CancellationTokenSource _sourceRngTesting;
+        //private CancellationTokenSource _sourceRngTesting;
 
         /// <summary>
         /// A delegate just used to marshal events to the main form UI thread.
@@ -62,13 +65,9 @@ namespace RngGenetics
             {
                 comboBoxGeneticType.Items.Add(specimenType);
             }
-            comboBoxGeneticType.SelectedIndex = 2;
-            comboBoxRngTestingType.Items.AddRange(new object[] { SpecimenType.TreeUnconstrained64, SpecimenType.LinearUnconstrained, SpecimenType.Feistel, SpecimenType.LinearPseudoRandomFunction, SpecimenType.LinearPrfThreeFunction, SpecimenType.Feistel128 });
-            comboBoxKeyType.Items.AddRange(new object[] { FeistelKeyType.Prime, FeistelKeyType.Hash, FeistelKeyType.Integer });
+            comboBoxGeneticType.SelectedIndex = 2;            
             comboBoxGeneticFeistelType.Items.AddRange(new object[] { FeistelKeyType.Prime, FeistelKeyType.Hash, FeistelKeyType.Integer });
-            comboBoxKeyType.SelectedIndex = 1;
-            comboBoxGeneticFeistelType.SelectedIndex = 1;
-            comboBoxRngTestingType.SelectedIndex = 0;
+            comboBoxGeneticFeistelType.SelectedIndex = 1;            
             for (int i = 0; i < checkedListBoxOperations.Items.Count; i++)
             {
                 if (i != 3 && i != 4)
@@ -76,38 +75,9 @@ namespace RngGenetics
                     checkedListBoxOperations.SetItemChecked(i, true);
                 }
             }
-            AddTestsToCheckedListBoxes(checkedListBoxRngTestingTests);
-            AddTestsToCheckedListBoxes(checkedListBoxGeneticTests);
+            UIHelperMethods.AddTestsToCheckedListBoxes(checkedListBoxGeneticTests);            
         }
-
-        private void AddTestsToCheckedListBoxes(CheckedListBox box)
-        {
-            box.Items.Add(new ZeroTest(), true);
-            box.Items.Add(new GcdTest(), true);
-            box.Items.Add(new GorillaTest(7), true);
-            box.Items.Add(new GorillaTest(17), false);
-            box.Items.Add(new LinearSerialTest(), true);
-            box.Items.Add(new LawOfIteratedLogarithmTest(), false);
-            box.Items.Add(new LowerFourBitsTest(), false);
-            box.Items.Add(new EachBitTest(), false);
-            box.Items.Add(new LinearHashTest(), true);
-            box.Items.Add(new DifferentialTest(), true);
-            box.Items.Add(new DifferentialSecondOrderTest(), true);
-            box.Items.Add(new ThirdOrderGorilla(7), true);
-            box.Items.Add(new LinearDifferentialTest(), false);
-            box.Items.Add(new DifferentialPseudoRandomFunctionTest(), true);
-            box.Items.Add(new DifferentialPrfThreeTest(), true);
-            box.Items.Add(new ZeroHashTest(), true);
-            ulong[] masks = new ulong[64];
-            PseudoRandomFunction p = new PseudoRandomFunction();
-            for (int i=0; i < masks.Length; i++)
-            {
-                masks[i] = p.F((ulong)i);
-            }
-            box.Items.Add(new DifferentialTest(masks), true);
-            box.Items.Add(new DifferentialPseudoRandomFunctionTest(masks), true);
-        }
-
+                
         /// <summary>
         /// Syncing this form with the model.  Probably not great, probably just need to read the model?
         /// </summary>
@@ -127,14 +97,14 @@ namespace RngGenetics
         {
             if (_best == null)
             {
-                lock(_padlock)
+                lock (_padlock)
                 {
                     if (_best == null)
                     {
                         _best = _simulation.GetNextBetterRng(null);
                         if (_best != null)
                         {
-                            Invoke(new FormDelegate(()=>PopulatePictureBox()));
+                            Invoke(new FormDelegate(() => PopulatePictureBox()));
                         }
                     }
                 }
@@ -162,7 +132,7 @@ namespace RngGenetics
             }
             catch (Exception ex)
             {
-                Logging.LogError(ex.ToString());                
+                Logging.LogError(ex.ToString());
             }
         }
 
@@ -172,13 +142,13 @@ namespace RngGenetics
             _best = null;
             _specimensEvaluated = 0;
             _generation = 0;
-            
+
             BindFormToModel();
             EnableControls(true);
-            
+
             textBoxGeneration.Text = null;
             textBoxFitness.Text = null;
-            pictureBoxMain.Image = null;            
+            pictureBoxMain.Image = null;
             textBoxBestDescription.Text = null;
             textBoxOperations.Text = null;
             textBoxTestsPassed.Text = null;
@@ -204,10 +174,10 @@ namespace RngGenetics
             _simulation.MutationChance = (double)numericUpDownMutationRate.Value;
             _simulation.SpecimensPerTournament = (int)numericUpDownSpecimensPerTournament.Value;
             _simulation.Threads = (int)numericUpDownThreads.Value;
-            _simulation.MaxFitness = (long)numericUpDownMaxFitness.Value;            
+            _simulation.MaxFitness = (long)numericUpDownMaxFitness.Value;
             _simulation.StateOneConstraint = textBoxStateOneFunction.Text;
             _simulation.RngSpecimenType = (SpecimenType)comboBoxGeneticType.SelectedItem;
-            _simulation.SelectionPressure = (double)numericUpDownSelectionPressure.Value;            
+            _simulation.SelectionPressure = (double)numericUpDownSelectionPressure.Value;
             _simulation.TestAsHash = checkBoxTestAsHash.Checked;
             _simulation.RngTests = new List<IIncrementalRandomTest>();
             foreach (var t in checkedListBoxGeneticTests.CheckedItems)
@@ -239,7 +209,7 @@ namespace RngGenetics
         }
 
         private void RunSimulation()
-        {            
+        {
             try
             {
                 _simulation.Run(_source.Token);
@@ -255,14 +225,14 @@ namespace RngGenetics
             timerUpdateUI.Enabled = false;
             timerUpdateVisual.Enabled = false;
             _best = _simulation.Best;
-            PopulatePictureBox();                        
+            PopulatePictureBox();
             dataGridViewAverageFitness.SuspendLayout();
             dataGridViewAverageFitness.Rows.Clear();
-            for (int i= _simulation._allSpecimens.Count-1; i >= 0 ; i--)
+            for (int i = _simulation._allSpecimens.Count - 1; i >= 0; i--)
             {
-                dataGridViewAverageFitness.Rows.Add(i, _simulation._allSpecimens[i].Average(x => x.Fitness).ToString("N0"));                
+                dataGridViewAverageFitness.Rows.Add(i, _simulation._allSpecimens[i].Average(x => x.Fitness).ToString("N0"));
             }
-            dataGridViewAverageFitness.ResumeLayout();            
+            dataGridViewAverageFitness.ResumeLayout();
             toolStripProgressBarMain.Style = ProgressBarStyle.Continuous;
             toolStripProgressBarMain.Value = 0;
             toolStripStatusLabel1.Text = "";
@@ -287,7 +257,7 @@ namespace RngGenetics
             numericUpDownMaxFitness.Enabled = !isRunning;
             comboBoxGeneticType.Enabled = !isRunning;
             textBoxStateOneFunction.Enabled = !isRunning && comboBoxGeneticType.SelectedItem is SpecimenType.TreeStateConstrained64;
-            numericUpDownSelectionPressure.Enabled = !isRunning;            
+            numericUpDownSelectionPressure.Enabled = !isRunning;
             numericUpDownInitialAdds.Enabled = !isRunning;
             numericUpDownGeneticFeistelRounds.Enabled = !isRunning;
             comboBoxGeneticFeistelType.Enabled = !isRunning;
@@ -336,15 +306,15 @@ namespace RngGenetics
             {
                 dataGridViewAverageFitness.SuspendLayout();
                 dataGridViewAverageFitness.Rows.Clear();
-                for (int i = _simulation._allSpecimens.Count - 1; i >= 0 ; i--)
+                for (int i = _simulation._allSpecimens.Count - 1; i >= 0; i--)
                 {
-                    dataGridViewAverageFitness.Rows.Add(i, _simulation._allSpecimens[i].Average(x => x.Fitness).ToString("N0"));                    
+                    dataGridViewAverageFitness.Rows.Add(i, _simulation._allSpecimens[i].Average(x => x.Fitness).ToString("N0"));
                 }
                 dataGridViewAverageFitness.ResumeLayout();
                 textBoxFailures.Text = _simulation.GetFailureOccurences();
             }
         }
-        
+
         private void comboBoxGeneticType_SelectedIndexChanged(object sender, EventArgs e)
         {
             switch (comboBoxGeneticType.SelectedItem)
@@ -360,7 +330,7 @@ namespace RngGenetics
 
         private void tabControl1_Selected(object sender, TabControlEventArgs e)
         {
-            if (tabControl1.SelectedTab == tabPage2)
+            if (tabControlMain.SelectedTab == tabPage2)
             {
                 PopulateLogs();
             }
@@ -377,289 +347,31 @@ namespace RngGenetics
             }
             dataGridViewLog.ResumeLayout();
         }
-
-        private void buttonStartTesting_Click(object sender, EventArgs e)
-        {
-            _sourceRngTesting = new CancellationTokenSource();            
-            IRandomEngine engine = null;
-            try
-            {
-                if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.TreeUnconstrained64)
-                {
-                    engine = new DynamicRandomEngine(textBoxStateExpressionRngTesting.Text, textBoxOutputRngTesting.Text);
-                }
-                else if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.LinearUnconstrained)
-                {
-                    var commands = LinearGeneticHelper.Parse(textBoxStateExpressionRngTesting.Text);
-                    engine = new LinearGeneticEngine(commands);
-                }
-                else if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.Feistel)
-                {
-                    int rounds = (int)numericUpDownFeistelRounds.Value;
-                    uint[] keys = GetKeys(rounds, (FeistelKeyType)comboBoxKeyType.SelectedItem);
-                    engine = new Feistel64Engine(textBoxStateExpressionRngTesting.Text, rounds, keys);
-                }
-                else if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.LinearPseudoRandomFunction)
-                {
-                    var commands = LinearGeneticHelper.Parse(textBoxStateExpressionRngTesting.Text);
-                    engine = new LinearRandomFunctionEngine(commands);
-                }
-                else if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.LinearPrfThreeFunction)
-                {
-                    var commands = LinearGeneticHelper.Parse(textBoxStateExpressionRngTesting.Text);
-                    engine = new LinearPrfThreeFunctionEngine(commands);
-                }
-                else if ((SpecimenType)comboBoxRngTestingType.SelectedItem == SpecimenType.Feistel128)
-                {
-                    int rounds = (int)numericUpDownFeistelRounds.Value;
-                    var commands = LinearGeneticHelper.Parse(textBoxStateExpressionRngTesting.Text);
-                    engine = new Feistel128Engine(rounds, commands);
-                }
-            }
-            catch(Exception ex) 
-            {
-                MessageBox.Show($"Error compiling expression!  {ex}", "Compilation error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }                        
-            
-            //EnableControls(true);
-                        
-            textBoxFitnessRngTesting.Text = null;
-            textBoxTestsPassedRngTesting.Text = null;
-            pictureBoxRngTesting.Image = null;
-            textBoxDescriptionRngTesting.Text = null;
-            
-            progressBarRngTesting.Style = ProgressBarStyle.Marquee;
-            //toolStripStatusLabel1.Text = "Running...";
-
-            long maxFitness = (long)numericUpDownMaxFitnessRngTesting.Value;
-            var parameters = new RandomTestParameters() { MaxFitness = maxFitness, Seed = (ulong)numericUpDownSeed.Value};
-            parameters.TestAsHash = checkBoxRngTestAsHash.Checked;
-            var thread = new Thread(()=>RunRngTest(engine, parameters));
-            thread.IsBackground = true;
-            thread.Start();                        
-        }
-
-        private uint[] GetKeys(int rounds, FeistelKeyType selectedItem)
-        {
-            uint[] result = new uint[rounds];
-            if (selectedItem == FeistelKeyType.Hash)
-            {
-                var hash = new EnderPi.Random.RandomNumberGenerator(new RandomHash());
-                hash.Seed(0);
-                for (int i=0; i < rounds; i++)
-                {
-                    result[i] = hash.Nextuint();
-                }
-            }
-            else if (selectedItem == FeistelKeyType.Prime)
-            {                
-                for (int i = 0; i < rounds; i++)
-                {
-                    result[i] = Primes.FirstPrimes[i];
-                }
-            }
-            else if (selectedItem == FeistelKeyType.Integer)
-            {
-                for (int i = 0; i < rounds; i++)
-                {
-                    result[i] = (uint)(i+1);
-                }
-            }
-            return result;
-        }
-
-        private void RunRngTest(IRandomEngine engine, RandomTestParameters parameters)
-        {
-            RandomnessTest simulation = null;
-            var tests = new List<IIncrementalRandomTest>();
-            foreach (var t in checkedListBoxRngTestingTests.CheckedItems)
-            {
-                var test = t as IIncrementalRandomTest;
-                tests.Add(test);
-            }
-            try
-            {
-                simulation = new RandomnessTest(tests, engine, _sourceRngTesting.Token, parameters);
-                if (parameters.TestAsHash)
-                {
-                    Invoke(new FormDelegate(() => pictureBoxRngTesting.Image = GeneticHelper.GetImage(new HashWrapper(engine.DeepCopy()), 1)));
-                }
-                else
-                {
-                    Invoke(new FormDelegate(() => pictureBoxRngTesting.Image = GeneticHelper.GetImage(engine.DeepCopy(), 1)));
-                }
-                simulation.CheckpointPassed += RngCheckpointPassed;
-                simulation.Start();                
-            }
-            catch (Exception ex)
-            {
-                Logging.LogError(ex.ToString());
-            }
-            finally
-            {
-                try
-                {
-                    Invoke(new FormDelegate(() => RngTestingFinished(simulation, engine)));
-                }
-                catch (Exception ex)
-                {
-                    Logging.LogError(ex.ToString());
-                }
-            }
-            
-
-        }
-
-        private void RngCheckpointPassed(object sender, RandomnessTestEventArgs e)
-        {
-            Invoke(new FormDelegate(() => RngTestingCheckpoint(e)));
-        }
-
-        private void RngTestingCheckpoint(RandomnessTestEventArgs e)
-        {
-            textBoxFitnessRngTesting.Text = e.Iterations.ToString("N0");            
-        }
-
-        private void RngTestingFinished(RandomnessTest simulation, IRandomEngine engine)
-        {
-            textBoxFitnessRngTesting.Text = simulation.Iterations.ToString("N0");
-            textBoxTestsPassedRngTesting.Text = simulation.TestsPassed.ToString();            
-            progressBarRngTesting.Style =  ProgressBarStyle.Blocks;
-            textBoxDescriptionRngTesting.Text = simulation.GetFailedTestsDescription();
-        }
-
-        private void buttonPushToTesting_Click(object sender, EventArgs e)
-        {
-            lock (_padlock)
-            {
-                if (_best is Tree64RngSpecimen bestTree)
-                {
-                    comboBoxRngTestingType.SelectedIndex = 0;
-                    textBoxStateExpressionRngTesting.Text = bestTree.StateRoot.Evaluate();
-                    textBoxOutputRngTesting.Text = bestTree.OutputRoot.Evaluate();
-                    tabControl1.SelectedTab = tabPage3;
-                }
-                if (_best is LinearRngSpecimen bestLinear)
-                {
-                    comboBoxRngTestingType.SelectedIndex = 1;
-                    textBoxStateExpressionRngTesting.Text = LinearGeneticHelper.PrintProgram(bestLinear.GetGenerationProgram());
-                    tabControl1.SelectedTab = tabPage3;
-                }
-            }
-        }
-
-        private void comboBoxRngTestingType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            switch ((SpecimenType)comboBoxRngTestingType.SelectedItem)
-            {
-                case SpecimenType.TreeUnconstrained64:
-                    labelFieldTwo.Visible = true;
-                    textBoxOutputRngTesting.Visible = true;                    
-                    labelFieldOne.Text = "State Function Expression";
-                    break;
-                case SpecimenType.LinearUnconstrained:
-                    labelFieldTwo.Visible = false;
-                    textBoxOutputRngTesting.Visible = false;
-                    labelFieldOne.Text = "Generation Program";
-                    break;
-                case SpecimenType.Feistel:
-                    labelFieldTwo.Visible = false;
-                    textBoxOutputRngTesting.Visible = false;
-                    labelFieldOne.Text = "Round Function";
-                    break;
-            }
-        }
-
-        private void buttonStopTesting_Click(object sender, EventArgs e)
-        {
-            if (_sourceRngTesting != null && !_sourceRngTesting.IsCancellationRequested)
-            {
-                _sourceRngTesting.Cancel();
-            }
-        }
+        
+        //private void buttonPushToTesting_Click(object sender, EventArgs e)
+        //{
+        //    lock (_padlock)
+        //    {
+        //        if (_best is Tree64RngSpecimen bestTree)
+        //        {
+        //            comboBoxRngTestingType.SelectedIndex = 0;
+        //            textBoxStateExpressionRngTesting.Text = bestTree.StateRoot.Evaluate();
+        //            textBoxOutputRngTesting.Text = bestTree.OutputRoot.Evaluate();
+        //            tabControlMain.SelectedTab = tabPage3;
+        //        }
+        //        if (_best is LinearRngSpecimen bestLinear)
+        //        {
+        //            comboBoxRngTestingType.SelectedIndex = 1;
+        //            textBoxStateExpressionRngTesting.Text = LinearGeneticHelper.PrintProgram(bestLinear.GetGenerationProgram());
+        //            tabControlMain.SelectedTab = tabPage3;
+        //        }
+        //    }
+        //}
 
         private void buttonRefreshLogs_Click(object sender, EventArgs e)
         {
             PopulateLogs();
         }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            _sourceRngTesting = new CancellationTokenSource();
-            
-            //EnableControls(true);
-
-            textBoxFitnessRngTesting.Text = null;
-            textBoxTestsPassedRngTesting.Text = null;
-            pictureBoxRngTesting.Image = null;
-            textBoxDescriptionRngTesting.Text = null;
-
-            progressBarRngTesting.Style = ProgressBarStyle.Marquee;
-            //toolStripStatusLabel1.Text = "Running...";
-
-            
-            var thread = new Thread(() => RunLoopTest());
-            thread.IsBackground = true;
-            thread.Start();
-
-        }
-
-        private void RunLoopTest()
-        {
-            string program = textBoxStateExpressionRngTesting.Text;
-            long maxFitness = (long)numericUpDownMaxFitnessRngTesting.Value;
-            var parameters = new RandomTestParameters() { MaxFitness = maxFitness, Seed = (ulong)numericUpDownSeed.Value };
-            parameters.TestAsHash = checkBoxRngTestAsHash.Checked;
-            var sb = new StringBuilder();
-            try
-            {
-                for (int i = 1; i < 64; i++)
-                {
-                    var stringthisProgram = program.Replace("qqq", i.ToString());
-                    var commands = LinearGeneticHelper.Parse(stringthisProgram);
-                    var engine = new LinearRandomFunctionEngine(commands);
-                    RandomnessTest simulation = null;
-                    var tests = new List<IIncrementalRandomTest>();
-                    foreach (var t in checkedListBoxRngTestingTests.CheckedItems)
-                    {
-                        var test = t as IIncrementalRandomTest;
-                        tests.Add(test);
-                    }
-
-                    simulation = new RandomnessTest(tests, engine, _sourceRngTesting.Token, parameters);
-                    //Invoke(new FormDelegate(() => pictureBoxRngTesting.Image = GeneticHelper.GetImage(engine.DeepCopy(), 1)));
-                    simulation.CheckpointPassed += RngCheckpointPassed;
-                    simulation.Start();
-                    sb.AppendLine($"Rotate {i}, Fitness {simulation.Iterations}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logging.LogError(ex.ToString());
-            }
-            finally
-            {
-                try
-                {
-                    Invoke(new FormDelegate(() => RngLoopTestingFinished(sb)));
-                }
-                catch (Exception ex)
-                {
-                    Logging.LogError(ex.ToString());
-                }
-            }
-        }
-
-        private void RngLoopTestingFinished(StringBuilder sb)
-        {
-            textBoxFitnessRngTesting.Text = "";
-            textBoxTestsPassedRngTesting.Text = "";
-            progressBarRngTesting.Style = ProgressBarStyle.Blocks;
-            textBoxDescriptionRngTesting.Text = sb.ToString();
-        }
-
-
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -679,7 +391,7 @@ namespace RngGenetics
             var prf = new ActualPrf(123);
             Func<ulong, ulong> function = (ulong x) =>
             {
-                var sha = new SHA256Managed();
+                var sha = SHA256.Create();
                 var bytes = BitConverter.GetBytes(x);
                 var result = sha.ComputeHash(bytes);
                 var answer = BitConverter.ToUInt64(result, 0);
@@ -687,7 +399,7 @@ namespace RngGenetics
             };
 
             //var result = BitHelper.CharacterizeSbox(function);
-            var line = BitHelper.GetLinearity10(x=>prf.F(x), out double a);
+            var line = BitHelper.GetLinearity10(x => prf.F(x), out double a);
             var du = BitHelper.GetDu10(x => prf.F(x), out double b);
             var sb = new StringBuilder();
             sb.AppendLine($"Linearity - {line}");
@@ -695,7 +407,7 @@ namespace RngGenetics
             //sb.AppendLine("Characterization of one-way compression 64-bit sbox");
             //sb.Append(result.ToString());
             MessageBox.Show(sb.ToString());
-            
+
 
 
         }
@@ -796,10 +508,10 @@ namespace RngGenetics
         private byte[] GetSBox(int mask, int rotate, int multiply)
         {
             var result = new byte[256];
-            for (int i=0; i < 256; i++)
+            for (int i = 0; i < 256; i++)
             {
                 var val = mask;
-                for (int j=0; j < 17; j++)
+                for (int j = 0; j < 17; j++)
                 {
                     val ^= i;
                     val = (val << rotate) ^ (val >> (8 - rotate));
@@ -825,9 +537,9 @@ namespace RngGenetics
                 for (int j = 0; j < rounds; j++)
                 {
                     temp = right;
-                    right = left ^ RoundFunction(right, j+1);
+                    right = left ^ RoundFunction(right, j + 1);
                     left = temp;
-                }                
+                }
                 result[i] = (byte)(((left) << 4) | right);
             }
             return result;
@@ -879,15 +591,15 @@ namespace RngGenetics
 
         private void buttonSmallGenerator_Click(object sender, EventArgs e)
         {
-            var generator = new SmallArxaGenerator() { AdditiveConstant = Convert.ToUInt16(numericUpDownAdditiveConstant.Value)};
+            var generator = new SmallArxaGenerator() { AdditiveConstant = Convert.ToUInt16(numericUpDownAdditiveConstant.Value) };
             var sb = new StringBuilder();
             sb.AppendLine($"AdditiveConstant {generator.AdditiveConstant}");
             sb.AppendLine($"Rotate, Xsr, Period,MinimumCount,MaximumCount,AverageCount");
-            for (int rotate = 1; rotate <16; rotate++)
+            for (int rotate = 1; rotate < 16; rotate++)
             {
                 for (int xsr = 1; xsr < 16; xsr++)
                 {
-                    generator.XsrConstant= xsr;
+                    generator.XsrConstant = xsr;
                     generator.RotateConstant = rotate;
                     generator.Reset();
                     long[] frequency = new long[65536];
@@ -896,7 +608,7 @@ namespace RngGenetics
                     {
                         frequency[generator.Next()]++;
                         counter++;
-                    } while ( generator.StateTwo != 0 || generator.StateOne != 0);
+                    } while (generator.StateTwo != 0 || generator.StateOne != 0);
                     long max = frequency.Max();
                     long min = frequency.Min();
                     double average = frequency.Average();
@@ -911,38 +623,79 @@ namespace RngGenetics
                 }
             }
         }
-
-        private ulong state=1;
-
-        public ulong NextRandom()
+        
+        private void buttonFourBitSBoxes_Click(object sender, EventArgs e)
         {
-            state = BitOperations.RotateLeft(state * 4236690171739396961, 11);
-            state ^= state >> 32;
-            return state;
-        }
-
-        public ulong Multiply(ulong x, ulong y)
-        {
-            ulong result = BitOperations.RotateLeft(x * y, 11);
-            result ^= result >> 32;
-            return result;
-        }
-
-        public static ulong Substitute(byte[] sbox, ulong x)
-        {            
-            ulong t = (x >> 56) & 0xFFul;
-            ulong result = sbox[t];            
-            for (int i=1; i < 8; i ++)
+            var sb = new StringBuilder();
+            byte[] sBox = new byte[16];
+            for (int i = 0; i < 16; i++)
             {
-                t = (x >> (i * 8)) & 0xFFul;
-                t ^= result >> ((i - 1) * 8);
-                ulong lookup = sbox[t];
-                result |= lookup << (i * 8);
+                sBox[i] = (byte)i;
             }
-            return result;
+            var rng = new EnderLcg();
+            var generator = new EnderPi.Random.RandomNumberGenerator(rng);
+            generator.SeedRandom();
+            sb.AppendLine("sbox,DU,ave,lin,ave (lower better)");
+            for (int j = 0; j < 1000; j++)
+            {
+                generator.Shuffle(sBox);
+                double averagedu, averagelin;
+                var du = BitHelper.GetDifferentialUniformityFourBit(sBox, out averagedu);
+                var lin = BitHelper.GetLinearityFourBit(sBox, out averagelin);
+                var sb2 = new StringBuilder();
+                for (int i = 0; i < sBox.Length; i++)
+                {
+                    char val = (char)(sBox[i] + (int)'A');
+                    sb2.Append(val);
+                }
+                var sBoxObject = new SboxFourBits() { Sbox = sb2.ToString(), DifferentialUniformity = du, Linearity = lin };
+                using (var context = new EFCoreTestContext())
+                {
+                    context.Add(sBoxObject);
+                    context.SaveChanges();
+                }                
+            }            
         }
 
+        private void buttonGet8BitFeistelStrength_Click(object sender, EventArgs e)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("rounds,DU,ave,lin,ave (lower better)");
+            for (int j = 0; j < 16; j++)
+            {
+                var sBox = BitHelper.Get8BitSBoxFrom4Bit(j);
+                double averagedu, averagelin;
+                var du = BitHelper.GetDifferentialUniformity(sBox, out averagedu);
+                var lin = BitHelper.GetLinearity(sBox, out averagelin);
+                sb.AppendLine($"{j},{du},{averagedu},{lin},{averagelin}");
+            }
+            using (var dlg = new SaveFileDialog())
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    File.WriteAllText(dlg.FileName, sb.ToString());
+                }
+            }
+        }
+        
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControlMain.SelectedIndex == 3)
+            {
+                using (var context = new EFCoreTestContext())
+                {
+                    var bestSBoxes = context.Sboxes.OrderBy(x => x.DifferentialUniformity).ThenBy(y => y.Linearity).Take(10).ToList();
+                    dataGridViewSboxes.Rows.Clear();
+                    dataGridViewSboxes.SuspendLayout();
+                    foreach (var item in bestSBoxes)
+                    {
+                        dataGridViewSboxes.Rows.Add(item.Id, item.Sbox, item.DifferentialUniformity, item.Linearity);
+                    }
+                    dataGridViewSboxes.ResumeLayout();
+                }
+            }
+        }
 
-
+        
     }
 }

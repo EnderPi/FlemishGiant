@@ -41,3 +41,6 @@
 - Make 8099 Program cleaner combine multiplies
 - Store all comptetitors to elite (so, specimens with peak fitness and equal cost), allow inspection.  Need to find a good hash and this is the way.
 - Calculate unique failure modes - when a given test was the only failure mechanism
+- Move one-way compression function from ActualPrf to a new class.
+- Add background task tab to form, start and stop, multiple threads, priority, etc.
+- Extract a control for rng testing checkedlistbox

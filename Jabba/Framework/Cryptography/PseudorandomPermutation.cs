@@ -4,9 +4,9 @@ using System.Numerics;
 namespace EnderPi.Cryptography
 {
     /// <summary>
-    /// If you happen to want a pseudo-random function from U64 to U64.  Probably a fun experiment to show it builds a good avalanching hash in not so many rounds.
+    /// If you happen to want a pseudorandom permutation from U64 to U64.  Uses a feistel network internally.
     /// </summary>
-    public class PseudoRandomFunction
+    public class PseudorandomPermutation
     {
         /// <summary>
         /// Number of rounds the function is run with.  Also used to populate the _keys array.
@@ -21,7 +21,7 @@ namespace EnderPi.Cryptography
         /// <summary>
         /// Basic constructor.  Pulls a random one from the family.  ~10^18 such functions available.
         /// </summary>
-        public PseudoRandomFunction()
+        public PseudorandomPermutation()
         {
             var x = new RandomNumberGenerator(new RandomHash());
             x.SeedRandom();
@@ -35,7 +35,7 @@ namespace EnderPi.Cryptography
         /// <summary>
         /// Basic constructor.  Pulls a specific one from the family.  ~10^18 such functions available.
         /// </summary>
-        public PseudoRandomFunction(ulong y)
+        public PseudorandomPermutation(ulong y)
         {
             EnderLcg lcg = new EnderLcg();
             lcg.Seed(y);
@@ -49,7 +49,7 @@ namespace EnderPi.Cryptography
         /// <summary>
         /// Basic constructor.  Pulls a specific one from the family.  quite a few available.
         /// </summary>
-        public PseudoRandomFunction(uint[] y)
+        public PseudorandomPermutation(uint[] y)
         {
             /* Potentially unsafe if y.Length is not NumRounds.  This should probably be checked for and an error should be thrown.
              * Also, does this need to be a deep copy? */
@@ -61,7 +61,7 @@ namespace EnderPi.Cryptography
         }
 
         /// <summary>
-        /// Random function.
+        /// Random permutation.
         /// </summary>
         /// <returns>A random ulong.</returns>
         public ulong F(ulong x)

@@ -9,13 +9,13 @@ namespace EnderPi.Random.Test
     {
         private static ulong[] _differentialSequence;
 
-        private static PseudoRandomFunction _hash;
+        private static PseudorandomPermutation _hash;
 
         private static object _padlock = new object();
         
         static AvalancheCalculator()
         {
-            _hash = new PseudoRandomFunction(1);            
+            _hash = new PseudorandomPermutation(1);            
             _differentialSequence = new ulong[10000000];
             for (ulong i = 0; i < 10000000; i++)
             {

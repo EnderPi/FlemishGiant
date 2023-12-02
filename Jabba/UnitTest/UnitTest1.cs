@@ -22,7 +22,7 @@ namespace UnitTest
         [Test]
         public void Test1()
         {
-            var sha = new SHA256Managed();
+            var sha = SHA256.Create();
             uint[] keys = new uint[64];
             for (int i=0; i < 64; i++)
             {

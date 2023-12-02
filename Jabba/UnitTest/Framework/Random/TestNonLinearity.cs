@@ -27,7 +27,7 @@ namespace UnitTest.Framework.Random
         [Test]
         public void TestComplex()
         {
-            var prf = new PseudoRandomFunction(0);
+            var prf = new PseudorandomPermutation(0);
             Func<ulong, ulong> func = (ulong a) => prf.F(a);
             var result = NonLinearityTest.NonlinearityEstimate(func, 65536);
             Assert.IsTrue(result.Item1 == 822);

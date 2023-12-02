@@ -9,9 +9,9 @@ namespace EnderPi.Random.Test
         public ulong Seed { set; get; }
         public long MaxFitness { set; get; }
         
-
         public bool TestAsHash { set; get; }
 
+        public List<IIncrementalRandomTest> Tests { set; get; }
         
     }
 }

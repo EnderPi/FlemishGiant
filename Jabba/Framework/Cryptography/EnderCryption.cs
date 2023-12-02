@@ -73,13 +73,7 @@ namespace EnderPi.Cryptography
                 result = BitOperations.RotateLeft(result, 15);
                 result *= 7510373265449412791;
             }
-            return result;
-            /*
-                MOV OP,13651308891623590461;
-                XOR OP,S1;
-                RMU OP,6,7510373265449412791;
-                LOP 2,4;
-             */
+            return result;            
         }
     }
 }

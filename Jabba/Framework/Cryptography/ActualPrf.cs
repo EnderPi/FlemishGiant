@@ -1,11 +1,17 @@
 ﻿using EnderPi.Random;
-using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
 namespace EnderPi.Cryptography
 {
+    /// <summary>
+    /// A pseudo-random function based on a feistel network.
+    /// </summary>
+    /// <remarks>
+    /// This uses a 128-bit state of two ulongs.  To calculate the function, it puts the key in one half of the state
+    /// and the input value in the other half.  It then performs a feistel operation for 32 rounds on the network,
+    /// using a simple round function derived from genetic programming, and returns half of the state.  This is a 
+    /// very strong PRF, essentially using a pseudo-random permutation and discarding half the output.
+    /// </remarks>
     public class ActualPrf
     {
         /// <summary>
@@ -18,6 +24,9 @@ namespace EnderPi.Cryptography
         /// </summary>
         private ulong[] _keys;
 
+        /// <summary>
+        /// The key.  Prf's with different keys are guaranteed to be different.
+        /// </summary>
         private ulong _key;
 
         /// <summary>
@@ -31,6 +40,9 @@ namespace EnderPi.Cryptography
             InitializeKeys();
         }
 
+        /// <summary>
+        /// Initializes the keys of the internal feistel network using a simple pseudo-random number generator.
+        /// </summary>
         private void InitializeKeys()
         {
             EnderLcg lcg = new EnderLcg();
@@ -86,8 +98,14 @@ namespace EnderPi.Cryptography
             return key + x + BitOperations.RotateLeft(x, (int)(x & 63));
         }
 
-
-        public static ulong MyOneWayCOmpressionFunction(ulong x, ulong y)
+        /// <summary>
+        /// Simple one-way compression function.  Every bit of the output depends on every bit of the input,
+        /// and it is difficult to invert.
+        /// </summary>
+        /// <param name="x">One input value</param>
+        /// <param name="y">Other input value.</param>
+        /// <returns>An output value where every bit of the output depends on every bit of the input.</returns>
+        public static ulong MyOneWayCompressionFunction(ulong x, ulong y)
         {
             ulong result = x ^ y;
             ulong[] constants = new ulong[] { 15794028255413092319, 18442280127147387751, 12729309401716732454, 7115307147812511645, 5302139897775218427, 14101262115410449445, 12208502135646234746};            

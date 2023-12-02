@@ -263,10 +263,10 @@ namespace RngGenetics
         private void EvaluateFitness(IGeneticSpecimen specimen, CancellationToken token)
         {
             if (specimen.Fitness != 0) return;
-            var parameters = new RandomTestParameters() { Seed = 1, MaxFitness = MaxFitness, TestAsHash = TestAsHash };
+            var parameters = new RandomTestParameters() { Seed = 1, MaxFitness = MaxFitness, TestAsHash = TestAsHash, Tests = RngTests };
             try
             {                
-                var randomnessTest = new RandomnessTest(RngTests, specimen.GetEngine(), token, parameters);
+                var randomnessTest = new RandomnessTest(specimen.GetEngine(), token, parameters);
                 randomnessTest.Start();
                 specimen.Fitness = randomnessTest.Iterations;
                 specimen.TestsPassed = randomnessTest.TestsPassed;

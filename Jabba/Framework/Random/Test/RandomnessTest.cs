@@ -79,11 +79,11 @@ namespace EnderPi.Random.Test
         }
                
 
-        public RandomnessTest(IEnumerable<IIncrementalRandomTest> tests, IRandomEngine engine, CancellationToken token, RandomTestParameters parameters)
+        public RandomnessTest(IRandomEngine engine, CancellationToken token, RandomTestParameters parameters)
         {
             _seed = parameters.Seed;
             _tests = new List<IIncrementalRandomTest>();
-            foreach (var t in tests)
+            foreach (var t in parameters.Tests)
             {
                 _tests.Add(t.DeepCopy());
             }

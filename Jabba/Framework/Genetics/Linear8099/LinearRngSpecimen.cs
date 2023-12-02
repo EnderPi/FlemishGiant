@@ -82,6 +82,8 @@ namespace EnderPi.Genetics.Linear8099
             {
                 potentialCommmands.Add(new MultiplyRegister(targetRegister, sourceRegister));
                 potentialCommmands.Add(new MultiplyConstant(targetRegister, randomUlong));
+                potentialCommmands.Add(new MultiplyRegisterHigh(targetRegister, sourceRegister));
+                potentialCommmands.Add(new MultiplyConstantHigh(targetRegister, randomUlong));
             }
             if (geneticParameters.AllowDivisionNodes)
             {
