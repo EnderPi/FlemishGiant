@@ -24,5 +24,7 @@ namespace EnderPi.Random.Test
         Monkey = 15,
         DifferentialSecondOrder=16,
         ThirdOrderGorilla=17,
+        MaurerBytewise=18,
+        GapByteTest=19
     }
 }

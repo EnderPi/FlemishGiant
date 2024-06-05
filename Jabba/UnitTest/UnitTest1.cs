@@ -9,6 +9,8 @@ using EnderPi.Genetics.Tree64Rng.Nodes;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Linq;
+using EnderPi.Random;
+using System.Diagnostics;
 
 namespace UnitTest
 {
@@ -24,7 +26,7 @@ namespace UnitTest
         {
             var sha = SHA256.Create();
             uint[] keys = new uint[64];
-            for (int i=0; i < 64; i++)
+            for (int i = 0; i < 64; i++)
             {
                 var hash = sha.ComputeHash(BitConverter.GetBytes(i));
                 keys[i] = BitConverter.ToUInt32(hash);
@@ -32,7 +34,7 @@ namespace UnitTest
             var result = string.Join(',', keys);
             Assert.Pass();
         }
-                        
+
 
         //first 64  64-bit primes with a leading 1.
         //9223372036854775837,9223372036854775907,9223372036854775931,9223372036854775939,9223372036854775963,9223372036854776063,9223372036854776077,9223372036854776167,9223372036854776243,9223372036854776257,9223372036854776261,9223372036854776293,9223372036854776299,9223372036854776351,9223372036854776393,9223372036854776407,9223372036854776561,9223372036854776657,9223372036854776687,9223372036854776693,9223372036854776711,9223372036854776803,9223372036854777017,9223372036854777059,9223372036854777119,9223372036854777181,9223372036854777211,9223372036854777293,9223372036854777341,9223372036854777343,9223372036854777353,9223372036854777359,9223372036854777383,9223372036854777409,9223372036854777433,9223372036854777463,9223372036854777509,9223372036854777517,9223372036854777653,9223372036854777667,9223372036854777721,9223372036854777803,9223372036854777853,9223372036854778027,9223372036854778037,9223372036854778129,9223372036854778171,9223372036854778193,9223372036854778291,9223372036854778307,9223372036854778331,9223372036854778351,9223372036854778421,9223372036854778447,9223372036854778487,9223372036854778637,9223372036854778739,9223372036854778897,9223372036854778973,9223372036854778997,9223372036854779053,9223372036854779081,9223372036854779099,9223372036854779149
@@ -59,7 +61,7 @@ namespace UnitTest
             while (match.Success)
             {
                 sb.Append(expression.Substring(0, match.Index) + match.Value + "UL");
-                expression =  expression.Substring(match.Index + match.Length);
+                expression = expression.Substring(match.Index + match.Length);
                 match = Regex.Match(expression, "\\d+(?!UL)+");
             }
             sb.Append(expression);
@@ -76,22 +78,22 @@ namespace UnitTest
         public void TestRotater()
         {
             ushort[] rotaters = new ushort[ushort.MaxValue + 1];
-            for (int i=0; i <= ushort.MaxValue; i++)
+            for (int i = 0; i <= ushort.MaxValue; i++)
             {
                 ushort z = (ushort)i;
                 rotaters[i] = (ushort)(z ^ (ushort)(z >> 8));
             }
             Array.Sort(rotaters);
             bool failed = false;
-            for (int i=1; i < rotaters.Length; i++)
+            for (int i = 1; i < rotaters.Length; i++)
             {
-                if (rotaters[i-1] == rotaters[i])
+                if (rotaters[i - 1] == rotaters[i])
                 {
                     failed = true;
                 }
             }
             int missing = 0;
-            for (int i=0; i < rotaters.Length; i++)
+            for (int i = 0; i < rotaters.Length; i++)
             {
                 if (!rotaters.Contains((ushort)i))
                 {
@@ -100,6 +102,75 @@ namespace UnitTest
             }
 
             Assert.IsFalse(failed);
+        }
+
+
+
+        [Test]
+        public void TestRegex()
+        {
+            Regex regex = new Regex("AK|AL|AR|AS|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MP|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|PR|RI|SC|SD|TN|TX|UM|UT|VA|VI|VT|WA|WI|WV|WY", RegexOptions.Compiled);
+            var Dict = new HashSet<string>() { "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT", "WA", "WI", "WV", "WY" };
+            string[] states = new string[] { "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT", "WA", "WI", "WV", "WY", "QQ" };
+
+            var rng = new EnderPi.Random.RandomNumberGenerator(new EnderLcg());
+            rng.SeedRandom();
+
+            int size = 10000000;
+            var sw = Stopwatch.StartNew();
+            for (int i=0; i< size; i++)
+            {
+                var sc = states[rng.NextInt(0,states.Length-1)];
+                var isMatch = regex.IsMatch(sc);
+            }
+            sw.Stop();
+            var sw2 = Stopwatch.StartNew();
+            for (int i = 0; i < size; i++)
+            {
+                var sc = states[rng.NextInt(0, states.Length-1)];
+                var isMatch = Dict.Contains(sc);
+            }
+            sw2.Stop();
+            Assert.IsTrue(sw.ElapsedMilliseconds > sw2.ElapsedMilliseconds);
+
+        }
+
+        [Test]
+        public void TestRegexCountry()
+        {
+            var rng = new EnderPi.Random.RandomNumberGenerator(new EnderLcg());
+            rng.SeedRandom();
+            int countryCount = 249;
+            List<string> countrycodes = new List<string>(249);
+            while (countrycodes.Count < countryCount)
+            {
+                var q = rng.GetRandomString(2);
+                if (!countrycodes.Contains(q))
+                {
+                    countrycodes.Add(q);
+                }
+            }
+            Regex regex = new Regex(string.Join('|',countrycodes), RegexOptions.Compiled);
+            var Dict = new HashSet<string>(countrycodes);
+            
+            int size = 10000000;
+            var sw = Stopwatch.StartNew();
+            for (int i = 0; i < size; i++)
+            {
+                var sc = countrycodes[rng.NextInt(0, countrycodes.Count - 1)];
+                var isMatch = regex.IsMatch(sc);
+            }
+            sw.Stop();
+            var sw2 = Stopwatch.StartNew();
+            for (int i = 0; i < size; i++)
+            {
+                var sc = countrycodes[rng.NextInt(0, countrycodes.Count - 1)];
+                var isMatch = Dict.Contains(sc);
+            }
+            
+            sw2.Stop();
+            Assert.IsTrue(sw.ElapsedMilliseconds > sw2.ElapsedMilliseconds);
+
         }
 
     }

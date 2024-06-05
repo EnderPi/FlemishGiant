@@ -133,7 +133,7 @@ namespace RngGenetics
             RandomnessTest simulation = null;
             try
             {
-                simulation = new RandomnessTest(engine, _sourceRngTesting.Token, parameters);
+                simulation = new RandomnessTest(engine, parameters, _sourceRngTesting.Token);
                 if (parameters.TestAsHash)
                 {
                     Invoke(new FormDelegate(() => pictureBoxRngTesting.Image = GeneticHelper.GetImage(new HashWrapper(engine.DeepCopy()), 1)));
@@ -265,7 +265,7 @@ namespace RngGenetics
                     var engine = new LinearRandomFunctionEngine(commands);
                     RandomnessTest simulation = null;
 
-                    simulation = new RandomnessTest(engine, _sourceRngTesting.Token, parameters);
+                    simulation = new RandomnessTest(engine, parameters, _sourceRngTesting.Token);
                     simulation.CheckpointPassed += RngCheckpointPassed;
                     simulation.Start();
                     sb.AppendLine($"Rotate {i}, Fitness {simulation.Iterations}");

@@ -1,0 +1,183 @@
+﻿@page "/genetics"
+
+@using EnderPi.Genetics;
+@using GeneticsMauiApp.Components.Services;
+@inject GeneticProgrammingService gpService
+
+
+<h1>Genetics Settings</h1>
+
+<div>
+    <button id="LoadDefaultSettings" @onclick="ButtonLoadDefaultSettingsClick">Load Default Settings</button>
+    <EditForm Model="gpService">
+        <div>
+            <div class="row">
+                <div class="col-50">
+                    <label for="SpecimenTypeSelector">Type of Simulation</label>
+                </div>
+                <div class="col-50">
+                    <InputSelect id="SpecimenTypeSelector" @bind-Value="@gpService.SpecimenType" TValue=SpecimenType>
+                        @foreach (var specimenType in Enum.GetValues(typeof(SpecimenType)))
+                        {
+                            <option value="@specimenType">@specimenType</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-50">
+                    <label for="SpecimensPerGeneration">Specimens Per Generation</label>
+                </div>
+                <div class="col-50">
+                    <InputNumber id="SpecimensPerGeneration" @bind-Value="@gpService.SpecimensPerGeneration"></InputNumber>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-50">
+                    <label for="ConvergenceAge">Convergence Age (Generations)</label>
+                </div>
+                <div class="col-50">
+                    <InputNumber id="ConvergenceAge" @bind-Value="@gpService.ConvergenceAge"></InputNumber>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-50">
+                    <label for="MutationRate">Mutation Rate (0-1)</label>
+                </div>
+                <div class="col-50">
+                    <InputNumber id="MutationRate" @bind-Value="@gpService.MutationRate"></InputNumber>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-50">
+                    <label for="SpecimensPerTournament">Specimens Per Tournament</label>
+                </div>
+                <div class="col-50">
+                    <InputNumber id="SpecimensPerTournament" @bind-Value="@gpService.SpecimensPerTournament"></InputNumber>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-50">
+                    <label for="Parallelism">Parallelism</label>
+                </div>
+                <div class="col-50">
+                    <InputNumber id="Parallelism" @bind-Value="@gpService.Parallelism"></InputNumber>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-50">
+                    <label for="MaxFitness">Max Fitness</label>
+                </div>
+                <div class="col-50">
+                    <InputNumber id="MaxFitness" @bind-Value="@gpService.MaxFitness"></InputNumber>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-50">
+                    <label for="InitialOperationCount">Initial Operation Count</label>
+                </div>
+                <div class="col-50">
+                    <InputNumber id="InitialOperationCount" @bind-Value="@gpService.InitialOperationCount"></InputNumber>
+                </div>
+            </div>
+            @if (gpService.SpecimenType == SpecimenType.Feistel || gpService.SpecimenType == SpecimenType.Feistel128)
+            {
+                <div class="row">
+                    <div class="col-50">
+                        <label for="FeistelRounds">Feistel Rounds</label>
+                    </div>
+                    <div class="col-50">
+                        <InputNumber id="FeistelRounds" @bind-Value="@gpService.FeistelRounds"></InputNumber>
+                    </div>
+                </div>
+            }
+            <div class="row">
+                <div class="col-50">
+                    <label for="SelectionPressure">Selection Pressure</label>
+                </div>
+                <div class="col-50">
+                    <InputNumber id="SelectionPressure" @bind-Value="@gpService.SelectionPressure"></InputNumber>
+                </div>
+            </div>
+            <hr />
+            <h3>Operations</h3>
+            <div class="row">
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowAddition" id="AllowAddition"></InputCheckbox><label style="padding-left:6px" for="AllowAddition">Addition</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowSubtraction" id="AllowSubtraction"></InputCheckbox><label style="padding-left:6px" for="AllowSubtraction">Subtraction</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowMultiplication" id="AllowMultiplication"></InputCheckbox><label style="padding-left:6px" for="AllowMultiplication">Multiplication</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowDivision" id="AllowDivision"></InputCheckbox><label style="padding-left:6px" for="AllowDivision">Division</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowShiftLeft" id="AllowShiftLeft"></InputCheckbox><label style="padding-left:6px" for="AllowShiftLeft">Shift Left</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowShiftRight" id="AllowShiftRight"></InputCheckbox><label style="padding-left:6px" for="AllowShiftRight">Shift Right</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowRotateLeft" id="AllowRotateLeft"></InputCheckbox><label style="padding-left:6px" for="AllowRotateLeft">Rotate Left</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowRotateRight" id="AllowRotateRight"></InputCheckbox><label style="padding-left:6px" for="AllowRotateRight">Rotate Right</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowAnd" id="AllowAnd"></InputCheckbox><label style="padding-left:6px" for="AllowAnd">AND</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowOr" id="AllowOr"></InputCheckbox><label style="padding-left:6px" for="AllowOr">OR</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowXor" id="AllowXor"></InputCheckbox><label style="padding-left:6px" for="AllowXor">XOR</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowNot" id="AllowNot"></InputCheckbox><label style="padding-left:6px" for="AllowNot">NOT</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowRemainder" id="AllowRemainder"></InputCheckbox><label style="padding-left:6px" for="AllowRemainder">Remainder</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowRotateMultiply" id="AllowRotateMultiply"></InputCheckbox><label style="padding-left:6px" for="AllowRotateMultiply">Rotate-Multiply</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowXorShiftRight" id="AllowXorShiftRight"></InputCheckbox><label style="padding-left:6px" for="AllowXorShiftRight">XOR-Shift Right</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.AllowLoop" id="AllowLoop"></InputCheckbox><label style="padding-left:6px" for="AllowLoop">Loop</label>
+                </div>
+            </div>
+            <hr />
+            <h3>Tests</h3>
+            <div class="row">
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.UseDuplicateTest" id="UseDuplicateTest"></InputCheckbox><label style="padding-left:6px" for="UseDuplicateTest">Duplicate Test</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.UseGcdTest" id="UseGcdTest"></InputCheckbox><label style="padding-left:6px" for="UseGcdTest">GCD Test</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.UseBytePatternTest" id="UseBytePatternTest"></InputCheckbox><label style="padding-left:6px" for="UseBytePatternTest">Byte Pattern Test</label>
+                </div>
+                <div class="col-25">
+                    <InputCheckbox @bind-Value="@gpService.UseBitwisePatternTest" id="UseBitwisePatternTest"></InputCheckbox><label style="padding-left:6px" for="UseBitwisePatternTest">Bitwise Pattern Test</label>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+
+@code {
+
+}

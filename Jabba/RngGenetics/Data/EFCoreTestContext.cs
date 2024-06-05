@@ -13,9 +13,10 @@ namespace RngGenetics.Data
     {
         public DbSet<SboxFourBits> Sboxes { get; set; }
         public DbSet<BackgroundTask> BackgroundTasks { get; set; }
+        public DbSet<EncryptedDate> EncryptedDates { get; set; }
 
         public static readonly Microsoft.Extensions.Logging.LoggerFactory _myLoggerFactory =
-    new LoggerFactory(new[] {
+    new(new[] {
         new Microsoft.Extensions.Logging.Debug.DebugLoggerProvider()
     });
 

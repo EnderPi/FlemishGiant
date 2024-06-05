@@ -9,7 +9,7 @@ namespace EnderPi.Cryptography
     public class EnderCryption
     {       
             
-        public byte[] Encrypt(byte[] input, byte[] key, byte[] nonce)
+        public static byte[] Encrypt(byte[] input, byte[] key, byte[] nonce)
         {
             byte[] output = new byte[input.Length];            
             var hasher = new CryptographicHash();
@@ -41,7 +41,7 @@ namespace EnderPi.Cryptography
             return output;
         }
 
-        private void ScrambleState(ulong[] state, ulong[] keyStream)
+        private static void ScrambleState(ulong[] state, ulong[] keyStream)
         {
             for (int i=0; i < keyStream.Length; i++)
             {
@@ -52,17 +52,14 @@ namespace EnderPi.Cryptography
                 state[3] = temp;
             }            
         }
-
-        ulong C2 = 714650183461164511;
-        ulong C5 = 8118931613321681293;        
-
+                
         /// <summary>
-        /// This is a strong one-way compression function.  Developed by GP, estimated to resiust linear and differential cryptanalysis to 10^18.
+        /// This is a strong one-way compression function.  Developed by GP, estimated to resist linear and differential cryptanalysis to 10^18.
         /// </summary>
         /// <param name="v1"></param>
         /// <param name="v2"></param>
         /// <returns></returns>
-        private ulong RoundFunction(ulong v1, ulong v2)
+        private static ulong RoundFunction(ulong v1, ulong v2)
         {
             //return v2 + BitOperations.RotateLeft(C2 * ((v1 * BitOperations.RotateLeft(C5 * v1, 16)) >> 31), (int)(v1 & 63UL));            
             ulong state = v1 ^ v2;

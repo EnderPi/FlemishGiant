@@ -79,7 +79,7 @@ namespace EnderPi.Random.Test
         }
                
 
-        public RandomnessTest(IRandomEngine engine, CancellationToken token, RandomTestParameters parameters)
+        public RandomnessTest(IRandomEngine engine, RandomTestParameters parameters, CancellationToken token)
         {
             _seed = parameters.Seed;
             _tests = new List<IIncrementalRandomTest>();
@@ -156,7 +156,7 @@ namespace EnderPi.Random.Test
         /// <param name="finalize"></param>
         private void CalculateResults(bool finalize)
         {
-            List<TestResult> testResults = new List<TestResult>();
+            List<TestResult> testResults = new();
             foreach (var test in _tests)
             {
                 test.CalculateResult(finalize);

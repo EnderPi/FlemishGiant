@@ -20,6 +20,8 @@ namespace RngGenetics.Helper
             box.Items.Add(new LinearSerialTest(), false);
             box.Items.Add(new LawOfIteratedLogarithmTest(), false);
             box.Items.Add(new LowerFourBitsTest(), false);
+            box.Items.Add(new MaurerByteTestIncremental(), false);
+            box.Items.Add(new GapByteTest(), false);
             box.Items.Add(new EachBitTest(), false);
             box.Items.Add(new LinearHashTest(), false);
             box.Items.Add(new DifferentialTest(), false);

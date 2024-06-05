@@ -30,7 +30,7 @@
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             menuStripMain = new System.Windows.Forms.MenuStrip();
             fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -115,7 +115,7 @@
             label16 = new System.Windows.Forms.Label();
             label17 = new System.Windows.Forms.Label();
             tabControlMain = new System.Windows.Forms.TabControl();
-            tabPage1 = new System.Windows.Forms.TabPage();
+            tabPageGenetics = new System.Windows.Forms.TabPage();
             checkedListBoxGeneticTests = new System.Windows.Forms.CheckedListBox();
             comboBoxGeneticFeistelType = new System.Windows.Forms.ComboBox();
             label26 = new System.Windows.Forms.Label();
@@ -128,14 +128,9 @@
             numericUpDownSelectionPressure = new System.Windows.Forms.NumericUpDown();
             label23 = new System.Windows.Forms.Label();
             buttonPushToTesting = new System.Windows.Forms.Button();
-            tabPage2 = new System.Windows.Forms.TabPage();
-            tableLayoutPanelLogs = new System.Windows.Forms.TableLayoutPanel();
-            dataGridViewLog = new System.Windows.Forms.DataGridView();
-            ColumnId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            ColumnTimeStamp = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            ColumnMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            buttonRefreshLogs = new System.Windows.Forms.Button();
-            tabPage4 = new System.Windows.Forms.TabPage();
+            tabPageRngTesting = new System.Windows.Forms.TabPage();
+            randomnessTester1 = new RandomnessTester();
+            tabPageSBoxes = new System.Windows.Forms.TabPage();
             dataGridViewSboxes = new System.Windows.Forms.DataGridView();
             ColumnSBoxId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ColumnSBoxValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -146,9 +141,17 @@
             numericUpDownAdditiveConstant = new System.Windows.Forms.NumericUpDown();
             buttonSmallGeneratorPeriod = new System.Windows.Forms.Button();
             buttonAnalyzeDifferentialUniformity = new System.Windows.Forms.Button();
-            tabPage5 = new System.Windows.Forms.TabPage();
-            tabPage6 = new System.Windows.Forms.TabPage();
-            randomnessTesterPanel = new RandomnessTester();
+            tabPageLogging = new System.Windows.Forms.TabPage();
+            tableLayoutPanelLogs = new System.Windows.Forms.TableLayoutPanel();
+            dataGridViewLog = new System.Windows.Forms.DataGridView();
+            ColumnId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ColumnTimeStamp = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ColumnMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            buttonRefreshLogs = new System.Windows.Forms.Button();
+            tabPageTaskView = new System.Windows.Forms.TabPage();
+            tabPageGeneticPanel = new System.Windows.Forms.TabPage();
+            geneticSimulationPanel1 = new GeneticSimulationPanel();
+            buttondobBug = new System.Windows.Forms.Button();
             menuStripMain.SuspendLayout();
             statusStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
@@ -161,17 +164,18 @@
             ((System.ComponentModel.ISupportInitialize)numericUpDownThreads).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownMaxFitness).BeginInit();
             tabControlMain.SuspendLayout();
-            tabPage1.SuspendLayout();
+            tabPageGenetics.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDownGeneticFeistelRounds).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownInitialAdds).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownSelectionPressure).BeginInit();
-            tabPage2.SuspendLayout();
-            tableLayoutPanelLogs.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dataGridViewLog).BeginInit();
-            tabPage4.SuspendLayout();
+            tabPageRngTesting.SuspendLayout();
+            tabPageSBoxes.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewSboxes).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownAdditiveConstant).BeginInit();
-            tabPage6.SuspendLayout();
+            tabPageLogging.SuspendLayout();
+            tableLayoutPanelLogs.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewLog).BeginInit();
+            tabPageGeneticPanel.SuspendLayout();
             SuspendLayout();
             // 
             // menuStripMain
@@ -499,7 +503,6 @@
             buttonRunSimulation.TabIndex = 3;
             buttonRunSimulation.Text = "Go!";
             buttonRunSimulation.UseVisualStyleBackColor = true;
-            buttonRunSimulation.Click += buttonRunSimulation_Click;
             // 
             // pictureBoxMain
             // 
@@ -617,7 +620,6 @@
             buttonStop.TabIndex = 18;
             buttonStop.Text = "Stop!";
             buttonStop.UseVisualStyleBackColor = true;
-            buttonStop.Click += buttonStop_Click;
             // 
             // label7
             // 
@@ -640,14 +642,14 @@
             // 
             dataGridViewAverageFitness.AllowUserToAddRows = false;
             dataGridViewAverageFitness.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F);
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            dataGridViewAverageFitness.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            dataGridViewAverageFitness.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             dataGridViewAverageFitness.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewAverageFitness.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { ColumnGeneration, ColumnAverageFitness });
             dataGridViewAverageFitness.Location = new System.Drawing.Point(976, 45);
@@ -707,7 +709,6 @@
             // timerUpdateUI
             // 
             timerUpdateUI.Interval = 1000;
-            timerUpdateUI.Tick += timerUpdateUI_Tick;
             // 
             // label10
             // 
@@ -746,7 +747,6 @@
             // timerUpdateVisual
             // 
             timerUpdateVisual.Interval = 4000;
-            timerUpdateVisual.Tick += timerUpdateVisual_Tick;
             // 
             // label12
             // 
@@ -826,7 +826,6 @@
             comboBoxGeneticType.Name = "comboBoxGeneticType";
             comboBoxGeneticType.Size = new System.Drawing.Size(225, 23);
             comboBoxGeneticType.TabIndex = 40;
-            comboBoxGeneticType.SelectedIndexChanged += comboBoxGeneticType_SelectedIndexChanged;
             // 
             // label16
             // 
@@ -848,76 +847,76 @@
             // 
             // tabControlMain
             // 
-            tabControlMain.Controls.Add(tabPage1);
-            tabControlMain.Controls.Add(tabPage2);
-            tabControlMain.Controls.Add(tabPage4);
-            tabControlMain.Controls.Add(tabPage5);
-            tabControlMain.Controls.Add(tabPage6);
+            tabControlMain.Controls.Add(tabPageGenetics);
+            tabControlMain.Controls.Add(tabPageRngTesting);
+            tabControlMain.Controls.Add(tabPageSBoxes);
+            tabControlMain.Controls.Add(tabPageLogging);
+            tabControlMain.Controls.Add(tabPageTaskView);
+            tabControlMain.Controls.Add(tabPageGeneticPanel);
             tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             tabControlMain.Location = new System.Drawing.Point(0, 49);
             tabControlMain.Name = "tabControlMain";
             tabControlMain.SelectedIndex = 0;
             tabControlMain.Size = new System.Drawing.Size(1264, 610);
             tabControlMain.TabIndex = 43;
-            tabControlMain.SelectedIndexChanged += tabControl1_SelectedIndexChanged;
-            tabControlMain.Selected += tabControl1_Selected;
+            tabControlMain.SelectedIndexChanged += tabControlMain_SelectedIndexChanged;
             // 
-            // tabPage1
+            // tabPageGenetics
             // 
-            tabPage1.Controls.Add(checkedListBoxGeneticTests);
-            tabPage1.Controls.Add(comboBoxGeneticFeistelType);
-            tabPage1.Controls.Add(label26);
-            tabPage1.Controls.Add(numericUpDownGeneticFeistelRounds);
-            tabPage1.Controls.Add(label2);
-            tabPage1.Controls.Add(numericUpDownInitialAdds);
-            tabPage1.Controls.Add(checkBoxTestAsHash);
-            tabPage1.Controls.Add(checkedListBoxOperations);
-            tabPage1.Controls.Add(textBoxFailures);
-            tabPage1.Controls.Add(numericUpDownSelectionPressure);
-            tabPage1.Controls.Add(label23);
-            tabPage1.Controls.Add(buttonPushToTesting);
-            tabPage1.Controls.Add(label15);
-            tabPage1.Controls.Add(label17);
-            tabPage1.Controls.Add(buttonRunSimulation);
-            tabPage1.Controls.Add(label16);
-            tabPage1.Controls.Add(pictureBoxMain);
-            tabPage1.Controls.Add(comboBoxGeneticType);
-            tabPage1.Controls.Add(textBoxBestDescription);
-            tabPage1.Controls.Add(label1);
-            tabPage1.Controls.Add(textBoxStateOneFunction);
-            tabPage1.Controls.Add(label3);
-            tabPage1.Controls.Add(label14);
-            tabPage1.Controls.Add(numericUpDownSpecimensPerGeneration);
-            tabPage1.Controls.Add(numericUpDownMaxFitness);
-            tabPage1.Controls.Add(label4);
-            tabPage1.Controls.Add(textBoxTestsPassed);
-            tabPage1.Controls.Add(numericUpDownConvergenceAge);
-            tabPage1.Controls.Add(label13);
-            tabPage1.Controls.Add(label5);
-            tabPage1.Controls.Add(textBoxOperations);
-            tabPage1.Controls.Add(numericUpDownMutationRate);
-            tabPage1.Controls.Add(label12);
-            tabPage1.Controls.Add(label6);
-            tabPage1.Controls.Add(textBoxCurrentGeneration);
-            tabPage1.Controls.Add(numericUpDownSpecimensPerTournament);
-            tabPage1.Controls.Add(label11);
-            tabPage1.Controls.Add(buttonStop);
-            tabPage1.Controls.Add(textBoxSpecimensEvaluated);
-            tabPage1.Controls.Add(textBoxGeneration);
-            tabPage1.Controls.Add(label10);
-            tabPage1.Controls.Add(label7);
-            tabPage1.Controls.Add(textBoxFitness);
-            tabPage1.Controls.Add(dataGridViewAverageFitness);
-            tabPage1.Controls.Add(label9);
-            tabPage1.Controls.Add(label8);
-            tabPage1.Controls.Add(numericUpDownThreads);
-            tabPage1.Location = new System.Drawing.Point(4, 24);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            tabPage1.Size = new System.Drawing.Size(1256, 582);
-            tabPage1.TabIndex = 0;
-            tabPage1.Text = "RNG Genetics";
-            tabPage1.UseVisualStyleBackColor = true;
+            tabPageGenetics.Controls.Add(checkedListBoxGeneticTests);
+            tabPageGenetics.Controls.Add(comboBoxGeneticFeistelType);
+            tabPageGenetics.Controls.Add(label26);
+            tabPageGenetics.Controls.Add(numericUpDownGeneticFeistelRounds);
+            tabPageGenetics.Controls.Add(label2);
+            tabPageGenetics.Controls.Add(numericUpDownInitialAdds);
+            tabPageGenetics.Controls.Add(checkBoxTestAsHash);
+            tabPageGenetics.Controls.Add(checkedListBoxOperations);
+            tabPageGenetics.Controls.Add(textBoxFailures);
+            tabPageGenetics.Controls.Add(numericUpDownSelectionPressure);
+            tabPageGenetics.Controls.Add(label23);
+            tabPageGenetics.Controls.Add(buttonPushToTesting);
+            tabPageGenetics.Controls.Add(label15);
+            tabPageGenetics.Controls.Add(label17);
+            tabPageGenetics.Controls.Add(buttonRunSimulation);
+            tabPageGenetics.Controls.Add(label16);
+            tabPageGenetics.Controls.Add(pictureBoxMain);
+            tabPageGenetics.Controls.Add(comboBoxGeneticType);
+            tabPageGenetics.Controls.Add(textBoxBestDescription);
+            tabPageGenetics.Controls.Add(label1);
+            tabPageGenetics.Controls.Add(textBoxStateOneFunction);
+            tabPageGenetics.Controls.Add(label3);
+            tabPageGenetics.Controls.Add(label14);
+            tabPageGenetics.Controls.Add(numericUpDownSpecimensPerGeneration);
+            tabPageGenetics.Controls.Add(numericUpDownMaxFitness);
+            tabPageGenetics.Controls.Add(label4);
+            tabPageGenetics.Controls.Add(textBoxTestsPassed);
+            tabPageGenetics.Controls.Add(numericUpDownConvergenceAge);
+            tabPageGenetics.Controls.Add(label13);
+            tabPageGenetics.Controls.Add(label5);
+            tabPageGenetics.Controls.Add(textBoxOperations);
+            tabPageGenetics.Controls.Add(numericUpDownMutationRate);
+            tabPageGenetics.Controls.Add(label12);
+            tabPageGenetics.Controls.Add(label6);
+            tabPageGenetics.Controls.Add(textBoxCurrentGeneration);
+            tabPageGenetics.Controls.Add(numericUpDownSpecimensPerTournament);
+            tabPageGenetics.Controls.Add(label11);
+            tabPageGenetics.Controls.Add(buttonStop);
+            tabPageGenetics.Controls.Add(textBoxSpecimensEvaluated);
+            tabPageGenetics.Controls.Add(textBoxGeneration);
+            tabPageGenetics.Controls.Add(label10);
+            tabPageGenetics.Controls.Add(label7);
+            tabPageGenetics.Controls.Add(textBoxFitness);
+            tabPageGenetics.Controls.Add(dataGridViewAverageFitness);
+            tabPageGenetics.Controls.Add(label9);
+            tabPageGenetics.Controls.Add(label8);
+            tabPageGenetics.Controls.Add(numericUpDownThreads);
+            tabPageGenetics.Location = new System.Drawing.Point(4, 24);
+            tabPageGenetics.Name = "tabPageGenetics";
+            tabPageGenetics.Padding = new System.Windows.Forms.Padding(3);
+            tabPageGenetics.Size = new System.Drawing.Size(1256, 582);
+            tabPageGenetics.TabIndex = 0;
+            tabPageGenetics.Text = "RNG Genetics";
+            tabPageGenetics.UseVisualStyleBackColor = true;
             // 
             // checkedListBoxGeneticTests
             // 
@@ -1031,91 +1030,40 @@
             buttonPushToTesting.Text = "Push to Testing";
             buttonPushToTesting.UseVisualStyleBackColor = true;
             // 
-            // tabPage2
+            // tabPageRngTesting
             // 
-            tabPage2.Controls.Add(tableLayoutPanelLogs);
-            tabPage2.Location = new System.Drawing.Point(4, 24);
-            tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            tabPage2.Size = new System.Drawing.Size(1256, 582);
-            tabPage2.TabIndex = 1;
-            tabPage2.Text = "Logging";
-            tabPage2.UseVisualStyleBackColor = true;
+            tabPageRngTesting.Controls.Add(randomnessTester1);
+            tabPageRngTesting.Location = new System.Drawing.Point(4, 24);
+            tabPageRngTesting.Name = "tabPageRngTesting";
+            tabPageRngTesting.Padding = new System.Windows.Forms.Padding(3);
+            tabPageRngTesting.Size = new System.Drawing.Size(1256, 582);
+            tabPageRngTesting.TabIndex = 5;
+            tabPageRngTesting.Text = "RNG Testing Panel";
+            tabPageRngTesting.UseVisualStyleBackColor = true;
             // 
-            // tableLayoutPanelLogs
+            // randomnessTester1
             // 
-            tableLayoutPanelLogs.ColumnCount = 1;
-            tableLayoutPanelLogs.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            tableLayoutPanelLogs.Controls.Add(dataGridViewLog, 0, 1);
-            tableLayoutPanelLogs.Controls.Add(buttonRefreshLogs, 0, 0);
-            tableLayoutPanelLogs.Dock = System.Windows.Forms.DockStyle.Fill;
-            tableLayoutPanelLogs.Location = new System.Drawing.Point(3, 3);
-            tableLayoutPanelLogs.Name = "tableLayoutPanelLogs";
-            tableLayoutPanelLogs.RowCount = 2;
-            tableLayoutPanelLogs.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            tableLayoutPanelLogs.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            tableLayoutPanelLogs.Size = new System.Drawing.Size(1250, 576);
-            tableLayoutPanelLogs.TabIndex = 1;
+            randomnessTester1.Dock = System.Windows.Forms.DockStyle.Fill;
+            randomnessTester1.Location = new System.Drawing.Point(3, 3);
+            randomnessTester1.Name = "randomnessTester1";
+            randomnessTester1.Size = new System.Drawing.Size(1250, 576);
+            randomnessTester1.TabIndex = 0;
             // 
-            // dataGridViewLog
+            // tabPageSBoxes
             // 
-            dataGridViewLog.AllowUserToAddRows = false;
-            dataGridViewLog.AllowUserToDeleteRows = false;
-            dataGridViewLog.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewLog.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { ColumnId, ColumnTimeStamp, ColumnMessage });
-            dataGridViewLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            dataGridViewLog.Location = new System.Drawing.Point(3, 32);
-            dataGridViewLog.Name = "dataGridViewLog";
-            dataGridViewLog.ReadOnly = true;
-            dataGridViewLog.RowHeadersVisible = false;
-            dataGridViewLog.Size = new System.Drawing.Size(1244, 541);
-            dataGridViewLog.TabIndex = 0;
-            // 
-            // ColumnId
-            // 
-            ColumnId.HeaderText = "Id";
-            ColumnId.Name = "ColumnId";
-            ColumnId.ReadOnly = true;
-            ColumnId.Width = 42;
-            // 
-            // ColumnTimeStamp
-            // 
-            ColumnTimeStamp.HeaderText = "Timestamp";
-            ColumnTimeStamp.Name = "ColumnTimeStamp";
-            ColumnTimeStamp.ReadOnly = true;
-            ColumnTimeStamp.Width = 91;
-            // 
-            // ColumnMessage
-            // 
-            ColumnMessage.HeaderText = "Message";
-            ColumnMessage.Name = "ColumnMessage";
-            ColumnMessage.ReadOnly = true;
-            ColumnMessage.Width = 1000;
-            // 
-            // buttonRefreshLogs
-            // 
-            buttonRefreshLogs.Location = new System.Drawing.Point(3, 3);
-            buttonRefreshLogs.Name = "buttonRefreshLogs";
-            buttonRefreshLogs.Size = new System.Drawing.Size(75, 23);
-            buttonRefreshLogs.TabIndex = 1;
-            buttonRefreshLogs.Text = "Refresh";
-            buttonRefreshLogs.UseVisualStyleBackColor = true;
-            buttonRefreshLogs.Click += buttonRefreshLogs_Click;
-            // 
-            // tabPage4
-            // 
-            tabPage4.Controls.Add(dataGridViewSboxes);
-            tabPage4.Controls.Add(buttonGet8BitFeistelStrength);
-            tabPage4.Controls.Add(buttonFourBitSBoxes);
-            tabPage4.Controls.Add(numericUpDownAdditiveConstant);
-            tabPage4.Controls.Add(buttonSmallGeneratorPeriod);
-            tabPage4.Controls.Add(buttonAnalyzeDifferentialUniformity);
-            tabPage4.Location = new System.Drawing.Point(4, 24);
-            tabPage4.Name = "tabPage4";
-            tabPage4.Size = new System.Drawing.Size(1256, 582);
-            tabPage4.TabIndex = 3;
-            tabPage4.Text = "S-Boxes";
-            tabPage4.UseVisualStyleBackColor = true;
+            tabPageSBoxes.Controls.Add(buttondobBug);
+            tabPageSBoxes.Controls.Add(dataGridViewSboxes);
+            tabPageSBoxes.Controls.Add(buttonGet8BitFeistelStrength);
+            tabPageSBoxes.Controls.Add(buttonFourBitSBoxes);
+            tabPageSBoxes.Controls.Add(numericUpDownAdditiveConstant);
+            tabPageSBoxes.Controls.Add(buttonSmallGeneratorPeriod);
+            tabPageSBoxes.Controls.Add(buttonAnalyzeDifferentialUniformity);
+            tabPageSBoxes.Location = new System.Drawing.Point(4, 24);
+            tabPageSBoxes.Name = "tabPageSBoxes";
+            tabPageSBoxes.Size = new System.Drawing.Size(1256, 582);
+            tabPageSBoxes.TabIndex = 3;
+            tabPageSBoxes.Text = "S-Boxes";
+            tabPageSBoxes.UseVisualStyleBackColor = true;
             // 
             // dataGridViewSboxes
             // 
@@ -1196,34 +1144,114 @@
             buttonAnalyzeDifferentialUniformity.UseVisualStyleBackColor = true;
             buttonAnalyzeDifferentialUniformity.Click += button2_Click;
             // 
-            // tabPage5
+            // tabPageLogging
             // 
-            tabPage5.Location = new System.Drawing.Point(4, 24);
-            tabPage5.Name = "tabPage5";
-            tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            tabPage5.Size = new System.Drawing.Size(1256, 582);
-            tabPage5.TabIndex = 4;
-            tabPage5.Text = "Task View";
-            tabPage5.UseVisualStyleBackColor = true;
+            tabPageLogging.Controls.Add(tableLayoutPanelLogs);
+            tabPageLogging.Location = new System.Drawing.Point(4, 24);
+            tabPageLogging.Name = "tabPageLogging";
+            tabPageLogging.Padding = new System.Windows.Forms.Padding(3);
+            tabPageLogging.Size = new System.Drawing.Size(1256, 582);
+            tabPageLogging.TabIndex = 1;
+            tabPageLogging.Text = "Logging";
+            tabPageLogging.UseVisualStyleBackColor = true;
             // 
-            // tabPage6
+            // tableLayoutPanelLogs
             // 
-            tabPage6.Controls.Add(randomnessTesterPanel);
-            tabPage6.Location = new System.Drawing.Point(4, 24);
-            tabPage6.Name = "tabPage6";
-            tabPage6.Padding = new System.Windows.Forms.Padding(3);
-            tabPage6.Size = new System.Drawing.Size(1256, 582);
-            tabPage6.TabIndex = 5;
-            tabPage6.Text = "RNG Testing Panel";
-            tabPage6.UseVisualStyleBackColor = true;
+            tableLayoutPanelLogs.ColumnCount = 1;
+            tableLayoutPanelLogs.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            tableLayoutPanelLogs.Controls.Add(dataGridViewLog, 0, 1);
+            tableLayoutPanelLogs.Controls.Add(buttonRefreshLogs, 0, 0);
+            tableLayoutPanelLogs.Dock = System.Windows.Forms.DockStyle.Fill;
+            tableLayoutPanelLogs.Location = new System.Drawing.Point(3, 3);
+            tableLayoutPanelLogs.Name = "tableLayoutPanelLogs";
+            tableLayoutPanelLogs.RowCount = 2;
+            tableLayoutPanelLogs.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            tableLayoutPanelLogs.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            tableLayoutPanelLogs.Size = new System.Drawing.Size(1250, 576);
+            tableLayoutPanelLogs.TabIndex = 1;
             // 
-            // randomnessTesterPanel
+            // dataGridViewLog
             // 
-            randomnessTesterPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            randomnessTesterPanel.Location = new System.Drawing.Point(3, 3);
-            randomnessTesterPanel.Name = "randomnessTesterPanel";
-            randomnessTesterPanel.Size = new System.Drawing.Size(1250, 576);
-            randomnessTesterPanel.TabIndex = 0;
+            dataGridViewLog.AllowUserToAddRows = false;
+            dataGridViewLog.AllowUserToDeleteRows = false;
+            dataGridViewLog.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewLog.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { ColumnId, ColumnTimeStamp, ColumnMessage });
+            dataGridViewLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            dataGridViewLog.Location = new System.Drawing.Point(3, 32);
+            dataGridViewLog.Name = "dataGridViewLog";
+            dataGridViewLog.ReadOnly = true;
+            dataGridViewLog.RowHeadersVisible = false;
+            dataGridViewLog.Size = new System.Drawing.Size(1244, 541);
+            dataGridViewLog.TabIndex = 0;
+            // 
+            // ColumnId
+            // 
+            ColumnId.HeaderText = "Id";
+            ColumnId.Name = "ColumnId";
+            ColumnId.ReadOnly = true;
+            ColumnId.Width = 42;
+            // 
+            // ColumnTimeStamp
+            // 
+            ColumnTimeStamp.HeaderText = "Timestamp";
+            ColumnTimeStamp.Name = "ColumnTimeStamp";
+            ColumnTimeStamp.ReadOnly = true;
+            ColumnTimeStamp.Width = 91;
+            // 
+            // ColumnMessage
+            // 
+            ColumnMessage.HeaderText = "Message";
+            ColumnMessage.Name = "ColumnMessage";
+            ColumnMessage.ReadOnly = true;
+            ColumnMessage.Width = 1000;
+            // 
+            // buttonRefreshLogs
+            // 
+            buttonRefreshLogs.Location = new System.Drawing.Point(3, 3);
+            buttonRefreshLogs.Name = "buttonRefreshLogs";
+            buttonRefreshLogs.Size = new System.Drawing.Size(75, 23);
+            buttonRefreshLogs.TabIndex = 1;
+            buttonRefreshLogs.Text = "Refresh";
+            buttonRefreshLogs.UseVisualStyleBackColor = true;
+            buttonRefreshLogs.Click += buttonRefreshLogs_Click;
+            // 
+            // tabPageTaskView
+            // 
+            tabPageTaskView.Location = new System.Drawing.Point(4, 24);
+            tabPageTaskView.Name = "tabPageTaskView";
+            tabPageTaskView.Padding = new System.Windows.Forms.Padding(3);
+            tabPageTaskView.Size = new System.Drawing.Size(1256, 582);
+            tabPageTaskView.TabIndex = 4;
+            tabPageTaskView.Text = "Task View";
+            tabPageTaskView.UseVisualStyleBackColor = true;
+            // 
+            // tabPageGeneticPanel
+            // 
+            tabPageGeneticPanel.Controls.Add(geneticSimulationPanel1);
+            tabPageGeneticPanel.Location = new System.Drawing.Point(4, 24);
+            tabPageGeneticPanel.Name = "tabPageGeneticPanel";
+            tabPageGeneticPanel.Size = new System.Drawing.Size(1256, 582);
+            tabPageGeneticPanel.TabIndex = 6;
+            tabPageGeneticPanel.Text = "Genetic Panel";
+            tabPageGeneticPanel.UseVisualStyleBackColor = true;
+            // 
+            // geneticSimulationPanel1
+            // 
+            geneticSimulationPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            geneticSimulationPanel1.Location = new System.Drawing.Point(0, 0);
+            geneticSimulationPanel1.Name = "geneticSimulationPanel1";
+            geneticSimulationPanel1.Size = new System.Drawing.Size(1256, 582);
+            geneticSimulationPanel1.TabIndex = 0;
+            // 
+            // buttondobBug
+            // 
+            buttondobBug.Location = new System.Drawing.Point(951, 283);
+            buttondobBug.Name = "buttondobBug";
+            buttondobBug.Size = new System.Drawing.Size(75, 23);
+            buttondobBug.TabIndex = 6;
+            buttondobBug.Text = "dob bug";
+            buttondobBug.UseVisualStyleBackColor = true;
+            buttondobBug.Click += buttondobBug_Click;
             // 
             // MainForm
             // 
@@ -1253,18 +1281,19 @@
             ((System.ComponentModel.ISupportInitialize)numericUpDownThreads).EndInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownMaxFitness).EndInit();
             tabControlMain.ResumeLayout(false);
-            tabPage1.ResumeLayout(false);
-            tabPage1.PerformLayout();
+            tabPageGenetics.ResumeLayout(false);
+            tabPageGenetics.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDownGeneticFeistelRounds).EndInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownInitialAdds).EndInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownSelectionPressure).EndInit();
-            tabPage2.ResumeLayout(false);
-            tableLayoutPanelLogs.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dataGridViewLog).EndInit();
-            tabPage4.ResumeLayout(false);
+            tabPageRngTesting.ResumeLayout(false);
+            tabPageSBoxes.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridViewSboxes).EndInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownAdditiveConstant).EndInit();
-            tabPage6.ResumeLayout(false);
+            tabPageLogging.ResumeLayout(false);
+            tableLayoutPanelLogs.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridViewLog).EndInit();
+            tabPageGeneticPanel.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1355,8 +1384,8 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.TabControl tabControlMain;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabPageGenetics;
+        private System.Windows.Forms.TabPage tabPageLogging;
         private System.Windows.Forms.DataGridView dataGridViewLog;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnId;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnTimeStamp;
@@ -1375,7 +1404,7 @@
         private System.Windows.Forms.NumericUpDown numericUpDownGeneticFeistelRounds;
         private System.Windows.Forms.ComboBox comboBoxGeneticFeistelType;
         private System.Windows.Forms.CheckedListBox checkedListBoxGeneticTests;
-        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.TabPage tabPageSBoxes;
         private System.Windows.Forms.Button buttonAnalyzeDifferentialUniformity;
         private System.Windows.Forms.Button buttonSmallGeneratorPeriod;
         private System.Windows.Forms.NumericUpDown numericUpDownAdditiveConstant;
@@ -1386,9 +1415,12 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnSBoxValue;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnSBoxDU;
         private System.Windows.Forms.DataGridViewTextBoxColumn SBoxLinearity;
-        private System.Windows.Forms.TabPage tabPage5;
-        private System.Windows.Forms.TabPage tabPage6;
-        private RandomnessTester randomnessTesterPanel;
+        private System.Windows.Forms.TabPage tabPageTaskView;
+        private System.Windows.Forms.TabPage tabPageRngTesting;
+        private System.Windows.Forms.TabPage tabPageGeneticPanel;
+        private RandomnessTester randomnessTester1;
+        private GeneticSimulationPanel geneticSimulationPanel1;
+        private System.Windows.Forms.Button buttondobBug;
     }
 }
 

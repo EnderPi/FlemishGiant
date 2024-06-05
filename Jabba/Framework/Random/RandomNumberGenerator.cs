@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace EnderPi.Random
 {
@@ -217,6 +218,19 @@ namespace EnderPi.Random
             int leftShift = NextInt(0, 63);
             ulong mask = 1UL << leftShift;
             return x ^ mask;
-        }                
+        }           
+        
+        public string GetRandomString(int length)
+        {
+            var sb = new StringBuilder();
+            for (int i=0; i < length; i++)
+            {
+                sb.Append(_alphabet[NextInt(0, _alphabet.Length-1)]);
+            }
+            return sb.ToString();
+        }
+
+        private string _alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
     }
 }
