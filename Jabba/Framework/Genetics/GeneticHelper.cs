@@ -12,7 +12,7 @@ namespace EnderPi.Genetics
     /// <summary>
     /// Some simple static helper methods, like rotater
     /// </summary>
-    public static class GeneticHelper
+    public static partial class GeneticHelper
     {
         /// <summary>
         /// Bitwise rotation, but takes the low bits of the rotation constant.  Useful in genetic algorithms.
@@ -78,7 +78,7 @@ namespace EnderPi.Genetics
         /// <returns></returns>
         public static Bitmap GetImage(IRandomEngine engine, int seed, int randomsToPlot = 4096)
         {
-            Bitmap bitmap = new Bitmap(256, 256);
+            Bitmap bitmap = new(256, 256);
             for (int i = 0; i < 256; i++)
             {
                 for (int j = 0; j < 256; j++)
@@ -113,17 +113,22 @@ namespace EnderPi.Genetics
 
         public static string Sanitize(string expression)
         {
-            var match = Regex.Match(expression, "\\d+");
+            var match = MatchDigitsRegex().Match(expression);
             var sb = new StringBuilder();
             while (match.Success)
             {
                 sb.Append(expression.Substring(0, match.Index) + match.Value + "UL");
                 expression = expression.Substring(match.Index + match.Length);
-                match = Regex.Match(expression, "\\d+(?!UL)+");
+                match = MatchDigitsWithoutULRegex().Match(expression);
             }
             sb.Append(expression);
             return sb.ToString();
         }
-        
+
+        [GeneratedRegex("\\d+")]
+        private static partial Regex MatchDigitsRegex();
+
+        [GeneratedRegex("\\d+(?!UL)+")]
+        private static partial Regex MatchDigitsWithoutULRegex();
     }
 }

@@ -3,7 +3,7 @@
 namespace EnderPi.Genetics.Linear8099.Commands
 {
     /// <summary>
-    /// Adds a constant to the given register.
+    /// Adds a constant to the given register.  Like ADD AX, 345;
     /// </summary>
     [Serializable]
     public class AddConstant : BinaryRegisterConstantCommand

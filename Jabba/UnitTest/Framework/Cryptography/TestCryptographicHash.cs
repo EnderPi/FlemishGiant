@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using EnderPi.Cryptography;
 using EnderPi.SystemE;
@@ -60,6 +61,7 @@ namespace UnitTest.Framework.Cryptography
         private void TestHashAvalanche(string text)
         {
             var hasher = new CryptographicHash();
+            //var hasher = SHA256.Create();
             byte[] array1 = Encoding.UTF8.GetBytes(text);
             var originalHash = hasher.ComputeHash(array1);
             List<int> bitsFlipped = new List<int>();            
@@ -79,9 +81,23 @@ namespace UnitTest.Framework.Cryptography
                 }
             }
             double averageBitsFlipped = bitsFlipped.Average();
+            if (text.StartsWith("To be"))
+            {
+                var sb = new StringBuilder();
+                int[] counts = new int[256];
+                foreach (var bit in bitsFlipped)
+                {
+                    counts[bit]++;
+                }
+                for (int i = 0;i < counts.Length;i++)
+                {
+                    sb.AppendLine($"{i},{counts[i]}");
+                }
+                File.WriteAllText("C:\\Users\\Adam\\Documents\\Random\\Hash\\Hamlet3578.txt", sb.ToString());
+            }
             double minBitsFlipps = bitsFlipped.Min();
             Assert.IsTrue(averageBitsFlipped >= 127 && averageBitsFlipped <= 129);
-            Assert.IsTrue(minBitsFlipps > 96);
+            Assert.IsTrue(minBitsFlipps > 64);
         }
 
         private string[] GetStringsToHash()

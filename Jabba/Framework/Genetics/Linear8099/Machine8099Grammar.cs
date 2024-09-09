@@ -24,5 +24,6 @@ namespace EnderPi.Genetics.Linear8099
         public const string XorShiftRight = "XSR";
         public const string RotateMultiply = "RMU";
         public const string Loop = "LOP";
+        public const string MultiplyHigh = "MULX";
     }
 }

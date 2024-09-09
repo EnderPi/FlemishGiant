@@ -1,6 +1,8 @@
 ﻿using EnderPi.SystemE;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace EnderPi.Random
 {
@@ -169,7 +171,22 @@ namespace EnderPi.Random
                 list[i] = list[j];
                 list[j] = temp;
             }
-        }        
+        }
+
+        public void Shuffle(BitArray list)
+        {
+            //To shuffle an array a of n elements(indices 0..n - 1):
+            //for i from n−1 downto 1 do
+            //        j ← random integer such that 0 ≤ j ≤ i
+            //        exchange a[j] and a[i]
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = NextInt(0, i);
+                bool temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
+            }
+        }
 
         /// <summary>
         /// Returns a random element from the given list.  Throws if the list is null or empty.
@@ -201,6 +218,19 @@ namespace EnderPi.Random
             int leftShift = NextInt(0, 63);
             ulong mask = 1UL << leftShift;
             return x ^ mask;
-        }                
+        }           
+        
+        public string GetRandomString(int length)
+        {
+            var sb = new StringBuilder();
+            for (int i=0; i < length; i++)
+            {
+                sb.Append(_alphabet[NextInt(0, _alphabet.Length-1)]);
+            }
+            return sb.ToString();
+        }
+
+        private string _alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
     }
 }

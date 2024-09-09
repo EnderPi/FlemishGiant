@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Numerics;
 using System.Linq;
+using EnderPi.Genetics.Tree32Rng;
+using System.Collections.Generic;
+using System.Text;
+using System.Runtime.CompilerServices;
+using EnderPi.Random;
 
 namespace EnderPi.SystemE
 {
@@ -9,7 +14,14 @@ namespace EnderPi.SystemE
     /// </summary>
     public static class BitHelper
     {
+        private static ulong[] _sBoxInputs;
+        private static byte[][] _sBoxesFourbit;
+
+
+
+
         private static int[] _bitCounts;
+        private static int[] _bitCounts10;
 
         static BitHelper()
         {
@@ -18,6 +30,36 @@ namespace EnderPi.SystemE
             {
                 _bitCounts[i] = CountOfOnesInByte(i);
             }
+            _bitCounts10 = new int[1024];
+            for (int i = 0; i < 1024; i++)
+            {
+                _bitCounts10[i] = CountOfOnesInInt(i);
+            }
+            _sBoxInputs = new ulong[64];
+            var rng = new EnderLcg();
+            rng.Seed(0);
+            var generator = new RandomNumberGenerator(rng);
+            for (int i=0; i <_sBoxInputs.Length; i++)
+            {
+                _sBoxInputs[i] = generator.Nextulong();
+            }
+            _sBoxesFourbit = new byte[16][];
+            _sBoxesFourbit[0] = new byte[16] { 10, 4, 5, 3, 1, 14, 6, 15, 11, 7, 8, 2, 12, 13, 9, 0 };
+            _sBoxesFourbit[1] = new byte[16] { 7, 3, 1, 8, 10, 11, 15, 13, 2, 5, 14, 4, 0, 12, 9, 6 };
+            _sBoxesFourbit[2] = new byte[16] { 5, 6, 2, 9, 14, 10, 12, 3, 15, 1, 13, 11, 7, 8, 0, 4 };
+            _sBoxesFourbit[3] = new byte[16] { 14, 13, 12, 6, 15, 3, 8, 4, 11, 0, 2, 10, 1, 5, 7, 9 };
+            _sBoxesFourbit[4] = new byte[16] { 5, 14, 15, 3, 13, 8, 9, 11, 7, 10, 1, 4, 12, 0, 2, 6 };
+            _sBoxesFourbit[5] = new byte[16] { 11, 4, 15, 7, 6, 2, 13, 3, 8, 14, 1, 0, 10, 5, 12, 9 };
+            _sBoxesFourbit[6] = new byte[16] { 5, 1, 7, 0, 2, 6, 12, 9, 15, 14, 3, 4, 10, 11, 13, 8 };
+            _sBoxesFourbit[7] = new byte[16] { 3, 10, 12, 8, 4, 2, 0, 11, 1, 15, 7, 6, 13, 14, 5, 9 };
+            _sBoxesFourbit[8] = new byte[16] { 13, 4, 5, 12, 11, 9, 15, 2, 14, 10, 3, 0, 7, 8, 6, 1 };
+            _sBoxesFourbit[9] = new byte[16] { 1, 2, 9, 5, 7, 14, 11, 4, 10, 0, 3, 6, 15, 8, 12, 13 };
+            _sBoxesFourbit[10] = new byte[16] { 6, 0, 7, 1, 13, 9, 3, 14, 5, 15, 11, 8, 10, 2, 12, 4 };
+            _sBoxesFourbit[11] = new byte[16] { 2, 12, 5, 6, 11, 15, 7, 3, 14, 4, 1, 10, 13, 0, 9, 8 };
+            _sBoxesFourbit[12] = new byte[16] { 7, 15, 12, 6, 2, 14, 5, 11, 4, 8, 10, 1, 13, 0, 9, 3 };
+            _sBoxesFourbit[13] = new byte[16] { 15, 2, 14, 10, 4, 8, 9, 13, 3, 12, 6, 5, 11, 1, 7, 0 };
+            _sBoxesFourbit[14] = new byte[16] { 9, 7, 10, 0, 8, 3, 14, 1, 11, 13, 12, 15, 5, 2, 6, 4 };
+            _sBoxesFourbit[15] = new byte[16] { 4, 0, 7, 9, 5, 10, 2, 12, 14, 6, 3, 1, 8, 11, 13, 15 };
         }
 
         private static int CountOfOnesInByte(int i)
@@ -32,6 +74,23 @@ namespace EnderPi.SystemE
             return count;
         }
 
+
+        public static int CountOfOnesIn10bit(int i)
+        {
+            return _bitCounts10[i];
+        }
+
+        private static int CountOfOnesInInt(int i)
+        {
+            int x = i;
+            int count = 0;
+            for (int j = 0; j < 32; j++)
+            {
+                count += x & 1;
+                x >>= 1;
+            }
+            return count;
+        }
 
 
         /// <summary>
@@ -169,5 +228,403 @@ namespace EnderPi.SystemE
             return bytes.Sum(y => _bitCounts[y]);
         }
 
+        public static int GetDifferentialUniformity(byte[] shiftedSbox, out double ave)
+        {
+            ave = 0;
+            int max = 0;
+            int counter = 0;
+            for (int i=0; i < 256;  i++)
+            {
+                for (int j = 1; j < 256; j++)
+                {
+                    //if (i == j) continue;
+                    counter++;
+                    int count = 0;
+                    for (int k = 0; k < 256; k++)
+                    {
+                        var dif = shiftedSbox[j ^ k] ^ shiftedSbox[k];
+                        if (dif == i)
+                        {
+                            count++;
+                        }
+                        
+                    }
+                    ave += count;
+                    max = Math.Max(max, count);
+                }
+            }
+            ave /= counter;
+            return max;
+        }
+
+        public static int GetDifferentialUniformityFourBit(byte[] shiftedSbox, out double ave)
+        {
+            ave = 0;
+            int max = 0;
+            int counter = 0;
+            for (int i = 0; i < 16; i++)
+            {
+                for (int j = 1; j < 16; j++)
+                {                    
+                    counter++;
+                    int count = 0;
+                    for (int k = 0; k < 16; k++)
+                    {
+                        var dif = shiftedSbox[j ^ k] ^ shiftedSbox[k];
+                        if (dif == i)
+                        {
+                            count++;
+                        }
+
+                    }
+                    ave += count;
+                    max = Math.Max(max, count);
+                }
+            }
+            ave /= counter;
+            return max;
+        }
+
+        /// <summary>
+        /// Approximation for 64x64 s boxes
+        /// </summary>
+        /// <param name="sBox"></param>
+        /// <param name="ave"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// So we can use input deltas of hamming weight 1, input values that are just random ulongs, then 
+        /// output deltas of what?
+        /// </remarks>
+        public static int GetDifferentialUniformity(ulong[] sBox, out double ave)
+        {
+            ave = 0;
+            int max = 0;
+            int counter = 0;
+            for (ulong outputDelta = 0; outputDelta < 256; outputDelta++)
+            {
+                for (int inputIndex = 1; inputIndex < 64; inputIndex++)
+                {
+                    ulong inputDelta = 1ul << inputIndex;                    
+                    counter++;
+                    int count = 0;
+                    for (int k = 0; k < _sBoxInputs.Length; k++)
+                    {
+                        ulong input = _sBoxInputs[k];
+                        var dif = sBox[inputDelta ^ input] ^ sBox[input];
+                        if (dif == outputDelta)
+                        {
+                            count++;
+                        }
+
+                    }
+                    ave += count;
+                    max = Math.Max(max, count);
+                }
+            }
+            ave /= counter;
+            return max;
+        }
+
+
+        public static int GetDifferentialUniformity10(int[] shiftedSbox, out double ave)
+        {
+            ave = 0;
+            int max = 0;
+            int counter = 0;
+            for (int i = 0; i < 1024; i++)
+            {
+                for (int j = 0; j < 1024; j++)
+                {
+                    if (i == j) continue;
+                    counter++;
+                    int count = 0;
+                    for (int k = 0; k < 1024; k++)
+                    {
+                        var dif = shiftedSbox[j ^ k] ^ shiftedSbox[k];
+                        if (dif == i)
+                        {
+                            count++;
+                        }
+
+                    }
+                    ave += count;
+                    max = Math.Max(max, count);
+                }
+            }
+            ave /= counter;
+            return max;
+        }
+
+        public static int GetLinearity(byte[] sBox, out double average)
+        {
+            int max = 0;
+            average = 0;
+            for (int i = 1; i < 256; i++)
+            {
+                for (int j = 1; j < 256; j++)
+                {
+                    //if (i == j) continue;
+                    int count = 0;
+                    for (int k = 0; k < 256; k++)
+                    {
+                        //var dif = sBox[j ^ k] ^ sBox[k];
+                        if ((CountOfOnesInByte(k & i) & 1) == (CountOfOnesInByte(sBox[k] & j) & 1))
+                        {
+                            count++;
+                        }
+
+                    }
+                    count = Math.Abs(128 - count);
+                    average += count;
+                    max = Math.Max(max, count);
+                }
+            }
+            average /= (255.0 * 255.0);
+            return max;
+        }
+
+        public static int GetLinearityFourBit(byte[] sBox, out double average)
+        {
+            int max = 0;
+            average = 0;
+            for (int i = 1; i < 16; i++)
+            {
+                for (int j = 1; j < 16; j++)
+                {
+                    //if (i == j) continue;
+                    int count = 0;
+                    for (int k = 0; k < 16; k++)
+                    {                        
+                        if ((CountOfOnesInByte(k & i) & 1) == (CountOfOnesInByte(sBox[k] & j) & 1))
+                        {
+                            count++;
+                        }
+
+                    }
+                    count = Math.Abs(8 - count);
+                    average += count;
+                    max = Math.Max(max, count);
+                }
+            }
+            average /= (15.0 * 15.0);
+            return max;
+        }
+
+        private static ushort[] ComposeSBoxes(List<byte[]> sBoxes)
+        {
+            if (sBoxes == null || sBoxes.Count < 2 || sBoxes.Count % 2 != 0)
+            {
+                throw new ArgumentException("Invalid input: The input list must contain at least two 8-bit s-boxes and must have an even number of s-boxes.");
+            }
+
+            int numSBoxes = sBoxes.Count / 2;
+            ushort[] composedSBox = new ushort[65536];
+            var SBoxTable = sBoxes[2];
+
+            for (ushort x = 0; x < 256; x++)
+            {
+                ushort[] y = new ushort[256];
+                ushort[] z = new ushort[256];
+
+                for (ushort i = 0; i < numSBoxes; i++)
+                {
+                    byte[] sBox1 = sBoxes[2 * i];
+                    byte[] sBox2 = sBoxes[2 * i + 1];
+
+                    byte x1 = (byte)(x >> 4);
+                    byte x2 = (byte)(x & 0x0f);
+
+                    byte y1 = sBox1[x1];
+                    byte y2 = sBox2[x2];
+
+                    y[i] = (ushort)((y1 << 4) | y2);
+                }
+
+                // Compute the Walsh-Hadamard transform of y
+                for (ushort i = 0; i < numSBoxes; i++)
+                {
+                    for (ushort j = 0; j < 256; j++)
+                    {
+                        ushort sign = (ushort)((j >> i) & 1);
+                        z[j] += (sign == 0) ? y[i] : (ushort)(~y[i] + 1);
+                    }
+                }
+
+                // Compute the output s-box value for each x using the Walsh-Hadamard coefficients in z
+                for (ushort i = 0; i < 256; i++)
+                {
+                    ushort y1 = SBoxTable[(z[i] >> 8) & 0xff];
+                    ushort y2 = SBoxTable[z[i] & 0xff];
+
+                    composedSBox[(x << 8) | i] = (ushort)((y1 << 8) | y2);
+                }
+            }
+
+            return composedSBox;
+        }
+
+        public static int GetLinearity10(Func<ulong,ulong> f, out double average)
+        {
+            int[] sbox = new int[1024];
+            for (int i=0; i <1024; i++)
+            {
+                sbox[i] = (int)(f((ulong)i) & 1023ul);
+            }
+            var result = GetLinearity10(sbox, out average);
+            return result;
+        }
+
+        public static int GetDu10(Func<ulong, ulong> f, out double average)
+        {
+            int[] sbox = new int[1024];
+            for (int i = 0; i < 1024; i++)
+            {
+                sbox[i] = (int)(f((ulong)i) & 1023ul);
+            }
+            var result = GetDifferentialUniformity10(sbox, out average);
+            return result;
+        }
+
+
+        public static int GetLinearity10(int[] sBox, out double average)
+        {
+            int max = 0;
+            average = 0;
+            for (int i = 1; i < 1024; i++)
+            {
+                for (int j = 1; j < 1024; j++)
+                {
+                    //if (i == j) continue;
+                    int count = 0;
+                    for (int k = 0; k < 1024; k++)
+                    {
+                        //var dif = sBox[j ^ k] ^ sBox[k];
+                        if ((CountOfOnesIn10bit(k & i) & 1) == (CountOfOnesIn10bit(sBox[k] & j) & 1))
+                        {
+                            count++;
+                        }
+
+                    }
+                    count = Math.Abs(512 - count);
+                    average += count;
+                    max = Math.Max(max, count);
+                }
+            }
+            average /= (1023.0 * 1023.0);
+            return max;
+        }
+
+
+
+        public static int GetDifferentialAverage(byte[] shiftedSbox)
+        {
+            int max = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                for (int j = 0; j < 256; j++)
+                {
+                    int count = 0;
+                    for (int k = 0; k < 256; k++)
+                    {
+                        var dif = shiftedSbox[j ^ k] ^ shiftedSbox[k];
+                        if (dif == i)
+                        {
+                            count++;
+                        }
+
+                    }
+                    max += count;
+                }
+            }
+            return max / 65536;
+        }
+
+        //Characterizing a 64x64 bit s-box as 64 8x8 s-boxes?  That is, each output byte and each input byte.  Not very useful imho.
+        public static string CharacterizeSbox(Func<ulong, ulong> f)
+        {
+            var sb = new StringBuilder();
+            List<int> linearity= new List<int>(256);
+            List<int> differentialUniformity = new List<int>(256);
+            for (int i=0; i < 64; i+=8)
+            {
+                for (int j=0; j < 64; j+=8)
+                {
+                    var sbox = new byte[256];
+                    for (int k=0; k < 256; k++)
+                    {
+                        ulong input = (ulong)k << i;
+                        byte output = (byte)((f(input) >> j) & 0xff);
+                        sbox[k] = output;
+                    }
+                    var lin = GetLinearity(sbox, out double averageLin);
+                    var du = GetDifferentialUniformity(sbox, out double averageDu);
+                    linearity.Add(lin);
+                    differentialUniformity.Add(du);
+                }
+            }
+            sb.AppendLine($"Linearity - {linearity.Max()}");
+            sb.AppendLine($"Linearity Range - {linearity.Max() - linearity.Min()}");
+            sb.AppendLine($"Differential Uniformity - {differentialUniformity.Max()}");
+            sb.AppendLine($"Differential Uniformity Range - {differentialUniformity.Max() - differentialUniformity.Min()}");
+            
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Does with a feistel construction.
+        /// </summary>
+        /// <param name="rounds"></param>
+        /// <returns></returns>
+        public static byte[] Get8BitSBoxFrom4Bit(int rounds)
+        {
+            byte[] result = new byte[256];
+            for (int i=0; i < 256; i++)
+            {
+                byte left = (byte)((i >> 4) & 15);
+                byte right = (byte)(i & 15);
+                byte temp;
+                for (int j = 0; j < rounds; j++)
+                {
+                    temp = right;
+                    right = (byte)(left ^ _sBoxesFourbit[j][right ^ ((j+1) & 15)]);//Hash(right, _constants[i]);
+                    left = temp;
+                }
+                result[i] = (byte)(left << 4 | right);
+
+            }
+            return result;
+        }
+
+
+        public static UInt16 RotateLeft(UInt16 x, int y)
+        {
+            return (UInt16)((x << y) | (x >> (16-y)));
+        }
+
+        public static UInt16 RotateRight(UInt16 x, int y)
+        {
+            return (UInt16)((x >> y) | (x << (16 - y)));
+        }
+
+
+        public readonly static byte[] _SBox =
+            {
+                0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
+                0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
+                0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15,
+                0x04, 0xC7, 0x23, 0xC3, 0x18, 0x96, 0x05, 0x9A, 0x07, 0x12, 0x80, 0xE2, 0xEB, 0x27, 0xB2, 0x75,
+                0x09, 0x83, 0x2C, 0x1A, 0x1B, 0x6E, 0x5A, 0xA0, 0x52, 0x3B, 0xD6, 0xB3, 0x29, 0xE3, 0x2F, 0x84,
+                0x53, 0xD1, 0x00, 0xED, 0x20, 0xFC, 0xB1, 0x5B, 0x6A, 0xCB, 0xBE, 0x39, 0x4A, 0x4C, 0x58, 0xCF,
+                0xD0, 0xEF, 0xAA, 0xFB, 0x43, 0x4D, 0x33, 0x85, 0x45, 0xF9, 0x02, 0x7F, 0x50, 0x3C, 0x9F, 0xA8,
+                0x51, 0xA3, 0x40, 0x8F, 0x92, 0x9D, 0x38, 0xF5, 0xBC, 0xB6, 0xDA, 0x21, 0x10, 0xFF, 0xF3, 0xD2,
+                0xCD, 0x0C, 0x13, 0xEC, 0x5F, 0x97, 0x44, 0x17, 0xC4, 0xA7, 0x7E, 0x3D, 0x64, 0x5D, 0x19, 0x73,
+                0x60, 0x81, 0x4F, 0xDC, 0x22, 0x2A, 0x90, 0x88, 0x46, 0xEE, 0xB8, 0x14, 0xDE, 0x5E, 0x0B, 0xDB,
+                0xE0, 0x32, 0x3A, 0x0A, 0x49, 0x06, 0x24, 0x5C, 0xC2, 0xD3, 0xAC, 0x62, 0x91, 0x95, 0xE4, 0x79,
+                0xE7, 0xC8, 0x37, 0x6D, 0x8D, 0xD5, 0x4E, 0xA9, 0x6C, 0x56, 0xF4, 0xEA, 0x65, 0x7A, 0xAE, 0x08,
+                0xBA, 0x78, 0x25, 0x2E, 0x1C, 0xA6, 0xB4, 0xC6, 0xE8, 0xDD, 0x74, 0x1F, 0x4B, 0xBD, 0x8B, 0x8A,
+                0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E, 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E,
+                0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF,
+                0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16
+            };
     }
 }

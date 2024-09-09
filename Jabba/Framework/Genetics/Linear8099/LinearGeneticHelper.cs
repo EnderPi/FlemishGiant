@@ -87,6 +87,8 @@ namespace EnderPi.Genetics.Linear8099
                     return ParseRmu(parsedLine);
                 case Machine8099Grammar.Loop:
                     return ParseLop(parsedLine);
+                case Machine8099Grammar.MultiplyHigh:
+                    return ParseMulx(parsedLine);
                 default:
                     throw new Exception($"Couldn't parse line, invalid command! - {parsedLine.Command}");
             }
@@ -109,7 +111,11 @@ namespace EnderPi.Genetics.Linear8099
             if (parameters.Count == 3 && parameters[0].IsRegister && parameters[1].IsInt && parameters[2].IsUlong)
             {
                 return new RomuConstantConstant((int)parameters[0].Register, parameters[1].IntConstant, parameters[2].UlongConstant);
-            }            
+            }
+            if (parameters.Count == 3 && parameters[0].IsRegister && parameters[1].IsRegister && parameters[2].IsUlong)
+            {
+                return new RomuRegisterConstant((int)parameters[0].Register, (int)parameters[1].Register, parameters[2].UlongConstant);
+            }
             throw new NotImplementedException();
         }
 
@@ -295,6 +301,20 @@ namespace EnderPi.Genetics.Linear8099
             if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
             {
                 return new MultiplyConstant((int)parameters[0].Register, parameters[1].UlongConstant);
+            }
+            throw new NotImplementedException();
+        }
+
+        private static Command8099 ParseMulx(TokenizedCommand8099Line line)
+        {
+            var parameters = line.Parameters;
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsRegister)
+            {
+                return new MultiplyRegisterHigh((int)parameters[0].Register, (int)parameters[1].Register);
+            }
+            if (parameters.Count == 2 && parameters[0].IsRegister && parameters[1].IsUlong)
+            {
+                return new MultiplyConstantHigh((int)parameters[0].Register, parameters[1].UlongConstant);
             }
             throw new NotImplementedException();
         }

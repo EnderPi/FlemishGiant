@@ -21,12 +21,12 @@ namespace UnitTest.Framework.Cryptography
                 var bytesTocipher = Encoding.Default.GetBytes(s);
                 var nonce = Guid.NewGuid().ToByteArray();
                 string pw = "andsmfjeiwqkldkfiugioeowjsdnfghnruuejwjsnndjnfutfioiakolakqk";
-                var encrypted = cipher.Encrypt(bytesTocipher, Encoding.Default.GetBytes(pw), nonce);
+                var encrypted = EnderCryption.Encrypt(bytesTocipher, Encoding.Default.GetBytes(pw), nonce);
                 Assert.IsTrue(bytesTocipher.Length == encrypted.Length);
                 Assert.IsTrue(BitHelper.BitsDifferent(bytesTocipher, encrypted) > (bytesTocipher.Length*8/3));
                 string p = Encoding.Default.GetString(encrypted);
                 Assert.IsTrue(!string.Equals(s, p));
-                var unencrypted = cipher.Encrypt(encrypted, Encoding.Default.GetBytes(pw), nonce);
+                var unencrypted = EnderCryption.Encrypt(encrypted, Encoding.Default.GetBytes(pw), nonce);
                 string roundTrip = Encoding.Default.GetString(unencrypted);
                 Assert.IsTrue(string.Equals(s, roundTrip));
             }
@@ -39,9 +39,9 @@ namespace UnitTest.Framework.Cryptography
             var bytesTocipher = new byte[1024 * 1024];
             var nonce = Guid.NewGuid().ToByteArray();
             string pw = "andsmfjeiwqkldkfiugioeowjsdnfghnruuejwjsnndjnfutfioiakolakqk";
-            var encrypted = cipher.Encrypt(bytesTocipher, Encoding.Default.GetBytes(pw), nonce);
+            var encrypted = EnderCryption.Encrypt(bytesTocipher, Encoding.Default.GetBytes(pw), nonce);
             Assert.IsTrue(bytesTocipher.Length == encrypted.Length);
-            _ = cipher.Encrypt(encrypted, Encoding.Default.GetBytes(pw), nonce);
+            _ = EnderCryption.Encrypt(encrypted, Encoding.Default.GetBytes(pw), nonce);
         }
 
 

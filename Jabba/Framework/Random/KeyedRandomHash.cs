@@ -10,16 +10,16 @@ namespace EnderPi.Random
     {
         private ulong _state;
 
-        private PseudoRandomFunction _function;
+        private PseudorandomPermutation _function;
 
         public KeyedRandomHash(ulong key)
         {
-            _function = new PseudoRandomFunction(key);
+            _function = new PseudorandomPermutation(key);
         }
         
         public KeyedRandomHash(uint[] keyStream)
         {
-            _function = new PseudoRandomFunction(keyStream);
+            _function = new PseudorandomPermutation(keyStream);
         }
 
         public ulong Nextulong()

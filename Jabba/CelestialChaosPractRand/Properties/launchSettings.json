@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CelestialChaosPractRand": {
+      "commandName": "Project",
+      "commandLineArgs": "sha32 -d1"
+    }
+  }
+}

@@ -192,7 +192,7 @@ namespace EnderPi.Cryptography
             for (int i=0; i < (paddedInput.Length / (8 * _blockSize)); i++)
             {                
                 _state[0] ^= BitConverter.ToUInt64(paddedInput, i * 8);
-                StirPool(1);
+                StirPool(4);
             }
         }
 

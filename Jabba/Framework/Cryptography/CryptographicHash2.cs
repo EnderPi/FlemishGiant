@@ -3,7 +3,7 @@
 namespace EnderPi.Cryptography
 {
     /// <summary>
-    /// A cryptographic hash that uses very strong S-boxes internally.
+    /// A cryptographic hash that uses very strong S-boxes (PRFs) internally.
     /// </summary>
     public class CryptographicHash2
     {
@@ -15,7 +15,7 @@ namespace EnderPi.Cryptography
         /// <summary>
         /// A set of S-boxes that make up the internal round function.
         /// </summary>        
-        private static readonly PseudoRandomFunction[] _functions;
+        private static readonly PseudorandomPermutation[] _functions;
 
         /// <summary>
         /// This is an arbitrary initial state.
@@ -62,10 +62,10 @@ namespace EnderPi.Cryptography
 
         static CryptographicHash2()
         {
-            _functions = new PseudoRandomFunction[64];
+            _functions = new PseudorandomPermutation[64];
             for (uint i=0; i < _functions.Length; i++)
             {
-                _functions[i] = new PseudoRandomFunction(i);
+                _functions[i] = new PseudorandomPermutation(i);
             }
         }
 
