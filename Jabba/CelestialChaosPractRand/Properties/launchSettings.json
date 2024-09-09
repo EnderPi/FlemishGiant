@@ -2,7 +2,7 @@
   "profiles": {
     "CelestialChaosPractRand": {
       "commandName": "Project",
-      "commandLineArgs": "bits32 -r3 -d0"
+      "commandLineArgs": "sha32 -d1"
     }
   }
 }

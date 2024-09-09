@@ -11,7 +11,34 @@ namespace CelestialChaosPractRand
     {
         static void Main(string[] args)
         {
-            if (args.Length != 0 && string.Compare(args[0], "spectrum", StringComparison.OrdinalIgnoreCase) == 0)
+            if (args.Length != 0 && string.Compare(args[0], "sha32", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                int differentialOffset = 0;
+                bool isDifferential = false;
+                var diffArg = args.FirstOrDefault(x => x.StartsWith("-d"));
+                if (diffArg != null)
+                {
+                    isDifferential = true;
+                    differentialOffset = int.Parse(diffArg.Substring(2));
+                }                
+                File.AppendAllText("C:\\Users\\Adam\\Documents\\Random\\Hash\\ChaosRunRecord.txt", $"Running Chaos Oracle In bits 32 Mode {DateTime.Now} with differential ={isDifferential}, and differentialOffset={differentialOffset}" + Environment.NewLine);
+                var generator = new Sha256Tester32bit(isDifferential, differentialOffset);
+                using (Stream myOutStream = Console.OpenStandardOutput())
+                {
+                    ulong[] randomData = new ulong[1024];
+                    byte[] randomBytes = new byte[1024 * 8];
+                    while (true)
+                    {
+                        for (int i = 0; i < randomData.Length; i++)
+                        {
+                            randomData[i] = generator.Next();
+                        }
+                        Buffer.BlockCopy(randomData, 0, randomBytes, 0, randomBytes.Length);
+                        myOutStream.Write(randomBytes, 0, randomData.Length * 8);
+                    }
+                }
+            } 
+            else if (args.Length != 0 && string.Compare(args[0], "spectrum", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 File.AppendAllText("C:\\Users\\Adam\\Documents\\Random\\Hash\\ChaosRunRecord.txt", $"Running Chaos Oracle In Spectrum Mode {DateTime.Now}" + Environment.NewLine);
                 EnderLcg lcg = new EnderLcg();
@@ -198,6 +225,21 @@ namespace CelestialChaosPractRand
                 Console.WriteLine($"Generated {max} numbers in {sw.ElapsedMilliseconds} milliseconds, {numsPerSecond} numbers per second or {numsPerSecond*8} bytes per second");
                 Console.ReadKey();
             }
+            else if (args.Length != 0 && string.Compare(args[0], "speedtestmulti", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                ulong seed = BitConverter.ToUInt64(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8));
+                ulong sum = 0;
+                var sw = Stopwatch.StartNew();
+                ulong max = 1000000000;
+                for (ulong i = 0; i < max; i++)
+                {
+                    sum += ChaosOracleFast.BlendIntegers(seed, i);
+                }
+                sw.Stop();
+                ulong numsPerSecond = 1000 * max / Convert.ToUInt64(sw.ElapsedMilliseconds);
+                Console.WriteLine($"Generated {max} numbers in {sw.ElapsedMilliseconds} milliseconds, {numsPerSecond} numbers per second or {numsPerSecond * 8} bytes per second");
+                Console.ReadKey();
+            }
             else if (args.Length != 0 && string.Compare(args[0], "speedtestpcg", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 ulong seed = BitConverter.ToUInt64(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8));
@@ -220,7 +262,7 @@ namespace CelestialChaosPractRand
                 File.AppendAllText("C:\\Users\\Adam\\Documents\\Random\\Hash\\ChaosRunRecord.txt", $"Running Chaos Oracle In Derp Mode {DateTime.Now}" + Environment.NewLine);                
                 ulong state = 0;
                 using (Stream myOutStream = Console.OpenStandardOutput())
-                {
+                {                    
                     ulong[] randomData = new ulong[1024];
                     byte[] randomBytes = new byte[1024 * 8];
                     while (true)

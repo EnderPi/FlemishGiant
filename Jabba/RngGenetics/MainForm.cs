@@ -335,7 +335,7 @@ namespace RngGenetics
                 }
                 var sBoxObject = new SboxFourBits() { Sbox = sb2.ToString(), DifferentialUniformity = du, Linearity = lin };
                 using (var context = new EFCoreTestContext())
-                {
+                {                    
                     context.Add(sBoxObject);
                     context.SaveChanges();
                 }
